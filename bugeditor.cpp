@@ -10,13 +10,15 @@
 #include "bugeditor.h"
 #include "bugmanager.h"
 #include "bugoperations.h"
+#include "markdown.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
+#include "tools/OriSettings.h"
 
-#define PROP_SPACING    6
+#define PROP_SPACING    Ori::Gui::defaultSpacing(1)
 
 #define MODE_APPEND     0
 #define MODE_EDIT       1
@@ -64,8 +66,6 @@ void BugEditor::edit(QWidget *parent, int id)
     qApp->setActiveWindow(wnd);
 }
 
-QByteArray __BugEditor_storedGeometry;
-
 BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
 {
     tableModel = new QSqlTableModel(this);
@@ -73,6 +73,7 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
 
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Tool);
+    setObjectName("BugEditor");
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
@@ -99,72 +100,51 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
     Ori::Gui::adjustFont(textSummary);
     Ori::Gui::adjustFont(textExtra);
 
-    QVBoxLayout *layoutProps = new QVBoxLayout;
-    layoutProps->setSpacing(3);
+    auto layoutProps = Ori::Gui::layoutV(
+    {
+                        columnTitle(COL_CREATED), dateCreated, PROP_SPACING,
+                        columnTitle(COL_UPDATED), dateUpdated, PROP_SPACING,
+        labelStatus =   columnTitle(COL_STATUS), comboStatus, PROP_SPACING,
+                        columnTitle(COL_SEVERITY), comboSeverity, PROP_SPACING,
+                        columnTitle(COL_CATEGORY), comboCategory, PROP_SPACING,
+                        columnTitle(COL_PRIORITY), comboPriority, PROP_SPACING,
+        labelSolution = columnTitle(COL_SOLUTION), comboSolution, PROP_SPACING,
+                        columnTitle(COL_REPEAT), comboRepeat,
+        0
+    });
 
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_CREATED)));
-    layoutProps->addWidget(dateCreated);
-    layoutProps->addSpacing(PROP_SPACING);
+    auto layoutText = Ori::Gui::layoutV(
+    {
+        columnTitle(COL_SUMMARY),
+        textSummary,
+        PROP_SPACING,
+        columnTitle(COL_EXTRA),
+        textExtra,
+        Ori::Gui::layoutH(0, 0, {0, Markdown::makeHintLabel()}),
+        PROP_SPACING,
+        buttons
+    });
 
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_UPDATED)));
-    layoutProps->addWidget(dateUpdated);
-    layoutProps->addSpacing(PROP_SPACING);
+    setLayout(Ori::Gui::layoutH(
+    {
+          layoutProps,
+          Ori::Gui::defaultSpacing(3),
+          layoutText
+    }));
 
-    layoutProps->addWidget(labelStatus = new QLabel(BugManager::columnTitle(COL_STATUS)));
-    layoutProps->addWidget(comboStatus);
-    layoutProps->addSpacing(PROP_SPACING);
-
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_SEVERITY)));
-    layoutProps->addWidget(comboSeverity);
-    layoutProps->addSpacing(PROP_SPACING);
-
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_CATEGORY)));
-    layoutProps->addWidget(comboCategory);
-    layoutProps->addSpacing(PROP_SPACING);
-
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_PRIORITY)));
-    layoutProps->addWidget(comboPriority);
-    layoutProps->addSpacing(PROP_SPACING);
-
-    layoutProps->addWidget(labelSolution = new QLabel(BugManager::columnTitle(COL_SOLUTION)));
-    layoutProps->addWidget(comboSolution);
-    layoutProps->addSpacing(PROP_SPACING);
-
-    layoutProps->addWidget(new QLabel(BugManager::columnTitle(COL_REPEAT)));
-    layoutProps->addWidget(comboRepeat);
-    layoutProps->addStretch();
-
-
-    QVBoxLayout *layoutText = new QVBoxLayout;
-    layoutText->setSpacing(3);
-
-    layoutText->addWidget(new QLabel(BugManager::columnTitle(COL_SUMMARY)));
-    layoutText->addWidget(textSummary);
-    layoutText->addSpacing(PROP_SPACING);
-
-    layoutText->addWidget(new QLabel(BugManager::columnTitle(COL_EXTRA)));
-    layoutText->addWidget(textExtra);
-    layoutText->addSpacing(PROP_SPACING);
-
-
-    QGridLayout *layoutMain = new QGridLayout(this);
-    layoutMain->setHorizontalSpacing(24);
-    layoutMain->addLayout(layoutProps, 0, 0);
-    layoutMain->addLayout(layoutText, 0, 1);
-    layoutMain->addWidget(buttons, 1, 1);
-    setLayout(layoutMain);
-
-    if (!__BugEditor_storedGeometry.isEmpty())
-        restoreGeometry(__BugEditor_storedGeometry);
-    else resize(800, 480);
+    Ori::Settings::restoreWindow(this, QSize(800, 480));
 
     textSummary->setFocus();
 }
 
 BugEditor::~BugEditor()
 {
-    __BugEditor_storedGeometry = saveGeometry();
-    __BugEditor_openedWindows.remove(currentId);
+    Ori::Settings::storeWindow(this);
+}
+
+QLabel* BugEditor::columnTitle(int columnId)
+{
+    return new QLabel(BugManager::columnTitle(columnId));
 }
 
 void BugEditor::reject()

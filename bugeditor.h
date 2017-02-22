@@ -54,6 +54,7 @@ private:
     QString initEdit(int id);
     QString saveNew();
     QString saveEdit();
+    QLabel* columnTitle(int columnId);
 };
 
 #endif // BUG_EDITOR_H

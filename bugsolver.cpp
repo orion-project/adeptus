@@ -10,6 +10,7 @@
 #include "bugsolver.h"
 #include "bugmanager.h"
 #include "bugoperations.h"
+#include "markdown.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
 #include "helpers/OriDialogs.h"
@@ -166,6 +167,7 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     layoutMain->addSpacing(6);
     layoutMain->addWidget(new QLabel(tr("Comment")));
     layoutMain->addWidget(textComment);
+    layoutMain->addLayout(Ori::Gui::layoutH(0, 0, {0, Markdown::makeHintLabel()}));
     layoutMain->addSpacing(12);
     layoutMain->addWidget(buttons);
     setLayout(layoutMain);

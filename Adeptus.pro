@@ -12,9 +12,10 @@ else: TARGET = adeptus
 TEMPLATE = app
 DESTDIR = $$_PRO_FILE_PWD_/bin
 
-exists("../orion/orion.pri"): include("../orion/orion.pri")
-else: exists("../Orion.Qt/orion.pri"): include("../Orion.Qt/orion.pri")
-else: exists("../orion-qt/orion.pri"): include("../orion-qt/orion.pri")
+exists("../orion/orion.pri") { ORION="../orion/" }
+else: exists("../Orion.Qt/orion.pri") { ORION="../Orion.Qt/" }
+else: exists("../orion-qt/orion.pri") { ORION="../orion-qt/" }
+include($$ORION"orion.pri")
 
 SOURCES += main.cpp\
     mainwindow.cpp \
@@ -35,7 +36,8 @@ SOURCES += main.cpp\
     bugtypes.cpp \
     ImageViewWindow.cpp \
     SqlBugProvider.cpp \
-    SqlHelpers.cpp
+    SqlHelpers.cpp \
+    markdown.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -55,7 +57,8 @@ HEADERS  += mainwindow.h \
     bugtypes.h \
     ImageViewWindow.h \
     SqlBugProvider.h \
-    SqlHelpers.h
+    SqlHelpers.h \
+    markdown.h
 
 RESOURCES = images.qrc
 
