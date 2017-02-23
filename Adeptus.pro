@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     SqlBugProvider.cpp \
     SqlHelpers.cpp \
     markdown.cpp \
-    browsercommands.cpp
+    browsercommands.cpp \
+    guiactions.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -60,7 +61,8 @@ HEADERS  += mainwindow.h \
     SqlBugProvider.h \
     SqlHelpers.h \
     markdown.h \
-    browsercommands.h
+    browsercommands.h \
+    guiactions.h
 
 RESOURCES = images.qrc
 

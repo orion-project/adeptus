@@ -214,7 +214,7 @@ QString BugHistory::formatRelations()
             title += QString("(%1) ").arg(status) %
                 BrowserCommands::showRelated().format(relatedId, sanitizeHtml(bug.summary));
             moment = formatMoment(bug.created);
-            command = BrowserCommands::delRelated().format(relatedId, "<img src=':/tools/delete'>");
+            command = BrowserCommands::delRelated().format(_id, relatedId, "<img src=':/tools/delete'>");
         }
         else title += formatError(res.error());
 
@@ -340,33 +340,22 @@ void BugHistory::linkClicked(const QUrl& url)
             emit operationRequest(BugManager::Operation_MakeRelation, 0);
 
         else if (BrowserCommands::showText() == cmd)
-            showChangedText(BrowserCommands::showText().argInt(url));
-
-        else if (BrowserCommands::delRelated() == cmd)
-            deleteRelation(BrowserCommands::delRelated().argInt(url));
-
-        else if (BrowserCommands::showRelated() == cmd)
-            emit operationRequest(BugManager::Operation_Show, BrowserCommands::showRelated().argInt(url));
-
-        else if (BrowserCommands::showImage() == cmd)
-            BrowserCommands::showImage().exec(url);
-
-        else if (BrowserCommands::getFile() == cmd)
-            BrowserCommands::getFile().exec(url);
+            showChangedText(BrowserCommands::showText().arg1Int(url));
 
         else if (BrowserCommands::showAllRelations() == cmd)
             setShowOnlyOpenedRelations(false);
 
         else if (BrowserCommands::showOpenedRelations() == cmd)
             setShowOnlyOpenedRelations(true);
+
+        else
+            BrowserCommands::processCommand(url);
     }
 }
 
 void BugHistory::linkHovered(const class QUrl& url)
 {
-    QString tooltip;
-    if (url.scheme() == "cmd")
-        tooltip = BrowserCommands::getHint(url.host());
+    QString tooltip = BrowserCommands::getHint(url);
     if (!tooltip.isEmpty())
         QToolTip::showText(QCursor::pos(), tooltip);
     else
@@ -402,21 +391,6 @@ void BugHistory::showChangedText(int id)
     dlg.exec();
 }
 
-void BugHistory::deleteRelation(int id)
-{
-    if (Ori::Dlg::yes(tr("Delete relation [#%1 - #%2]?").arg(_id).arg(id)))
-    {
-        QString res = BugManager::deleteRelation(_id, id);
-        if (!res.isEmpty())
-        {
-            Ori::Dlg::error(res);
-            return;
-        }
-        populate();
-        emit operationRequest(BugManager::Operation_Update, id);
-    }
-}
-
 void BugHistory::setFocus()
 {
     contentView->setFocus();
@@ -440,9 +414,3 @@ void BugHistory::setShowOnlyOpenedRelations(bool on)
     _showOnlyOpenedRelations = on;
     populate();
 }
-
-
-
-
-
-

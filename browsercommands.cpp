@@ -5,6 +5,7 @@
 
 #include "browsercommands.h"
 #include "bugmanager.h"
+#include "guiactions.h"
 #include "ImageViewWindow.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriTools.h"
@@ -16,25 +17,48 @@ QString Command::format(const QString& title) const
     return QString("<a href='cmd://%1'>%2</a>").arg(_cmd, title);
 }
 
-QString Command::format(const QString& arg, const QString& title) const
+QString Command::format(const QString& arg1, const QString& title) const
 {
-    return QString("<a href='cmd://%1?%2=%3'>%4</a>").arg(_cmd, _arg, arg, title);
+    return QString("<a href='cmd://%1?%2=%3'>%4</a>").arg(_cmd, _arg1, arg1, title);
 }
 
-QString Command::format(int arg, const QString& title) const
+QString Command::format(const QString& arg1, const QString& arg2, const QString& title) const
 {
-    return format(QString::number(arg), title);
+    return QString("<a href='cmd://%1?%2=%3&%4=%5'>%6</a>").arg(_cmd, _arg1, arg1, _arg2, arg2, title);
 }
 
-int Command::argInt(const QUrl& url) const
-{
-    return Ori::Tools::getParamInt(url, _arg);
-}
+QString Command::format(int arg1, const QString& title) const { return format(QString::number(arg1), title); }
+QString Command::format(int arg1, int arg2, const QString& title) const { return format(QString::number(arg1), QString::number(arg2), title); }
+int Command::arg1Int(const QUrl& url) const { return Ori::Tools::getParamInt(url, _arg1); }
+int Command::arg2Int(const QUrl& url) const { return Ori::Tools::getParamInt(url, _arg2); }
+QString Command::arg1Str(const QUrl& url) const { return Ori::Tools::getParamStr(url, _arg1); }
+QString Command::arg2Str(const QUrl& url) const { return Ori::Tools::getParamStr(url, _arg2); }
 
-QString Command::argStr(const QUrl& url) const
+//-----------------------------------------------------------------------------
+
+class CommandShowRelated : public Command
 {
-    return Ori::Tools::getParamStr(url, _arg);
-}
+public:
+    CommandShowRelated(const QString& cmd, const QString& arg) : Command(cmd, arg) {}
+
+    void exec(const QUrl& url) const override
+    {
+        GuiActions::showIssue(arg1Int(url));
+    }
+};
+
+//-----------------------------------------------------------------------------
+
+class CommandDelRelated : public Command
+{
+public:
+    CommandDelRelated(const QString& cmd, const QString& arg1, const QString& arg2) : Command(cmd, arg1, arg2) {}
+
+    void exec(const QUrl& url) const override
+    {
+        GuiActions::deleteRelation(arg1Int(url), arg2Int(url));
+    }
+};
 
 //-----------------------------------------------------------------------------
 
@@ -45,7 +69,7 @@ public:
 
     void exec(const QUrl& url) const override
     {
-        showImage(argStr(url));
+        showImage(arg1Str(url));
     }
 
     void showImage(const QString& fileName) const
@@ -67,7 +91,7 @@ public:
 
     void exec(const QUrl& url) const override
     {
-        processFileLink(argStr(url));
+        processFileLink(arg1Str(url));
     }
 
     void processFileLink(const QString &fileName) const
@@ -113,16 +137,32 @@ const Command& copySummary() { static Command c("copysummary");  return c; }
 const Command& showText() { static Command c("showtext", "id");  return c; }
 const Command& addComment() { static Command c("addcomment");  return c; }
 const Command& makeRelation() { static Command c("makerelation");  return c; }
-const Command& showRelated() { static Command c("showrelated", "id"); return c; }
-const Command& delRelated() { static Command c("delrelated", "id"); return c; }
+const Command& showRelated() { static CommandShowRelated c("showrelated", "id"); return c; }
+const Command& delRelated() { static CommandDelRelated c("delrelated", "id1", "id2"); return c; }
 const Command& showImage() { static CommandShowImage c("showimage", "file"); return c; }
 const Command& getFile() { static CommandGetFile c("getfile", "file"); return c; }
 const Command& showAllRelations() { static Command c("showallrels"); return c; }
 const Command& showOpenedRelations() { static Command c("showopenrels"); return c; }
 
-
-QString getHint(const QString& cmd)
+QString getCommand(const QUrl& url)
 {
+    return (url.scheme() == "cmd")? url.host(): QString();
+}
+
+void processCommand(const QUrl& url)
+{
+    QString cmd = getCommand(url);
+    // TODO put commands to list and iterate over
+    if (delRelated() == cmd) return delRelated().exec(url);
+    if (showRelated() == cmd) return showRelated().exec(url);
+    if (showImage() == cmd) return showImage().exec(url);
+    if (getFile() == cmd) return getFile().exec(url);
+}
+
+QString getHint(const QUrl& url)
+{
+    QString cmd = getCommand(url);
+    // TODO put commands to list and iterate over
     if (copySummary() == cmd) return qApp->tr("Copy number and summary to the clipboard");
     if (showText() == cmd) return qApp->tr("Show text changes");
     if (delRelated() == cmd) return qApp->tr("Delete relation");

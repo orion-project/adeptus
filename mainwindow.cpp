@@ -16,6 +16,7 @@
 #include "bughistory.h"
 #include "dicteditor.h"
 #include "bugoperations.h"
+#include "guiactions.h"
 #include "prefseditor.h"
 #include "preferences.h"
 #include "issuetable.h"
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(BugOperations::instance(), SIGNAL(bugChanged(int)), this, SLOT(updateView(int)));
     connect(BugOperations::instance(), SIGNAL(bugAdded(int)), this, SLOT(bugAdded(int)));
+    connect(GuiActions::instance(), SIGNAL(operationRequest(int,int)), this, SLOT(processBug(int,int)));
 }
 
 MainWindow::~MainWindow()

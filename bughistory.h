@@ -51,7 +51,6 @@ private:
     QString processWikiTags(const QString& s);
 
     void showChangedText(int id);
-    void deleteRelation(int id);
     void scrollToEnd();
     void setShowOnlyOpenedRelations(bool on);
 
