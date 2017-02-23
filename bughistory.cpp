@@ -19,7 +19,6 @@
 #include "bugsolver.h"
 #include "bugeditor.h"
 #include "bugoperations.h"
-#include "ImageViewWindow.h"
 #include "markdown.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
@@ -350,10 +349,10 @@ void BugHistory::linkClicked(const QUrl& url)
             emit operationRequest(BugManager::Operation_Show, BrowserCommands::showRelated().argInt(url));
 
         else if (BrowserCommands::showImage() == cmd)
-            showImage(BrowserCommands::showImage().argStr(url));
+            BrowserCommands::showImage().exec(url);
 
         else if (BrowserCommands::getFile() == cmd)
-            processFileLink(BrowserCommands::getFile().argStr(url));
+            BrowserCommands::getFile().exec(url);
 
         else if (BrowserCommands::showAllRelations() == cmd)
             setShowOnlyOpenedRelations(false);
@@ -415,57 +414,6 @@ void BugHistory::deleteRelation(int id)
         }
         populate();
         emit operationRequest(BugManager::Operation_Update, id);
-    }
-}
-
-void BugHistory::showImage(const QString& fileName)
-{
-    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
-    if (!file.exists())
-        return Ori::Dlg::warning(tr("File not found:\n%1").arg(QDir::toNativeSeparators(file.filePath())));
-
-    auto label = new QLabel(this);
-    label->setPixmap(QPixmap(file.filePath()));
-    label->setToolTip(QDir::toNativeSeparators(file.filePath()));
-
-    ImageViewWindow::showImage(file, this);
-}
-
-void BugHistory::processFileLink(const QString &fileName)
-{
-    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
-    if (!file.exists())
-        return Ori::Dlg::warning(tr("File not found:\n%1").arg(QDir::toNativeSeparators(file.filePath())));
-
-    auto targetFile = QFileDialog::getSaveFileName(this, tr("Export Attached File"));
-    if (!targetFile.isEmpty())
-    {
-
-        QFile source(file.filePath());
-        if (!source.open(QIODevice::ReadOnly))
-            return Ori::Dlg::error(tr("Unable to open source file '%1' for reading\n\n%2")
-                                   .arg(file.filePath()).arg(source.errorString()));
-
-        QFile target(targetFile);
-        if (!target.open(QIODevice::WriteOnly))
-            return Ori::Dlg::error(tr("Unable to open target file '%1' for writing\n\n%2")
-                                   .arg(targetFile).arg(target.errorString()));
-
-        QDataStream sourceData(&source);
-        QDataStream targetData(&target);
-
-        char buf[4096];
-        int bytesRead;
-        while ((bytesRead = sourceData.readRawData(&buf[0], 4096)) != 0)
-        {
-            if (bytesRead < 0)
-                return Ori::Dlg::error(tr("Error reading from source file '%1'\n\n%2")
-                   .arg(source.fileName()).append(source.errorString()));
-
-            if (targetData.writeRawData(buf, bytesRead) < 0)
-                return Ori::Dlg::error(tr("Error writing to target file '%1'\n\n%2")
-                   .arg(target.fileName()).append(target.errorString()));
-        }
     }
 }
 

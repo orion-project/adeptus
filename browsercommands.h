@@ -9,11 +9,11 @@ QT_END_NAMESPACE
 
 namespace BrowserCommands {
 
-class CommandDef
+class Command
 {
 public:
-    CommandDef(const QString& cmd): _cmd(cmd) {}
-    CommandDef(const QString& cmd, const QString& arg): _cmd(cmd), _arg(arg) {}
+    Command(const QString& cmd): _cmd(cmd) {}
+    Command(const QString& cmd, const QString& arg): _cmd(cmd), _arg(arg) {}
     const QString cmd() const { return _cmd; }
     const QString arg() const { return _arg; }
     int argInt(const QUrl& url) const;
@@ -22,20 +22,21 @@ public:
     QString format(const QString& arg, const QString& title) const;
     QString format(int arg, const QString& title) const;
     bool operator == (const QString& cmd) const { return _cmd == cmd; }
+    virtual void exec(const QUrl&) const {}
 private:
     QString _cmd, _arg;
 };
 
-const CommandDef& copySummary();
-const CommandDef& showText();
-const CommandDef& addComment();
-const CommandDef& makeRelation();
-const CommandDef& showRelated();
-const CommandDef& delRelated();
-const CommandDef& showImage();
-const CommandDef& getFile();
-const CommandDef& showAllRelations();
-const CommandDef& showOpenedRelations();
+const Command& copySummary();
+const Command& showText();
+const Command& addComment();
+const Command& makeRelation();
+const Command& showRelated();
+const Command& delRelated();
+const Command& showImage();
+const Command& getFile();
+const Command& showAllRelations();
+const Command& showOpenedRelations();
 
 QString getHint(const QString& cmd);
 

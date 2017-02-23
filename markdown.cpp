@@ -85,7 +85,7 @@ QString Markdown::processBug(const QString& s, bool& ok)
     return processResource(s, QStringLiteral("Bug"), BrowserCommands::showRelated(), ok);
 }
 
-QString Markdown::processResource(const QString& s, const QString& tag, const BrowserCommands::CommandDef &cmd, bool& ok)
+QString Markdown::processResource(const QString& s, const QString& tag, const BrowserCommands::Command &cmd, bool& ok)
 {
     ok = false;
     static QLatin1String tagEnd("]]");

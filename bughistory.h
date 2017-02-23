@@ -52,8 +52,6 @@ private:
 
     void showChangedText(int id);
     void deleteRelation(int id);
-    void showImage(const QString &fileName);
-    void processFileLink(const QString &fileName);
     void scrollToEnd();
     void setShowOnlyOpenedRelations(bool on);
 
