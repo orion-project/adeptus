@@ -72,13 +72,32 @@ public:
         showImage(arg1Str(url));
     }
 
-    void showImage(const QString& fileName) const
+    static void showImage(const QString& fileName)
     {
         QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
         if (!file.exists())
-            return Ori::Dlg::warning(qApp->tr("File not found:\n%1")
-                                     .arg(QDir::toNativeSeparators(file.filePath())));
+        {
+            if (!file.suffix().isEmpty())
+                return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(file.filePath()));
+
+            QFileInfo f = trySuffixes(file, {"png", "jpg", "jpeg"});
+            if (!f.isFile())
+                return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(file.filePath()));
+
+            file = f;
+        }
         ImageViewWindow::showImage(file, qApp->activeWindow());
+    }
+
+    static QFileInfo trySuffixes(const QFileInfo& file, const QStringList& suffixes)
+    {
+        QString baseName = file.absolutePath() % QDir::separator() % file.baseName() % '.';
+        for (const QString& suffix: suffixes)
+        {
+            QFileInfo f(baseName % suffix);
+            if (f.exists()) return f;
+        }
+        return QFileInfo();
     }
 };
 

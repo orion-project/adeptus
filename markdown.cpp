@@ -16,6 +16,7 @@ QString Markdown::process(const QString& s)
     do { res = processBold(res, ok); } while (ok);
     do { res = processItalic(res, ok); } while (ok);
     do { res = processImage(res, ok); } while (ok);
+    do { res = processImage1(res, ok); } while (ok);
     do { res = processFile(res, ok); } while (ok);
     do { res = processBug(res, ok); } while (ok);
     return res;
@@ -60,6 +61,11 @@ QString Markdown::processItalic(const QString& s, bool& ok)
 QString Markdown::processImage(const QString& s, bool& ok)
 {
     return processResource(s, QStringLiteral("Image"), BrowserCommands::showImage(), ok);
+}
+
+QString Markdown::processImage1(const QString& s, bool& ok)
+{
+    return processResource(s, QStringLiteral("Img"), BrowserCommands::showImage(), ok);
 }
 
 QString Markdown::processFile(const QString& s, bool& ok)
