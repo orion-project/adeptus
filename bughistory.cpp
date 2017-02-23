@@ -109,7 +109,9 @@ QString BugHistory::formatSummary(const QSqlRecord& record)
     QString content("<table border=1 width=100% cellspacing=0 cellpadding=5>");
     content += QString("<tr class='%7'><td>"
                             "<table width=100%><tr>"
-                                "<td rowspan=2 valign=middle style='font-size:11pt'><b>%1</b> %2</td>"
+                                // set title font size via tag <font> but not in style attr,
+                                // because of styled font size is not changed when Ctrl+Wheel
+                                "<td rowspan=2 valign=middle><font size=+1><b>%1</b> %2</font></td>"
                                 "<td align=right><nobr><span style='color:gray'>%3:</span> %4</nobr></td></tr>"
                                 "<tr><td align=right><nobr><span style='color:gray'>%5:</span> %6</nobr></td></tr>"
                             "</table>"
