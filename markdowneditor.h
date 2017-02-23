@@ -10,6 +10,8 @@ class QTabWidget;
 class QTextBrowser;
 QT_END_NAMESPACE
 
+class IssueTextView;
+
 class MarkdownEditor : public QWidget
 {
     Q_OBJECT
@@ -30,7 +32,7 @@ private slots:
 private:
     QTabWidget* _tabs;
     QPlainTextEdit* _editor;
-    QTextBrowser* _preview;
+    IssueTextView* _preview;
     int _tabIndexEditor, _tabIndexPreview;
 
     static QLabel* makeHintLabel();

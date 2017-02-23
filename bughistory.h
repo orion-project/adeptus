@@ -19,8 +19,6 @@ public:
     explicit BugHistory(int id, QWidget *parent = 0);
     ~BugHistory();
 
-    static void showDialog(int id, QWidget *parent = 0);
-
     void populate();
     int id() const { return _id; }
     int status() const { return _status; }

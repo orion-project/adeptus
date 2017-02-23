@@ -1,9 +1,9 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QTabWidget>
-#include <QTextBrowser>
 #include <QPlainTextEdit>
 
+#include "issuetextview.h"
 #include "markdown.h"
 #include "markdowneditor.h"
 #include "helpers/OriWidgets.h"
@@ -13,7 +13,7 @@ MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) :
     _editor = new QPlainTextEdit;
     Ori::Gui::adjustFont(_editor);
 
-    _preview = new QTextBrowser;
+    _preview = new IssueTextView;
 
     auto editorTab = new QWidget;
     editorTab->setLayout(Ori::Gui::layoutV(Ori::Gui::layoutSpacing(), Ori::Gui::layoutSpacing(), {_editor, makeHintLabel()}));
@@ -59,5 +59,5 @@ void MarkdownEditor::setFocus()
 void MarkdownEditor::tabSwitched(int tabIndex)
 {
     if (tabIndex == _tabIndexPreview)
-        _preview->setHtml(Markdown::process(_editor->toPlainText()));
+        _preview->setHtml(Markdown::process(sanitizeHtml(_editor->toPlainText())));
 }

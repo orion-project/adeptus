@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     markdown.cpp \
     browsercommands.cpp \
     guiactions.cpp \
-    markdowneditor.cpp
+    markdowneditor.cpp \
+    issuetextview.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.h \
     markdown.h \
     browsercommands.h \
     guiactions.h \
-    markdowneditor.h
+    markdowneditor.h \
+    issuetextview.h
 
 RESOURCES = images.qrc
 

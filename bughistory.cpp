@@ -9,7 +9,6 @@
 #include <QScreen>
 #include <QScrollArea>
 #include <QTabWidget>
-#include <QTextBrowser>
 #include <QToolTip>
 
 #include "appearance.h"
@@ -19,6 +18,7 @@
 #include "bugsolver.h"
 #include "bugeditor.h"
 #include "bugoperations.h"
+#include "issuetextview.h"
 #include "markdown.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
@@ -26,53 +26,34 @@
 
 //-------------------------------------------------------------------------------------------------------
 
-void BugHistory::showDialog(int id, QWidget *parent)
-{
-    QDialog dlg(parent);
-    dlg.setWindowTitle(qApp->tr("Issue #%1 History").arg(id));
-    dlg.setSizeGripEnabled(true);
-    dlg.setLayout(new QVBoxLayout);
-    dlg.layout()->setMargin(0);
-    dlg.layout()->addWidget(new BugHistory(id));
-    dlg.resize(800, 480);
-    dlg.exec();
-}
-
 BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent), 
     _id(id), _status(-1), _changedTextIndex(0)
 {
     _bugProvider = new SqlBugProvider;
 
-    contentView = new QTextBrowser;
-    contentView->setReadOnly(true);
-    contentView->setOpenLinks(false);
+    contentView = new IssueTextView;
     contentView->setStyleSheet(QString("QTextBrowser{background-color: %1; border-style: none;}")
                                .arg(palette().color(QPalette::Window).name()));
+    contentView->document()->setDefaultStyleSheet(
+            QString(".header { background-color: %2; }"
+                    ".header_solved { background-color: %4; }"
+                    ".header_closed { background-color: %5; }"
+                    ".props { background-color: %3; }"
+                    ".summary { background-color: %1; }"
+                    ".extra { background-color: %1; }"
+                    ".solved_ref { background-color: %4; }"
+                    ".closed_ref { background-color: %5; }")
+            .arg(palette().color(QPalette::Base).name())
+            .arg(palette().color(QPalette::Midlight).name())
+            .arg(palette().color(QPalette::AlternateBase).name())
+            .arg(ColorProvider::solvedColor().name())
+            .arg(ColorProvider::closedColor().name())
+    );
+
     connect(contentView, SIGNAL(anchorClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(contentView, SIGNAL(highlighted(QUrl)), this, SLOT(linkHovered(QUrl)));
 
-    Ori::Gui::adjustFont(contentView);
-
-    contentView->document()->setDefaultStyleSheet(
-                QString(".header { background-color: %2; }"
-                        ".header_solved { background-color: %4; }"
-                        ".header_closed { background-color: %5; }"
-                        ".props { background-color: %3; }"
-                        ".summary { background-color: %1; }"
-                        ".extra { background-color: %1; }"
-                        ".solved_ref { background-color: %4; }"
-                        ".closed_ref { background-color: %5; }")
-                .arg(palette().color(QPalette::Base).name())
-                .arg(palette().color(QPalette::Midlight).name())
-                .arg(palette().color(QPalette::AlternateBase).name())
-                .arg(ColorProvider::solvedColor().name())
-                .arg(ColorProvider::closedColor().name())
-        );
-
-    QVBoxLayout *layoutMain = new QVBoxLayout;
-    layoutMain->setMargin(0);
-    layoutMain->addWidget(contentView);
-    setLayout(layoutMain);
+    setLayout(Ori::Gui::layoutV(0, 0, {contentView}));
 
     connect(BugOperations::instance(), SIGNAL(bugCommentAdded(int)), this, SLOT(commentAdded(int)));
 }
@@ -107,11 +88,6 @@ void BugHistory::populate()
 inline bool ok(const QString& result)
 {
     return result.isEmpty();
-}
-
-QString sanitizeHtml(const QString& s)
-{
-    return QString(s).replace("<", "&lt;").replace(">", "&gt;").replace("\n\n", "<p>").replace("\n", "<br>");
 }
 
 QString formatError(const QString& s)
@@ -347,9 +323,6 @@ void BugHistory::linkClicked(const QUrl& url)
 
         else if (BrowserCommands::showOpenedRelations() == cmd)
             setShowOnlyOpenedRelations(true);
-
-        else
-            BrowserCommands::processCommand(url);
     }
 }
 
