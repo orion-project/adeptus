@@ -14,6 +14,8 @@ class QSpinBox;
 class QSqlTableModel;
 QT_END_NAMESPACE
 
+class MarkdownEditor;
+
 class BugEditor : public QWidget
 {
     Q_OBJECT
@@ -42,7 +44,7 @@ private:
     QDateTimeEdit *dateCreated;
     QDateTimeEdit *dateUpdated;
     QPlainTextEdit *textSummary;
-    QPlainTextEdit *textExtra;
+    MarkdownEditor *textExtra;
     QSqlTableModel *tableModel;
     QDataWidgetMapper *mapper;
     QLabel *labelStatus;

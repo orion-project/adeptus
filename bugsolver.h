@@ -11,10 +11,11 @@ class QDateTime;
 class QDateTimeEdit;
 class QLabel;
 class QModelIndex;
-class QPlainTextEdit;
 class QSpinBox;
 class QSqlTableModel;
 QT_END_NAMESPACE
+
+class MarkdownEditor;
 
 class BugSolver : public QWidget
 {
@@ -39,7 +40,7 @@ private slots:
 private:
     QSqlTableModel *tableModel;
     QDataWidgetMapper *mapper;
-    QPlainTextEdit *textComment;
+    MarkdownEditor *textComment;
     QComboBox *comboStatus;
     QComboBox *comboSolution;
     QDateTimeEdit *dateEvent;

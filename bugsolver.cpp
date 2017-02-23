@@ -5,12 +5,11 @@
 #include <QDialogButtonBox>
 #include <QDateTimeEdit>
 #include <QLabel>
-#include <QPlainTextEdit>
 
 #include "bugsolver.h"
 #include "bugmanager.h"
 #include "bugoperations.h"
-#include "markdown.h"
+#include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
 #include "helpers/OriDialogs.h"
@@ -132,8 +131,7 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Tool);
 
-    textComment = new QPlainTextEdit;
-    Ori::Gui::adjustFont(textComment);
+    textComment = new MarkdownEditor(tr("Comment"));
 
     comboStatus = WidgetHelper::createDictionaryCombo(COL_STATUS);
     comboStatus->setEnabled(false);
@@ -165,9 +163,8 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     layoutMain->setSpacing(3);
     layoutMain->addLayout(layoutProps);
     layoutMain->addSpacing(6);
-    layoutMain->addWidget(new QLabel(tr("Comment")));
+    //layoutMain->addWidget(new QLabel(tr("Comment")));
     layoutMain->addWidget(textComment);
-    layoutMain->addLayout(Ori::Gui::layoutH(0, 0, {0, Markdown::makeHintLabel()}));
     layoutMain->addSpacing(12);
     layoutMain->addWidget(buttons);
     setLayout(layoutMain);
@@ -192,7 +189,7 @@ void BugSolver::setIcon(const QString& path)
 
 void BugSolver::reject()
 {
-    if (textComment->document()->isModified() && Preferences::instance().confirmCancel)
+    if (textComment->isModified() && Preferences::instance().confirmCancel)
         if (!Ori::Dlg::yes(tr("Text has been changed. Cancel anyway?"))) return;
 
     QWidget::close();
@@ -204,7 +201,7 @@ void BugSolver::save()
     db.transaction();
 
     QDateTime moment = dateEvent->dateTime();
-    QString comment = textComment->toPlainText().trimmed();
+    QString comment = textComment->getText();
     QVariant newStatus = WidgetHelper::selectedId(comboStatus);
     QVariant newSolution = WidgetHelper::selectedId(comboSolution);
     QString res;

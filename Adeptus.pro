@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     SqlHelpers.cpp \
     markdown.cpp \
     browsercommands.cpp \
-    guiactions.cpp
+    guiactions.cpp \
+    markdowneditor.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     SqlHelpers.h \
     markdown.h \
     browsercommands.h \
-    guiactions.h
+    guiactions.h \
+    markdowneditor.h
 
 RESOURCES = images.qrc
 

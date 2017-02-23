@@ -10,7 +10,7 @@
 #include "bugeditor.h"
 #include "bugmanager.h"
 #include "bugoperations.h"
-#include "markdown.h"
+#include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
 #include "SqlBugProvider.h"
@@ -90,7 +90,7 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
     dateUpdated = new QDateTimeEdit;
     textSummary = new SummaryTextEdit;
     textSummary->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Maximum);
-    textExtra = new QPlainTextEdit;
+    textExtra = new MarkdownEditor(BugManager::columnTitle(COL_EXTRA));
 
     if (!Preferences::instance().bugEditorEnableDates)
     {
@@ -99,7 +99,7 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
     }
 
     Ori::Gui::adjustFont(textSummary);
-    Ori::Gui::adjustFont(textExtra);
+
 
     auto layoutProps = Ori::Gui::layoutV(
     {
@@ -119,9 +119,8 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
         columnTitle(COL_SUMMARY),
         textSummary,
         PROP_SPACING,
-        columnTitle(COL_EXTRA),
+        //columnTitle(COL_EXTRA),
         textExtra,
-        Ori::Gui::layoutH(0, 0, {0, Markdown::makeHintLabel()}),
         PROP_SPACING,
         buttons
     });
@@ -152,7 +151,7 @@ void BugEditor::reject()
 {
     if (Preferences::instance().confirmCancel && (
                 textSummary->document()->isModified() ||
-                textExtra->document()->isModified()))
+                textExtra->isModified()))
         if (!Ori::Dlg::yes(tr("Text has been changed. Cancel anyway?"))) return;
 
     close();
@@ -196,7 +195,7 @@ QString BugEditor::initEdit(int id)
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     mapper->setItemDelegate(new BugItemDelegate(this));
     mapper->addMapping(textSummary, COL_SUMMARY);
-    mapper->addMapping(textExtra, COL_EXTRA);
+    mapper->addMapping(textExtra->editor(), COL_EXTRA);
     mapper->addMapping(comboCategory, COL_CATEGORY);
     mapper->addMapping(comboSeverity, COL_SEVERITY);
     mapper->addMapping(comboPriority, COL_PRIORITY);
@@ -261,7 +260,7 @@ QString BugEditor::saveNew()
     QSqlRecord record;
     SqlHelper::addField(record, "Id", QVariant::Int, id);
     SqlHelper::addField(record, "Summary", QVariant::String, textSummary->toPlainText().trimmed());
-    SqlHelper::addField(record, "Extra", QVariant::String, textExtra->toPlainText().trimmed());
+    SqlHelper::addField(record, "Extra", QVariant::String, textExtra->getText());
     SqlHelper::addField(record, "Category", QVariant::Int, WidgetHelper::selectedId(comboCategory));
     SqlHelper::addField(record, "Severity", QVariant::Int, WidgetHelper::selectedId(comboSeverity));
     SqlHelper::addField(record, "Priority", QVariant::Int, WidgetHelper::selectedId(comboPriority));

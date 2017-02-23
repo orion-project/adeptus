@@ -5,15 +5,10 @@
 
 #include "browsercommands.h"
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-QT_END_NAMESPACE
-
 class Markdown
 {
 public:
     static QString hint();
-    static QLabel* makeHintLabel();
 
     static QString process(const QString& s);
 
