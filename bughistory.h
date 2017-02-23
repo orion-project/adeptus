@@ -11,27 +11,6 @@ class QTextBrowser;
 class QSqlRecord;
 QT_END_NAMESPACE
 
-namespace Commands {
-
-class CommandDef
-{
-public:
-    CommandDef(const QString& cmd): _cmd(cmd) {}
-    CommandDef(const QString& cmd, const QString& arg): _cmd(cmd), _arg(arg) {}
-    const QString cmd() const { return _cmd; }
-    const QString arg() const { return _arg; }
-    int argInt(const QUrl& url) const;
-    QString argStr(const QUrl& url) const;
-    QString format(const QString& title) const;
-    QString format(const QString& arg, const QString& title) const;
-    QString format(int arg, const QString& title) const;
-    bool operator == (const QString& cmd) const { return _cmd == cmd; }
-private:
-    QString _cmd, _arg;
-};
-
-} // namespace Commands
-
 class BugHistory : public QWidget
 {
     Q_OBJECT
@@ -70,12 +49,6 @@ private:
     QString formatChangedParam(const BugHistoryItem::ChangedParam& param);
     QString finishWithError(const QString& content, const QString& error);
     QString processWikiTags(const QString& s);
-    QString processWikiTag_Bold(const QString& s, bool& ok);
-    QString processWikiTag_Italic(const QString& s, bool& ok);
-    QString processWikiTag_Image(const QString& s, bool& ok);
-    QString processWikiTag_File(const QString& s, bool& ok);
-    QString processWikiTag_Bug(const QString& s, bool& ok);
-    QString processWikiTag_Resource(const QString& s, const QString& tag, const Commands::CommandDef& cmd, bool& ok);
 
     void showChangedText(int id);
     void deleteRelation(int id);

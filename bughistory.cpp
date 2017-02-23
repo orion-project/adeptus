@@ -13,55 +13,17 @@
 #include <QToolTip>
 
 #include "appearance.h"
+#include "browsercommands.h"
 #include "bughistory.h"
 #include "bugmanager.h"
 #include "bugsolver.h"
 #include "bugeditor.h"
 #include "bugoperations.h"
 #include "ImageViewWindow.h"
+#include "markdown.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
-#include "helpers/OriTools.h"
 #include "helpers/OriWidgets.h"
-
-namespace Commands {
-
-QString CommandDef::format(const QString& title) const
-{
-    return QString("<a href='cmd://%1'>%2</a>").arg(_cmd, title);
-}
-
-QString CommandDef::format(const QString& arg, const QString& title) const
-{
-    return QString("<a href='cmd://%1?%2=%3'>%4</a>").arg(_cmd, _arg, arg, title);
-}
-
-QString CommandDef::format(int arg, const QString& title) const
-{
-    return format(QString::number(arg), title);
-}
-
-int CommandDef::argInt(const QUrl& url) const
-{
-    return Ori::Tools::getParamInt(url, _arg);
-}
-
-QString CommandDef::argStr(const QUrl& url) const
-{
-    return Ori::Tools::getParamStr(url, _arg);
-}
-
-const CommandDef& copySummary() { static CommandDef c("copysummary");  return c; }
-const CommandDef& showText() { static CommandDef c("showtext", "id");  return c; }
-const CommandDef& addComment() { static CommandDef c("addcomment");  return c; }
-const CommandDef& makeRelation() { static CommandDef c("makerelation");  return c; }
-const CommandDef& showRelated() { static CommandDef c("showrelated", "id"); return c; }
-const CommandDef& delRelated() { static CommandDef c("delrelated", "id"); return c; }
-const CommandDef& showImage() { static CommandDef c("showimage", "file"); return c; }
-const CommandDef& getFile() { static CommandDef c("getfile", "file"); return c; }
-const CommandDef& showAllRelations() { static CommandDef c("showallrels"); return c; }
-const CommandDef& showOpenedRelations() { static CommandDef c("showopenrels"); return c; }
-}
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -131,9 +93,9 @@ void BugHistory::populate()
         _status = record.field(COL_STATUS).value().toInt();
 
         content = formatSummary(record) % formatRelations() % formatHistory() %
-            "<p>" % Commands::addComment().format(tr("Append comment")) %
+            "<p>" % BrowserCommands::addComment().format(tr("Append comment")) %
              "&nbsp;&nbsp;&nbsp;" %
-             Commands::makeRelation().format(tr("Make relation"));
+             BrowserCommands::makeRelation().format(tr("Make relation"));
     }
     else
     {
@@ -177,7 +139,7 @@ QString BugHistory::formatSummary(const QSqlRecord& record)
                                 "<tr><td align=right><nobr><span style='color:gray'>%5:</span> %6</nobr></td></tr>"
                             "</table>"
                        "</td></tr>")
-            .arg(Commands::copySummary().format(QString("#%1").arg(_id))).arg(sanitizeHtml(_summary))
+            .arg(BrowserCommands::copySummary().format(QString("#%1").arg(_id))).arg(sanitizeHtml(_summary))
             .arg(tr("Created")).arg(formatMoment(record.field(COL_CREATED).value().toDateTime()))
             .arg(tr("Updated")).arg(formatMoment(record.field(COL_UPDATED).value().toDateTime()))
             .arg(headerClass());
@@ -193,7 +155,7 @@ QString BugHistory::formatSummary(const QSqlRecord& record)
 
     QString extra = record.field(COL_EXTRA).value().toString().trimmed();
     if (!extra.isEmpty())
-        content += QString("<tr class='extra'><td>%1</td></tr>").arg(processWikiTags(sanitizeHtml(extra)));
+        content += QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(sanitizeHtml(extra)));
 
     return content + "</table>";
 }
@@ -251,9 +213,9 @@ QString BugHistory::formatRelations()
             else countOpened++;
 
             title += QString("(%1) ").arg(status) %
-                Commands::showRelated().format(relatedId, sanitizeHtml(bug.summary));
+                BrowserCommands::showRelated().format(relatedId, sanitizeHtml(bug.summary));
             moment = formatMoment(bug.created);
-            command = Commands::delRelated().format(relatedId, "<img src=':/tools/delete'>");
+            command = BrowserCommands::delRelated().format(relatedId, "<img src=':/tools/delete'>");
         }
         else title += formatError(res.error());
 
@@ -274,7 +236,7 @@ QString BugHistory::formatRelations()
                                 "</tr></table>")
         .arg(sectionTitle)
         .arg(formatRelationsCount(countOpened))
-        .arg(Commands::makeRelation().format("<img src=':/tools/plus'>"));
+        .arg(BrowserCommands::makeRelation().format("<img src=':/tools/plus'>"));
 
 
     return title + content;
@@ -285,9 +247,9 @@ QString BugHistory::formatRelationsCount(int countOpened)
     auto countAll = QString::number(_relatedIds.size());
     auto countOpen = QString::number(countOpened);
     return tr("%1 %2, %3 %4")
-        .arg(Commands::showAllRelations().format(tr("all:", "Show all relations command")))
+        .arg(BrowserCommands::showAllRelations().format(tr("all:", "Show all relations command")))
         .arg(_showOnlyOpenedRelations? countAll: ("<b>" % countAll % "</b>"))
-        .arg(Commands::showOpenedRelations().format(tr("opened:", "Show opened relations command")))
+        .arg(BrowserCommands::showOpenedRelations().format(tr("opened:", "Show opened relations command")))
         .arg(_showOnlyOpenedRelations? ("<b>"% countOpen % "</b>"): countOpen);
 }
 
@@ -321,7 +283,7 @@ QString BugHistory::formatHistory()
 
         if (!item.comment.isEmpty())
             content += QString("<tr class='extra'><td>%1</td></tr>")
-                    .arg(processWikiTags(sanitizeHtml(item.comment)));
+                    .arg(Markdown::process(sanitizeHtml(item.comment)));
 
         content += "</table>";
 
@@ -348,7 +310,7 @@ QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param
         _changedTexts[++_changedTextIndex] = QPair<QString, QString>(
                     oldValue.toString(), newValue.toString());
         return QString("%1: %2").arg(tr("Changed")).arg(
-            Commands::showText().format(_changedTextIndex, paramName));
+            BrowserCommands::showText().format(_changedTextIndex, paramName));
     }
     QMap<int, QString> *dict = BugManager::dictionaryCash(param.paramId);
     if (dict)
@@ -369,34 +331,34 @@ void BugHistory::linkClicked(const QUrl& url)
     if (url.scheme() == "cmd")
     {
         QString cmd = url.host();
-        if (Commands::copySummary() == cmd)
+        if (BrowserCommands::copySummary() == cmd)
             QApplication::clipboard()->setText(QString("#%1: %2").arg(_id).arg(_summary));
 
-        else if (Commands::addComment() == cmd)
+        else if (BrowserCommands::addComment() == cmd)
            emit operationRequest(BugManager::Operation_Comment, 0);
 
-        else if (Commands::makeRelation() == cmd)
+        else if (BrowserCommands::makeRelation() == cmd)
             emit operationRequest(BugManager::Operation_MakeRelation, 0);
 
-        else if (Commands::showText() == cmd)
-            showChangedText(Commands::showText().argInt(url));
+        else if (BrowserCommands::showText() == cmd)
+            showChangedText(BrowserCommands::showText().argInt(url));
 
-        else if (Commands::delRelated() == cmd)
-            deleteRelation(Commands::delRelated().argInt(url));
+        else if (BrowserCommands::delRelated() == cmd)
+            deleteRelation(BrowserCommands::delRelated().argInt(url));
 
-        else if (Commands::showRelated() == cmd)
-            emit operationRequest(BugManager::Operation_Show, Commands::showRelated().argInt(url));
+        else if (BrowserCommands::showRelated() == cmd)
+            emit operationRequest(BugManager::Operation_Show, BrowserCommands::showRelated().argInt(url));
 
-        else if (Commands::showImage() == cmd)
-            showImage(Commands::showImage().argStr(url));
+        else if (BrowserCommands::showImage() == cmd)
+            showImage(BrowserCommands::showImage().argStr(url));
 
-        else if (Commands::getFile() == cmd)
-            processFileLink(Commands::getFile().argStr(url));
+        else if (BrowserCommands::getFile() == cmd)
+            processFileLink(BrowserCommands::getFile().argStr(url));
 
-        else if (Commands::showAllRelations() == cmd)
+        else if (BrowserCommands::showAllRelations() == cmd)
             setShowOnlyOpenedRelations(false);
 
-        else if (Commands::showOpenedRelations() == cmd)
+        else if (BrowserCommands::showOpenedRelations() == cmd)
             setShowOnlyOpenedRelations(true);
     }
 }
@@ -405,16 +367,7 @@ void BugHistory::linkHovered(const class QUrl& url)
 {
     QString tooltip;
     if (url.scheme() == "cmd")
-    {
-        QString cmd = url.host();
-        if (Commands::copySummary() == cmd) tooltip = tr("Copy number and summary to the clipboard");
-        else if (Commands::showText() == cmd) tooltip = tr("Show text changes");
-        else if (Commands::delRelated() == cmd) tooltip = tr("Delete relation");
-        else if (Commands::showRelated() == cmd) tooltip = tr("Show issue in new page");
-        else if (Commands::makeRelation() == cmd) tooltip = tr("Make new relation");
-        else if (Commands::showAllRelations() == cmd) tooltip = tr("Show all relations");
-        else if (Commands::showOpenedRelations() == cmd) tooltip = tr("Show only opened relations");
-    }
+        tooltip = BrowserCommands::getHint(url.host());
     if (!tooltip.isEmpty())
         QToolTip::showText(QCursor::pos(), tooltip);
     else
@@ -463,93 +416,6 @@ void BugHistory::deleteRelation(int id)
         populate();
         emit operationRequest(BugManager::Operation_Update, id);
     }
-}
-
-QString BugHistory::processWikiTags(const QString& s)
-{
-    bool ok;
-    QString res = s;
-    do { res = processWikiTag_Bold(res, ok); } while (ok);
-    do { res = processWikiTag_Italic(res, ok); } while (ok);
-    do { res = processWikiTag_Image(res, ok); } while (ok);
-    do { res = processWikiTag_File(res, ok); } while (ok);
-    do { res = processWikiTag_Bug(res, ok); } while (ok);
-    return res;
-}
-
-QString BugHistory::processWikiTag_Bold(const QString& s, bool& ok)
-{
-    ok = false;
-    static QLatin1String tag("'''");
-
-    int startPos = s.indexOf(tag, 0);
-    if (startPos < 0) return s;
-
-    int endPos = s.indexOf(tag, startPos+3);
-    if (endPos < 0) return s;
-
-    QStringRef strBegin(&s, 0, startPos);
-    QStringRef strBolded(&s, startPos+3, endPos-(startPos+3));
-    QStringRef strEnd(&s, endPos+3, s.length() - (endPos+3));
-    ok = true;
-    return strBegin % QStringLiteral("<b>") % strBolded % QStringLiteral("</b>") % strEnd;
-}
-
-QString BugHistory::processWikiTag_Italic(const QString& s, bool& ok)
-{
-    ok = false;
-    static QLatin1String tag("''");
-
-    int startPos = s.indexOf(tag, 0);
-    if (startPos < 0) return s;
-
-    int endPos = s.indexOf(tag, startPos+2);
-    if (endPos < 0) return s;
-
-    QStringRef strBegin(&s, 0, startPos);
-    QStringRef strItalized(&s, startPos+2, endPos-(startPos+2));
-    QStringRef strEnd(&s, endPos+2, s.length() - (endPos+2));
-    ok = true;
-    return strBegin % QStringLiteral("<i>") % strItalized % QStringLiteral("</i>") % strEnd;
-}
-
-QString BugHistory::processWikiTag_Image(const QString& s, bool& ok)
-{
-    return processWikiTag_Resource(s, QStringLiteral("Image"), Commands::showImage(), ok);
-}
-
-QString BugHistory::processWikiTag_File(const QString& s, bool& ok)
-{
-    return processWikiTag_Resource(s, QStringLiteral("File"), Commands::getFile(), ok);
-}
-
-QString BugHistory::processWikiTag_Bug(const QString& s, bool& ok)
-{
-    return processWikiTag_Resource(s, QStringLiteral("Bug"), Commands::showRelated(), ok);
-}
-
-QString BugHistory::processWikiTag_Resource(const QString& s, const QString& tag, const Commands::CommandDef &cmd, bool& ok)
-{
-    ok = false;
-    static QLatin1String tagEnd("]]");
-    static QLatin1String tagStart("[[");
-
-    int startPos = s.indexOf(tagStart % tag % ':', 0, Qt::CaseInsensitive);
-    if (startPos < 0) return s;
-
-    int resourceStartPos = startPos + tag.size() + 3;
-    int endPos = s.indexOf(tagEnd, resourceStartPos+1);
-    if (endPos < 0) return s;
-
-    QStringRef strBegin(&s, 0, startPos);
-    QStringRef strMid(&s, resourceStartPos, endPos - resourceStartPos);
-    QStringRef strEnd(&s, endPos+2, s.length() - (endPos+2));
-
-    if (strMid.contains(tagStart)) return s;
-
-    ok = true;
-    QString resource = strMid.trimmed().toString();
-    return strBegin % cmd.format(resource, resource) % strEnd;
 }
 
 void BugHistory::showImage(const QString& fileName)
