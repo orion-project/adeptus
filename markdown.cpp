@@ -4,10 +4,10 @@
 
 QString Markdown::hint()
 {
-    return QString(QStringLiteral("'''<b>bold</b>''', "
-                                  "''<i>italic</i>'', "
-                                  "[[Image:file-name]], "
-                                  "[[File:file-name]], "
+    return QString(QStringLiteral("'''<b>bold</b>'''&nbsp;&nbsp;"
+                                  "''<i>italic</i>''&nbsp;&nbsp;"
+                                  "[[Image:file-name]]&nbsp;&nbsp;"
+                                  "[[File:file-name]]&nbsp;&nbsp;"
                                   "[[Bug:bug-number]]"));
 }
 

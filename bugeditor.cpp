@@ -37,6 +37,7 @@ void BugEditor::append(QWidget *parent)
     wnd->setWindowTitle(qApp->tr("Append Issue"));
     wnd->initAppend();
     wnd->show();
+    wnd->activateWindow();
 }
 
 void BugEditor::edit(QWidget *parent, int id)
