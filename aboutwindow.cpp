@@ -1,5 +1,6 @@
 #include "aboutwindow.h"
-#include "widgets/OriLabels.h"
+#include "orion/widgets/OriLabels.h"
+#include "orion/helpers/OriLayouts.h"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -8,13 +9,84 @@
 #include <QDesktopServices>
 #include <QUrl>
 
+#define FONT_NAME "Times New Roman"
+#define FONT_COLOR "#523450"
+#define STYLE_INFO "font-family:" FONT_NAME "; font-size: 14px; color:" FONT_COLOR
+#define STYLE_VERSION "font-family:" FONT_NAME "; font-size: 40px; font-weight: bold; color:" FONT_COLOR
+#define STYLE_BUILD "font-family: " FONT_NAME "; font-size: 20px; color: white"
+#define STYLE_QT "font-family: " FONT_NAME "; font-size: 20px; color: #8e7e8c; margin-right: 1px"
+
+#define APP_COPYRIGHT "Chunosov N.I. (c) 2012-2017"
+#define APP_WWW "http://github.com/orion-project/adeptus"
+#define APP_MAIL "adeptus@orion-project.org"
+
+using namespace Ori::Layouts;
+
 AboutWindow::AboutWindow(QWidget *parent) : QWidget(parent)
+{
+    setupAutoDeletableDialog();
+    setBackImageAndResizeTo();
+
+    auto appBuild = QString("Built %1 %2")
+            .arg(QString(APP_BUILDDATE).trimmed())
+            .arg(QString(APP_BUILDTIME).trimmed());
+
+    auto appVersion = QString("%1.%2").arg(APP_VER_MAJOR).arg(APP_VER_MINOR);
+
+    auto qtVersion = QString("Based on Qt %1").arg(QT_VERSION_STR);
+
+    LayoutV({
+        Space(80), // place for app title, it drawn on the background
+        LayoutH({
+            Stretch(),
+            label(appBuild, STYLE_BUILD),
+            Space(6)
+        }),
+        LayoutH({
+            Stretch(),
+            label(appVersion, STYLE_VERSION),
+            Space(6)
+        }),
+        Stretch(),
+        LayoutH({
+            LayoutV({
+                Stretch(),
+                label(APP_COPYRIGHT, STYLE_INFO),
+                label(APP_WWW, STYLE_INFO, SLOT(linkWwwClicked())),
+                //label(APP_MAIL, STYLE_INFO, SLOT(linkMailClicked())) no email yet available
+            }),
+            Stretch(),
+            LayoutV({
+                Stretch(),
+                label(qtVersion, STYLE_QT, SLOT(aboutQt()), qApp)
+            })
+        })
+    })
+    .setMargin(6)
+    .setSpacing(0)
+    .useFor(this);
+}
+
+QLabel* AboutWindow::label(const QString& text, const char* styleSheet, const char* slot, QObject* receiver)
+{
+    QLabel* label = slot? new Ori::Widgets::ClickableLabel : new QLabel;
+    label->setText(text);
+    label->setStyleSheet(styleSheet);
+    if (slot)
+        connect(label, SIGNAL(clicked()), receiver ? receiver : this, slot);
+    return label;
+}
+
+void AboutWindow::setupAutoDeletableDialog()
 {
     setWindowFlags(Qt::Dialog);
     setWindowModality(Qt::WindowModal);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(qApp->applicationName());
+}
 
+void AboutWindow::setBackImageAndResizeTo()
+{
     QPixmap bckgnd(":/about/main");
     setMaximumSize(bckgnd.size());
     setMinimumSize(bckgnd.size());
@@ -23,75 +95,6 @@ AboutWindow::AboutWindow(QWidget *parent) : QWidget(parent)
     auto p = palette();
     p.setBrush(QPalette::Background, QBrush(bckgnd));
     setPalette(p);
-
-    auto labelVersion = new QLabel(QString("%1.%2.%3")
-        .arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_BUILD));
-    labelVersion->setStyleSheet("font-family: Times New Roman; font-size: 40px; "
-                                "font-weight: bold; color: #523450");
-
-    auto layoutVersion = new QHBoxLayout;
-    layoutVersion->addStretch();
-    layoutVersion->addWidget(labelVersion);
-    layoutVersion->addSpacing(6);
-
-    QString build(SVN_REV);
-    int pos = build.indexOf(':');
-    if (pos > 0) build = build.right(build.length()-pos-1);
-
-    auto labelBuild = new QLabel(QString("Build: %1 (%2 %3)").arg(build)
-                                    .arg(QString(BUILDDATE).trimmed())
-                                    .arg(QString(BUILDTIME).trimmed()));
-    labelBuild->setStyleSheet("font-family: Times New Roman; font-size: 20px; color: white");
-
-    auto layoutBuild = new QHBoxLayout;
-    layoutBuild->addStretch();
-    layoutBuild->addWidget(labelBuild);
-    layoutBuild->addSpacing(6);
-
-
-    QLabel *labelCopyright = new QLabel("Chunosov N.I. (c) 2012-2016");
-    labelCopyright->setStyleSheet("font-family: Times New Roman; font-size: 14px; color: #523450");
-
-    auto labelWww = new Ori::Widgets::ClickableLabel(APP_WWW);
-    labelWww->setStyleSheet("font-family: Times New Roman; font-size: 14px; color: #523450");
-    connect(labelWww, SIGNAL(clicked()), this, SLOT(linkWwwClicked()));
-
-    auto labelMail = new Ori::Widgets::ClickableLabel(APP_MAIL);
-    labelMail->setStyleSheet("font-family: Times New Roman; font-size: 14px; color: #523450");
-    connect(labelMail, SIGNAL(clicked()), this, SLOT(linkMailClicked()));
-
-    QVBoxLayout *layoutContacts = new QVBoxLayout;
-    layoutContacts->setMargin(0);
-    layoutContacts->setSpacing(0);
-    layoutContacts->addStretch();
-    layoutContacts->addWidget(labelCopyright);
-    layoutContacts->addWidget(labelWww);
-    layoutContacts->addWidget(labelMail);
-
-    auto labelQt = new Ori::Widgets::ClickableLabel(QString("Based on Qt %1").arg(QT_VERSION_STR));
-    labelQt->setStyleSheet("font-family: Times New Roman; font-size: 20px; color: #8e7e8c; margin-right: 1px");
-    connect(labelQt, SIGNAL(clicked()), qApp, SLOT(aboutQt()));
-
-    QVBoxLayout *layoutQt = new QVBoxLayout;
-    layoutQt->setMargin(0);
-    layoutQt->addStretch();
-    layoutQt->addWidget(labelQt);
-
-    QHBoxLayout *layoutCopyright = new QHBoxLayout;
-    layoutCopyright->setMargin(0);
-    layoutCopyright->addLayout(layoutContacts);
-    layoutCopyright->addStretch();
-    layoutCopyright->addLayout(layoutQt);
-
-    QVBoxLayout *layoutMain = new QVBoxLayout;
-    layoutMain->setSpacing(0);
-    layoutMain->setMargin(6);
-    layoutMain->addSpacing(80);
-    layoutMain->addLayout(layoutBuild);
-    layoutMain->addLayout(layoutVersion);
-    layoutMain->addStretch();
-    layoutMain->addLayout(layoutCopyright);
-    setLayout(layoutMain);
 }
 
 void AboutWindow::mouseReleaseEvent(QMouseEvent *event)

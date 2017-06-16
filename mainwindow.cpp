@@ -4,6 +4,7 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QStatusBar>
