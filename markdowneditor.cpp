@@ -7,6 +7,9 @@
 #include "markdown.h"
 #include "markdowneditor.h"
 #include "helpers/OriWidgets.h"
+#include "helpers/OriLayouts.h"
+
+using namespace Ori::Layouts;
 
 MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) : QWidget(parent)
 {
@@ -16,17 +19,17 @@ MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) :
     _preview = new IssueTextView;
 
     auto editorTab = new QWidget;
-    editorTab->setLayout(Ori::Gui::layoutV(Ori::Gui::layoutSpacing(), Ori::Gui::layoutSpacing(), {_editor, makeHintLabel()}));
+    LayoutV({_editor, makeHintLabel()}).setMargin(Ori::Gui::layoutSpacing()).useFor(editorTab);
 
     auto previewTab = new QWidget;
-    previewTab->setLayout(Ori::Gui::layoutV(Ori::Gui::layoutSpacing(), Ori::Gui::layoutSpacing(), {_preview}));
+    LayoutV({_preview}).setMargin(Ori::Gui::layoutSpacing()).useFor(previewTab);
 
     _tabs = new QTabWidget;
     connect(_tabs, &QTabWidget::currentChanged, this, &MarkdownEditor::tabSwitched);
     _tabIndexEditor = _tabs->addTab(editorTab, editorTabTitle.isEmpty()? tr("Edit"): editorTabTitle);
     _tabIndexPreview = _tabs->addTab(previewTab, tr("Preview"));
 
-    setLayout(Ori::Gui::layoutH(0, 0, {_tabs}));
+    LayoutH({_tabs}).setMargin(0).setSpacing(0).useFor(this);
 }
 
 QLabel* MarkdownEditor::makeHintLabel()

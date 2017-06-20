@@ -176,11 +176,6 @@ void IssueTableWidget::createTableView()
     tableView->setColumnHidden(COL_EXTRA, true);
     tableView->setColumnHidden(COL_CREATED, true);
     tableView->setColumnHidden(COL_REPEAT, true);
-    tableView->setColumnHidden(COL_CATEGORY, true);
-    tableView->setColumnHidden(COL_SEVERITY, true);
-    tableView->setColumnHidden(COL_PRIORITY, true);
-    tableView->setColumnHidden(COL_STATUS, true);
-    tableView->setColumnHidden(COL_SOLUTION, true);
     tableView->setItemDelegate(itemDelegate);
 
     Ori::Gui::adjustFont(tableView);

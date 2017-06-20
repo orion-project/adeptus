@@ -26,6 +26,7 @@
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
+#include "helpers/OriLayouts.h"
 #include "tools/OriSettings.h"
 #include "tools/OriMruList.h"
 #include "tools/OriWaitCursor.h"
@@ -52,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     auto back = new Ori::Widgets::BackWidget(":/about/bug", Qt::AlignTop | Qt::AlignRight);
     auto mru = new Ori::Widgets::MruFileListWidget(mruList);
-    Ori::Gui::layoutH(back, {mru});
+    Ori::Layouts::LayoutH({mru}).useFor(back);
     Ori::Gui::adjustFont(mru);
     issueTabs->addTab(back, tr("Start page"));
 

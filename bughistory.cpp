@@ -22,7 +22,7 @@
 #include "markdown.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
-#include "helpers/OriWidgets.h"
+#include "helpers/OriLayouts.h"
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -54,7 +54,10 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
     connect(contentView, SIGNAL(anchorClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
     connect(contentView, SIGNAL(highlighted(QUrl)), this, SLOT(linkHovered(QUrl)));
 
-    setLayout(Ori::Gui::layoutV(0, 0, {contentView}));
+    Ori::Layouts::LayoutV({contentView})
+            .setMargin(0)
+            .setSpacing(0)
+            .useFor(this);
 
     connect(BugOperations::instance(), SIGNAL(bugCommentAdded(int)), this, SLOT(commentAdded(int)));
 }

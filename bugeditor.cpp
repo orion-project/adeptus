@@ -15,10 +15,13 @@
 #include "bugitemdelegate.h"
 #include "SqlBugProvider.h"
 #include "helpers/OriDialogs.h"
+#include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
 #include "tools/OriSettings.h"
 
-#define PROP_SPACING    Ori::Gui::defaultSpacing(1)
+using namespace Ori::Layouts;
+
+#define PROP_SPACING    Space(8)
 
 #define MODE_APPEND     0
 #define MODE_EDIT       1
@@ -100,37 +103,29 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
 
     Ori::Gui::adjustFont(textSummary);
 
-
-    auto layoutProps = Ori::Gui::layoutV(
-    {
-                        columnTitle(COL_CREATED), dateCreated, PROP_SPACING,
-                        columnTitle(COL_UPDATED), dateUpdated, PROP_SPACING,
-        labelStatus =   columnTitle(COL_STATUS), comboStatus, PROP_SPACING,
-                        columnTitle(COL_SEVERITY), comboSeverity, PROP_SPACING,
-                        columnTitle(COL_CATEGORY), comboCategory, PROP_SPACING,
-                        columnTitle(COL_PRIORITY), comboPriority, PROP_SPACING,
-        labelSolution = columnTitle(COL_SOLUTION), comboSolution, PROP_SPACING,
-                        columnTitle(COL_REPEAT), comboRepeat,
-        0
-    });
-
-    auto layoutText = Ori::Gui::layoutV(
-    {
-        columnTitle(COL_SUMMARY),
-        textSummary,
+    LayoutH({
+        LayoutV({
+                            columnTitle(COL_CREATED), dateCreated, PROP_SPACING,
+                            columnTitle(COL_UPDATED), dateUpdated, PROP_SPACING,
+            labelStatus =   columnTitle(COL_STATUS), comboStatus, PROP_SPACING,
+                            columnTitle(COL_SEVERITY), comboSeverity, PROP_SPACING,
+                            columnTitle(COL_CATEGORY), comboCategory, PROP_SPACING,
+                            columnTitle(COL_PRIORITY), comboPriority, PROP_SPACING,
+            labelSolution = columnTitle(COL_SOLUTION), comboSolution, PROP_SPACING,
+                            columnTitle(COL_REPEAT), comboRepeat,
+                            Stretch()
+        }),
         PROP_SPACING,
-        //columnTitle(COL_EXTRA),
-        textExtra,
-        PROP_SPACING,
-        buttons
-    });
-
-    setLayout(Ori::Gui::layoutH(
-    {
-          layoutProps,
-          Ori::Gui::defaultSpacing(3),
-          layoutText
-    }));
+        LayoutV({
+            columnTitle(COL_SUMMARY),
+            textSummary,
+            PROP_SPACING,
+            textExtra,
+            PROP_SPACING,
+            buttons
+        })
+    })
+        .useFor(this);
 
     Ori::Settings::restoreWindow(this, QSize(800, 480));
 
