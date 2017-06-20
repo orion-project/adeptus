@@ -28,18 +28,17 @@ public:
     void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
     {
         QStyledItemDelegate::initStyleOption(option, index);
-        QStyleOptionViewItemV4 *optionV4 = qstyleoption_cast<QStyleOptionViewItemV4*>(option);
 
         int row = index.row();
         int col = index.column();
         switch (index.sibling(row, COL_STATUS).data().toInt())
         {
         case STATUS_SOLVED:
-            optionV4->backgroundBrush = ColorProvider::solvedColorTransparent();
+            option->backgroundBrush = ColorProvider::solvedColorTransparent();
             break;
 
         case STATUS_CLOSED:
-            optionV4->backgroundBrush = ColorProvider::closedColorTransparent();
+            option->backgroundBrush = ColorProvider::closedColorTransparent();
             break;
 
         case STATUS_OPENED:
@@ -48,23 +47,23 @@ public:
                 switch (severity)
                 {
                 case SEVERITY_BLUNDER:
-                    optionV4->backgroundBrush = QColor(255, 0, 0, 35);
+                    option->backgroundBrush = QColor(255, 0, 0, 35);
                     break;
                 case SEVERITY_CRUSH:
-                    optionV4->backgroundBrush = QColor(255, 0, 0, 50);
+                    option->backgroundBrush = QColor(255, 0, 0, 50);
                     break;
                 case SEVERITY_BLOCKER:
-                    optionV4->backgroundBrush = QColor(255, 0, 0, 75);
+                    option->backgroundBrush = QColor(255, 0, 0, 75);
                     break;
                 }
                 if (severity <= SEVERITY_ENHANCE && col == COL_SEVERITY)
-                        optionV4->font.setItalic(true);
+                        option->font.setItalic(true);
                 else if (severity >= SEVERITY_CRUSH && col == COL_SEVERITY)
-                        optionV4->font.setBold(true);
+                        option->font.setBold(true);
 
                 int priority = index.sibling(row, COL_PRIORITY).data().toInt();
                 if (priority >= PRIORITY_HIGH && col == COL_PRIORITY)
-                    optionV4->font.setBold(true);
+                    option->font.setBold(true);
             }
             break;
         }
@@ -72,8 +71,8 @@ public:
         switch (index.column())
         {
         case COL_SUMMARY:
-            optionV4->text = index.data().toString();
-            optionV4->text.replace('\n', ' ');
+            option->text = index.data().toString();
+            option->text.replace('\n', ' ');
             break;
 
         case COL_SOLUTION:
@@ -82,12 +81,12 @@ public:
         case COL_PRIORITY:
         case COL_REPEAT:
         case COL_CATEGORY:
-            optionV4->text = BugManager::displayDictValue(index.column(), index.data());
+            option->text = BugManager::displayDictValue(index.column(), index.data());
             break;
 
         case COL_CREATED:
         case COL_UPDATED:
-            optionV4->text = BugManager::displayDateTime(index.data());
+            option->text = BugManager::displayDateTime(index.data());
             break;
         }
     }
@@ -177,6 +176,11 @@ void IssueTableWidget::createTableView()
     tableView->setColumnHidden(COL_EXTRA, true);
     tableView->setColumnHidden(COL_CREATED, true);
     tableView->setColumnHidden(COL_REPEAT, true);
+    tableView->setColumnHidden(COL_CATEGORY, true);
+    tableView->setColumnHidden(COL_SEVERITY, true);
+    tableView->setColumnHidden(COL_PRIORITY, true);
+    tableView->setColumnHidden(COL_STATUS, true);
+    tableView->setColumnHidden(COL_SOLUTION, true);
     tableView->setItemDelegate(itemDelegate);
 
     Ori::Gui::adjustFont(tableView);
