@@ -46,16 +46,19 @@ public:
     int repeat;
     QDateTime created;
     QDateTime updated;
-//    bool opened() const;
-//    QDateTime created() { return _created.toString(); }
-//    QDateTime updated() { return _updated.toString(); }
-//    QString displayCreated() { return _created.toDateTime().toString(Qt::SystemLocaleShortDate); }
-//    QString displayUpdated() { return _updated.toDateTime().toString(Qt::SystemLocaleShortDate); }
-//    QDateTime rawCreated() const { return _created.toDateTime(); }
-//    QDateTime rawUpdated() const { return _updated.toDateTime(); }
-//private:
-//    QVariant _created;
-//    QVariant _updated;
+
+    static QString categoryTitle();
+    static QString severityTitle();
+    static QString priorityTitle();
+    static QString statusTitle();
+    static QString solutionTitle();
+    static QString repeatTitle();
+    QString categoryStr() const;
+    QString severityStr() const;
+    QString priorityStr() const;
+    QString statusStr() const;
+    QString solutionStr() const;
+    QString repeatStr() const;
 };
 
 typedef QueryResult<BugInfo> BugResult;
@@ -93,11 +96,16 @@ class BugProvider
 {
 public:
     virtual ~BugProvider() {}
+
     virtual BugResult getBug(int id) = 0;
     virtual BugHistoryResult getHistory(int id) = 0;
     virtual IntListResult getRelations(int id) = 0;
+
     virtual QString bugParamName(int paramId) = 0;
-    virtual bool isBugOpened(int status)= 0;
+
+    virtual bool isBugOpened(int status) = 0;
+    virtual bool isBugClosed(int status) = 0;
+    virtual bool isBugSolved(int status) = 0;
 };
 
 //-----------------------------------------------------------------------------------------------

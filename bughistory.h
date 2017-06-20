@@ -22,7 +22,7 @@ public:
     void populate();
     int id() const { return _id; }
     int status() const { return _status; }
-    const QString& title() const { return _title; }
+    const QString& title() const { return _summary; }
     const QList<int>& relatedIds() const { return _relatedIds; }
     void setFocus();
 
@@ -31,7 +31,7 @@ signals:
 
 private:
     QTextBrowser* contentView;
-    QString _title, _summary;
+    QString _summary;
     QMap<int, QPair<QString, QString> > _changedTexts;
     int _id, _status, _changedTextIndex;
     QList<int> _relatedIds;
@@ -39,7 +39,7 @@ private:
     bool _showOnlyOpenedRelations = false;
 
     QString formatSectionTitle(const QString& title);
-    QString formatSummary(const QSqlRecord& record);
+    QString formatSummary(const BugInfo &bug);
     QString formatRelations();
     QString formatRelationsCount(int countOpened);
     QString formatHistory();

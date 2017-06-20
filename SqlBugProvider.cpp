@@ -8,6 +8,8 @@
 
 //-----------------------------------------------------------------------------------------------
 
+//-----------------------------------------------------------------------------------------------
+
 class BugRecord : public QSqlRecord
 {
 public:
@@ -158,7 +160,6 @@ QString SqlBugProvider::bugParamName(int paramId)
     return name;
 }
 
-bool SqlBugProvider::isBugOpened(int status)
-{
-    return status == STATUS_OPENED;
-}
+bool SqlBugProvider::isBugOpened(int status) { return status == STATUS_OPENED; }
+bool SqlBugProvider::isBugClosed(int status) { return status == STATUS_CLOSED; }
+bool SqlBugProvider::isBugSolved(int status) { return status == STATUS_SOLVED; }

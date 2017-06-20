@@ -41,6 +41,7 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
                     ".props { background-color: %3; }"
                     ".summary { background-color: %1; }"
                     ".extra { background-color: %1; }"
+                    ".opened_ref { background-color: %1; }"
                     ".solved_ref { background-color: %4; }"
                     ".closed_ref { background-color: %5; }")
             .arg(palette().color(QPalette::Base).name())
@@ -66,20 +67,23 @@ BugHistory::~BugHistory()
 void BugHistory::populate()
 {
     QString content;
-    QSqlRecord record = BugManager::bug(_id, content);
-    if (content.isEmpty())
+    BugResult result = _bugProvider->getBug(_id);
+    if (result.ok())
     {
-        _title = record.field(COL_SUMMARY).value().toString();
-        _status = record.field(COL_STATUS).value().toInt();
+        const BugInfo& bug = result.result();
 
-        content = formatSummary(record) % formatRelations() % formatHistory() %
+        _summary = bug.summary;
+        _status = bug.status;
+
+        content = formatSummary(bug) % formatRelations() % formatHistory() %
             "<p>" % BrowserCommands::addComment().format(tr("Append comment")) %
              "&nbsp;&nbsp;&nbsp;" %
              BrowserCommands::makeRelation().format(tr("Make relation"));
     }
     else
     {
-        _title.clear();
+        content = result.error();
+        _summary.clear();
         _status = -1;
     }
     contentView->setHtml(content);
@@ -102,12 +106,19 @@ QString formatMoment(const QDateTime& moment)
         .arg(moment.time().toString(Qt::SystemLocaleShortDate));
 }
 
-QString BugHistory::formatSummary(const QSqlRecord& record)
+QString formatProp(const QString& title, const QString& value)
 {
-    _summary = record.field(COL_SUMMARY).value().toString();
+    return QString("%1: <b>%2</b>. ").arg(title).arg(sanitizeHtml(value));
+    return QString();
+}
 
-    QString content("<table border=1 width=100% cellspacing=0 cellpadding=5>");
-    content += QString("<tr class='%7'><td>"
+QString BugHistory::formatSummary(const BugInfo& bug)
+{
+    QStringList content;
+
+    content << "<table border=1 width=100% cellspacing=0 cellpadding=5>";
+
+    content << QString("<tr class='%7'><td>"
                             "<table width=100%><tr>"
                                 // set title font size via tag <font> but not in style attr,
                                 // because of styled font size is not changed when Ctrl+Wheel
@@ -116,35 +127,33 @@ QString BugHistory::formatSummary(const QSqlRecord& record)
                                 "<tr><td align=right><nobr><span style='color:gray'>%5:</span> %6</nobr></td></tr>"
                             "</table>"
                        "</td></tr>")
-            .arg(BrowserCommands::copySummary().format(QString("#%1").arg(_id))).arg(sanitizeHtml(_summary))
-            .arg(tr("Created")).arg(formatMoment(record.field(COL_CREATED).value().toDateTime()))
-            .arg(tr("Updated")).arg(formatMoment(record.field(COL_UPDATED).value().toDateTime()))
+            .arg(BrowserCommands::copySummary().format(QString("#%1").arg(_id))).arg(sanitizeHtml(bug.summary))
+            .arg(tr("Created")).arg(formatMoment(bug.created))
+            .arg(tr("Updated")).arg(formatMoment(bug.updated))
             .arg(headerClass());
 
-    content += "<tr class='props'><td>";
-    foreach (int dictId, BugManager::dictionaryIds())
-    {
-        int valueId = record.value(dictId).toInt();
-        QString value = sanitizeHtml(BugManager::dictionaryCash(dictId)->value(valueId));
-        content += QString("%1: <b>%2</b>. ").arg(BugManager::columnTitle(dictId)).arg(value);
-    }
-    content += "</td></tr>";
+    content << "<tr class='props'><td>"
+            << formatProp(bug.categoryTitle(), bug.categoryStr())
+            << formatProp(bug.severityTitle(), bug.severityStr())
+            << formatProp(bug.priorityTitle(), bug.priorityStr())
+            << formatProp(bug.statusTitle(), bug.statusStr())
+            << formatProp(bug.solutionTitle(), bug.solutionStr())
+            << formatProp(bug.repeatTitle(), bug.repeatStr())
+            << "</td></tr>";
 
-    QString extra = record.field(COL_EXTRA).value().toString().trimmed();
-    if (!extra.isEmpty())
-        content += QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(sanitizeHtml(extra)));
+    if (!bug.extra.isEmpty())
+        content << QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(sanitizeHtml(bug.extra)));
 
-    return content + "</table>";
+    content << "</table>";
+
+    return content.join('\n');
 }
 
 QString BugHistory::headerClass() const
 {
-    switch (_status)
-    {
-        case STATUS_CLOSED: return QStringLiteral("header_closed");
-        case STATUS_SOLVED: return QStringLiteral("header_solved");
-        default: return QStringLiteral("header");
-    }
+    if (_bugProvider->isBugClosed(_status)) return QStringLiteral("header_closed");
+    if (_bugProvider->isBugSolved(_status)) return QStringLiteral("header_solved");
+    return QStringLiteral("header");
 }
 
 QString BugHistory::formatSectionTitle(const QString& title)
@@ -172,20 +181,20 @@ QString BugHistory::formatRelations()
     for (int relatedId : _relatedIds)
     {
         QString moment, command;
-        QString row_class("extra");
+        QString row_class("opened_ref");
         QString title = QString("#%1: ").arg(relatedId);
         BugResult res = _bugProvider->getBug(relatedId);
         if (res.ok())
         {
             BugInfo bug = res.result();
-            QString status = DictManager::status(bug.status);
+            QString status = bug.statusStr();
             if (!_bugProvider->isBugOpened(bug.status))
             {
                 if (_showOnlyOpenedRelations)
                     continue;
 
-                row_class = bug.status == STATUS_CLOSED? "closed_ref": "solved_ref";
-                status += ":" + DictManager::solution(bug.solution);
+                row_class = _bugProvider->isBugClosed(bug.status) ? "closed_ref" : "solved_ref";
+                status += ":" + bug.solutionStr();
             }
             else countOpened++;
 
