@@ -1,12 +1,8 @@
 #ifndef SQL_HELPERS_H
 #define SQL_HELPERS_H
 
+#include <QtSql>
 #include <QString>
-#include <QSqlError>
-#include <QSqlField>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QSqlTableModel>
 
 //-----------------------------------------------------------------------------------------------
 

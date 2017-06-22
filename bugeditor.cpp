@@ -13,7 +13,7 @@
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
-#include "sqlbugprovider.h"
+#include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
@@ -278,12 +278,12 @@ QString BugEditor::saveEdit()
     if (!Preferences::instance().bugEditorEnableDates)
         dateUpdated->setDateTime(QDateTime::currentDateTime());
 
-    IssueInfo oldValues = tableIssues().recordToObject(tableModel->record(0));
+    IssueInfo oldValues = DB::issues().table().recordToObject(tableModel->record(0));
 
     if (!mapper->submit())
         return SqlHelper::errorText(tableModel);
 
-    IssueInfo newValues = tableIssues().recordToObject(tableModel->record(0));
+    IssueInfo newValues = DB::issues().table().recordToObject(tableModel->record(0));
     QString res = BugComparer::writeHistory(oldValues, newValues);
     if (!res.isEmpty()) // do not return error, only show it
         Ori::Dlg::error(tr("Error while writing history:\n\n%1").arg(res));

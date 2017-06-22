@@ -93,8 +93,11 @@ public:
     QString str() const;
 };
 
+typedef BugHistoryItem HistoryItem;
 typedef QList<BugHistoryItem> BugHistoryItems;
+typedef QList<BugHistoryItem> HistoryItems;
 typedef QueryResult<BugHistoryItems> BugHistoryResult;
+typedef QueryResult<BugHistoryItems> HistoryResult;
 
 //-----------------------------------------------------------------------------------------------
 
@@ -125,3 +128,4 @@ public:
 //-----------------------------------------------------------------------------------------------
 
 #endif // BUG_TYPES_H
+

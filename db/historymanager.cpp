@@ -1,14 +1,13 @@
 #include "historymanager.h"
-#include "../sqlhelpers.h"
 #include "../bugmanager.h" // TODO eliminate
 
 #include <QApplication>
 
-class BugHistoryQuery : public Ori::Sql::SelectQuery
+class HistoryQuery : public SelectQuery
 {
 public:
-    BugHistoryQuery(int id) : Ori::Sql::SelectQuery(
-        QString("select * from %1 where Issue = %2 order by EventNum").arg(TABLE_HISTORY).arg(id))
+    HistoryQuery(int id) : SelectQuery(
+        QString("select * from History where Issue = %1 order by EventNum").arg(id))
     {}
 
     int eventNum() const { return _record.field("EventNum").value().toInt(); }
@@ -20,14 +19,15 @@ public:
     QDateTime moment() const { return _record.field("Moment").value().toDateTime(); }
 };
 
-BugHistoryResult HistoryManager::get(int id) const
-{
-    BugHistoryQuery query(id);
-    if (query.isFailed())
-        return BugHistoryResult::fail(query.error());
 
-    BugHistoryItems history;
-    BugHistoryItem item;
+HistoryResult HistoryManager::get(int id) const
+{
+    HistoryQuery query(id);
+    if (query.isFailed())
+        return HistoryResult::fail(query.error());
+
+    HistoryItems history;
+    HistoryItem item;
     while (query.next())
     {
         if (query.eventNum() > item.number)
@@ -35,13 +35,13 @@ BugHistoryResult HistoryManager::get(int id) const
             if (item.isValid())
                 history.append(item);
 
-            item = BugHistoryItem();
+            item = HistoryItem();
             item.number = query.eventNum();
             item.moment = query.moment();
         }
 
         if (query.changedParam() >= 0)
-            item.changedParams.append(BugHistoryItem::ChangedParam(
+            item.changedParams.append(HistoryItem::ChangedParam(
                                           query.changedParam(),
                                           query.oldValue(),
                                           query.newValue()));
@@ -57,7 +57,7 @@ BugHistoryResult HistoryManager::get(int id) const
 
     //for (const BugHistoryItem& it: history) qDebug() << it.str();
 
-    return BugHistoryResult::ok(history);
+    return HistoryResult::ok(history);
 }
 
 QString HistoryManager::issuePropName(int propId) const

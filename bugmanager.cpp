@@ -5,11 +5,9 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QMessageBox>
-#include <QSqlField>
 
 #include "bugmanager.h"
-#include "sqlbugprovider.h"
-
+#include "db/sqlhelpers.h"
 
 #define CREATE_TABLE(table, columns) \
     res = createTable(table, columns); \
@@ -903,61 +901,4 @@ bool checkResult(QWidget *parent, const QString& result, const QString& message)
 QString DictManager::status(int id) { return BugManager::dictionaryCash(COL_STATUS)->value(id); }
 QString DictManager::solution(int id) { return BugManager::dictionaryCash(COL_SOLUTION)->value(id); }
 
-//-----------------------------------------------------------------------------------------------
-
-class BugQueryBase
-{
-public:
-    BugQueryBase(const QString& sql)
-    {
-        if (!_query.exec(sql))
-            _error = SqlHelper::errorText(_query, true);
-    }
-
-    bool isFailed() const { return !_error.isEmpty(); }
-    const QString& error() const { return _error; }
-
-    bool next()
-    {
-        if (!_query.isSelect()) return false;
-        bool ok =  _query.isValid() ? _query.next(): _query.first();
-        if (ok) _record = _query.record();
-        return ok;
-    }
-
-protected:
-    QSqlQuery _query;
-    QSqlRecord _record;
-
-private:
-    QString _error;
-};
-
-//-----------------------------------------------------------------------------------------------
-
-class BugHistoryItemsQuery : public BugQueryBase
-{
-public:
-    BugHistoryItemsQuery(int id) : BugQueryBase(
-        QString("select * from %1 where Issue = %2 order by EventNum").arg(TABLE_HISTORY).arg(id))
-    {}
-
-    int eventNum() const { return _record.field("EventNum").value().toInt(); }
-    int eventPart() const { return _record.field("EventPart").value().toInt(); }
-    int changedParam() const { return _record.field("ChangedParam").value().toInt(); }
-    QVariant oldValue() const { return _record.field("OldValue").value(); }
-    QVariant newValue() const { return _record.field("NewValue").value(); }
-    QString comment() const { return _record.field("Comment").value().toString().trimmed(); }
-    QDateTime moment() const { return _record.field("Moment").value().toDateTime(); }
-};
-
-//-----------------------------------------------------------------------------------------------
-
-
-
-//-----------------------------------------------------------------------------------------------
-
-
-
-//-----------------------------------------------------------------------------------------------
 

@@ -37,8 +37,7 @@ SOURCES += main.cpp\
     guiactions.cpp \
     markdowneditor.cpp \
     issuetextview.cpp \
-    sqlhelpers.cpp \
-    sqlbugprovider.cpp \
+    db/sqlhelpers.cpp \
     db/historymanager.cpp \
     db/db.cpp \
     db/issuemanager.cpp \
@@ -66,8 +65,7 @@ HEADERS  += mainwindow.h \
     guiactions.h \
     markdowneditor.h \
     issuetextview.h \
-    sqlhelpers.h \
-    sqlbugprovider.h \
+    db/sqlhelpers.h \
     db/historymanager.h \
     db/db.h \
     db/issuemanager.h \
