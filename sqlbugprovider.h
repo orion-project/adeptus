@@ -12,7 +12,7 @@ public:
     IssueTableDef() : TableDef("Issue") {}
 
     QString sqlSelectById(int id) const {
-        return QString("SELECT * FROM %1 WHERE Id = %2").arg(tableName()).arg(id);
+        return QString("SELECT * FROM Issue WHERE Id = %1").arg(id);
     }
 
     IssueInfo recordToObject(const QSqlRecord& r) const;
@@ -38,7 +38,7 @@ public:
     HistoryTableDef() : TableDef("History") {}
 
     QString sqlSelectById(int id) const {
-        return QString("SELECT * FROM %1 WHERE Issue = %2 ORDER BY EventNum").arg(tableName()).arg(id);
+        return QString("SELECT * FROM History WHERE Issue = %1 ORDER BY EventNum").arg(id);
     }
 };
 
@@ -50,7 +50,7 @@ public:
     RelationsTableDef() : TableDef("Relations") {}
 
     QString sqlSelectById(int id) const {
-        return QString("SELECT * FROM %1 WHERE Id1 = %2 OR Id2 = %2 ORDER BY Created").arg(tableName()).arg(id);
+        return QString("SELECT * FROM Relations WHERE Id1 = %1 OR Id2 = %1 ORDER BY Created").arg(id);
     }
 
     RelationItem recordToObject(const QSqlRecord& r) const;

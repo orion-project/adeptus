@@ -953,40 +953,11 @@ public:
 
 //-----------------------------------------------------------------------------------------------
 
-namespace DB {
 
-const IssueManager& issues() { static IssueManager m; return m; }
-const RelationManager& relations() { static RelationManager m; return m; }
-
-} // namespace Database
 
 //-----------------------------------------------------------------------------------------------
 
-IntListResult RelationManager::get(int issueId) const
-{
-    SelectQuery query(tableRelations().sqlSelectById(issueId));
-    if (query.isFailed())
-        return IntListResult::fail(query.error());
 
-    QList<int> ids;
-    while (query.next())
-    {
-        auto item = tableRelations().recordToObject(query.record());
-        ids.append(item.id1 == issueId? item.id2: item.id1);
-    }
-    return IntListResult::ok(ids);
-}
 
 //-----------------------------------------------------------------------------------------------
 
-IssueResult IssueManager::get(int id) const
-{
-    SelectQuery query(tableIssues().sqlSelectById(id));
-    if (query.isFailed())
-        return BugResult::fail(query.error());
-
-    if (!query.next())
-        return BugResult::fail(qApp->tr("Issue not found (#%1)").arg(id));
-
-    return BugResult::ok(tableIssues().recordToObject(query.record()));
-}

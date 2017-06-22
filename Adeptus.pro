@@ -38,7 +38,11 @@ SOURCES += main.cpp\
     markdowneditor.cpp \
     issuetextview.cpp \
     sqlhelpers.cpp \
-    sqlbugprovider.cpp
+    sqlbugprovider.cpp \
+    db/historymanager.cpp \
+    db/db.cpp \
+    db/issuemanager.cpp \
+    db/relationmanager.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -63,7 +67,11 @@ HEADERS  += mainwindow.h \
     markdowneditor.h \
     issuetextview.h \
     sqlhelpers.h \
-    sqlbugprovider.h
+    sqlbugprovider.h \
+    db/historymanager.h \
+    db/db.h \
+    db/issuemanager.h \
+    db/relationmanager.h
 
 RESOURCES = images.qrc
 

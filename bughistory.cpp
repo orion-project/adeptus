@@ -14,13 +14,14 @@
 #include "appearance.h"
 #include "browsercommands.h"
 #include "bughistory.h"
-#include "bugmanager.h"
+//#include "bugmanager.h"
 #include "bugsolver.h"
 #include "bugeditor.h"
 #include "bugoperations.h"
 #include "issuetextview.h"
 #include "markdown.h"
-#include "sqlbugprovider.h"
+//#include "sqlbugprovider.h"
+#include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 
@@ -29,7 +30,7 @@
 BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent), 
     _id(id), _status(-1), _changedTextIndex(0)
 {
-    _bugProvider = new SqlBugProvider;
+//    _bugProvider = new SqlBugProvider;
 
     contentView = new IssueTextView;
     contentView->setStyleSheet(QString("QTextBrowser{background-color: %1; border-style: none;}")
@@ -64,7 +65,7 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
 
 BugHistory::~BugHistory()
 {
-    delete _bugProvider;
+    //delete _bugProvider;
 }
 
 void BugHistory::populate()
@@ -153,8 +154,8 @@ QString BugHistory::formatSummary(const BugInfo& bug)
 
 QString BugHistory::headerClass() const
 {
-    if (BugManager::isClosed(_status)) return QStringLiteral("header_closed");
-    if (BugManager::isSolved(_status)) return QStringLiteral("header_solved");
+    if (IssueManager::isClosed(_status)) return QStringLiteral("header_closed");
+    if (IssueManager::isSolved(_status)) return QStringLiteral("header_solved");
     return QStringLiteral("header");
 }
 
@@ -190,12 +191,12 @@ QString BugHistory::formatRelations()
         {
             const IssueInfo& issue = res.result();
             QString status = issue.statusStr();
-            if (!issue.isOpened())
+            if (!IssueManager::isOpened(issue.status))
             {
                 if (_showOnlyOpenedRelations)
                     continue;
 
-                row_class = issue.isClosed() ? "closed_ref" : "solved_ref";
+                row_class = IssueManager::isClosed(issue.status) ? "closed_ref" : "solved_ref";
                 status += ":" + issue.solutionStr();
             }
             else countOpened++;
@@ -245,7 +246,7 @@ QString BugHistory::formatHistory()
 {
     QString content = "<p><b>" % tr("Issue History:") % "</b>";
 
-    BugHistoryResult res = _bugProvider->getHistory(_id);
+    BugHistoryResult res = DB::history().get(_id);
     if (!res.ok()) return content % "<p>" % formatError(res.error());
 
     BugHistoryItems history = res.result();
@@ -290,7 +291,7 @@ QString BugHistory::formatChangedParams(const QList<BugHistoryItem::ChangedParam
 
 QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param)
 {
-    QString paramName = _bugProvider->bugParamName(param.paramId);
+    QString paramName = DB::history().issuePropName(param.paramId);
     QVariant oldValue = param.oldValue;
     QVariant newValue = param.newValue;
     if (param.paramId == COL_SUMMARY || param.paramId == COL_EXTRA)

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QSqlError>
+#include <QSqlField>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlTableModel>

@@ -7,6 +7,8 @@
 #include <QVector>
 #include <QFileInfo>
 
+#include "bugtypes.h"
+
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
@@ -85,24 +87,7 @@ QT_END_NAMESPACE
 
 #define BUGS_FILES "Issue Databases (*.bugs);;All files (*.*)"
 
-#include "bugtypes.h"
-
 typedef QMap<int, QString> DictionaryCash;
-
-
-class RelationManager
-{
-public:
-    IntListResult get(int issueId) const;
-};
-
-
-class IssueManager
-{
-public:
-    IssueResult get(int id) const;
-};
-
 
 class BugManager
 {
@@ -137,10 +122,6 @@ public:
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
     static QString debugGenerateIssues(QSqlTableModel *, int count);
 
-    static bool isOpened(int status) { return status == STATUS_OPENED; }
-    static bool isClosed(int status) { return status == STATUS_CLOSED; }
-    static bool isSolved(int status) { return status == STATUS_SOLVED; }
-
     static QString deleteBug(int id);
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
@@ -159,12 +140,6 @@ private:
 
     static QSqlRecord getBugRecord(int id, QString& result);
 };
-
-
-namespace DB {
-const IssueManager& issues();
-const RelationManager& relations();
-} // namespace Database
 
 
 class DictManager
