@@ -23,6 +23,7 @@
 #include "issuetable.h"
 #include "aboutwindow.h"
 #include "startpage.h"
+#include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
@@ -367,7 +368,7 @@ void MainWindow::makeRelation()
     int id2 = QInputDialog::getInt(this, tr("Make Relation"),
         tr("Make relation for #%1.\nRelated issue identifier:").arg(id1), 1, 1, INT_MAX, 1, &ok);
     if (!ok) return;
-    QString  res = BugManager::makeRelation(id1, id2);
+    QString  res = DB::relations().make(id1, id2);
     if (!res.isEmpty())
     {
         Ori::Dlg::error(res);

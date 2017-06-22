@@ -126,7 +126,6 @@ public:
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
 
-    static QString makeRelation(int id1, int id2);
     static QString deleteRelation(int id1, int id2);
 
     static QList<int> dictionaryIds();

@@ -17,6 +17,10 @@ public:
         return QString("SELECT * FROM Issue WHERE Id = %1").arg(id);
     }
 
+    QString sqlExistsById(int id) const {
+        return QString("SELECT Id FROM Issue WHERE Id = %1").arg(id);
+    }
+
     IssueInfo recordToObject(const QSqlRecord& r) const;
 
 //    DECLARE_COL(Id, QVariant::Int)
@@ -37,6 +41,7 @@ class IssueManager
 {
 public:
     IssueResult get(int id) const;
+    BoolResult exists(int id) const;
 
     static bool isOpened(int status) { return status == STATUS_OPENED; }
     static bool isClosed(int status) { return status == STATUS_CLOSED; }

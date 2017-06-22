@@ -26,6 +26,7 @@ private:
     TResult _result;
 };
 
+typedef QueryResult<bool> BoolResult;
 typedef QueryResult<int> IntResult;
 typedef QueryResult<QList<int>> IntListResult;
 
@@ -106,6 +107,7 @@ class RelationItem
 public:
     int id1;
     int id2;
+    QDateTime created;
 };
 
 //-----------------------------------------------------------------------------------------------

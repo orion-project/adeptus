@@ -20,6 +20,7 @@ IssueInfo IssueTableDef::recordToObject(const QSqlRecord& r) const
     return info;
 }
 
+//-----------------------------------------------------------------------------
 
 IssueResult IssueManager::get(int id) const
 {
@@ -32,3 +33,13 @@ IssueResult IssueManager::get(int id) const
 
     return BugResult::ok(_table.recordToObject(query.record()));
 }
+
+BoolResult IssueManager::exists(int id) const
+{
+    SelectQuery query(_table.sqlExistsById(id));
+    if (query.isFailed())
+        return BoolResult::fail(query.error());
+
+    return BoolResult::ok(query.next());
+}
+

@@ -514,30 +514,6 @@ QList<int> BugManager::dictionaryIds()
     return { COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_STATUS, COL_SOLUTION, COL_REPEAT };
 }
 
-QString BugManager::makeRelation(int id1, int id2)
-{
-    if (id1 == id2)
-        return qApp->tr("Unable to relate an issue with itself");
-    QString result;
-    getBugRecord(id1, result); if (!result.isEmpty()) return result;
-    getBugRecord(id2, result); if (!result.isEmpty()) return result;
-    QSqlQuery query;
-    if (!query.exec(QString("select * from %1 where (Id1 = %2 and Id2 = %3) "
-                            "or (Id1 = %3 and Id2 = %2)").arg(TABLE_RELATIONS).arg(id1).arg(id2)))
-        return SqlHelper::errorText(query);
-    if (query.isSelect() && query.first())
-        return qApp->tr("There is an relation between #%1 and #%2 already.").arg(id1).arg(id2);
-    QSqlRecord r;
-    SqlHelper::addField(r, "Id1", id1);
-    SqlHelper::addField(r, "Id2", id2);
-    SqlHelper::addField(r, "Created", QDateTime::currentDateTime());
-    QSqlTableModel table;
-    table.setTable(TABLE_RELATIONS);
-    if (!table.insertRecord(-1, r))
-        return qApp->tr("Failed to make a new relation:\n\n%1").arg(SqlHelper::errorText(table));
-    return QString();
-}
-
 QString BugManager::deleteRelation(int id1, int id2)
 {
     QSqlQuery query;

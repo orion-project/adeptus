@@ -14,13 +14,11 @@
 #include "appearance.h"
 #include "browsercommands.h"
 #include "bughistory.h"
-//#include "bugmanager.h"
 #include "bugsolver.h"
 #include "bugeditor.h"
 #include "bugoperations.h"
 #include "issuetextview.h"
 #include "markdown.h"
-//#include "sqlbugprovider.h"
 #include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -30,8 +28,6 @@
 BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent), 
     _id(id), _status(-1), _changedTextIndex(0)
 {
-//    _bugProvider = new SqlBugProvider;
-
     contentView = new IssueTextView;
     contentView->setStyleSheet(QString("QTextBrowser{background-color: %1; border-style: none;}")
                                .arg(palette().color(QPalette::Window).name()));
@@ -63,22 +59,17 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
     connect(BugOperations::instance(), SIGNAL(bugCommentAdded(int)), this, SLOT(commentAdded(int)));
 }
 
-BugHistory::~BugHistory()
-{
-    //delete _bugProvider;
-}
-
 void BugHistory::populate()
 {
     QString content;
     IssueResult result = DB::issues().get(_id);
     if (result.ok())
     {
-        const IssueInfo& bug = result.result();
-        _summary = bug.summary;
-        _status = bug.status;
+        const IssueInfo& issue = result.result();
+        _summary = issue.summary;
+        _status = issue.status;
 
-        content = formatSummary(bug) % formatRelations() % formatHistory() %
+        content = formatSummary(issue) % formatRelations() % formatHistory() %
             "<p>" % BrowserCommands::addComment().format(tr("Append comment")) %
              "&nbsp;&nbsp;&nbsp;" %
              BrowserCommands::makeRelation().format(tr("Make relation"));

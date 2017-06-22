@@ -3,6 +3,7 @@
 
 #include <QtSql>
 #include <QString>
+#include <QDebug>
 
 //-----------------------------------------------------------------------------------------------
 
@@ -23,6 +24,32 @@ QString errorText(const QSqlError &error);
 
 namespace Ori {
 namespace Sql {
+
+class ActionQuery
+{
+public:    
+    ActionQuery(const QString& sql)
+    {
+        _query.prepare(sql);
+    }
+
+    ActionQuery& param(const QString& name, const QVariant& value)
+    {
+        _query.bindValue(name, value);
+        return *this;
+    }
+
+    QString exec()
+    {
+        if (!_query.exec())
+            return SqlHelper::errorText(_query, true);
+        return QString();
+    }
+    
+private:
+    QSqlQuery _query;
+};
+
 
 class SelectQuery
 {
@@ -61,15 +88,13 @@ public:
     ColDef(const QString& title, QVariant::Type type):
         _title(title), _type(type) { }
 
-    //int index() const { return _index; }
     QString title() const { return _title; }
     QVariant::Type type() const { return _type; }
 
-    QVariant value(const QSqlRecord& record) const;
-    void setValue(QSqlRecord& record, const QVariant& value) const;
+    QVariant fromRecord(const QSqlRecord& record) const;
+    void toRecord(QSqlRecord& record, const QVariant& value) const;
 
 private:
-    //int _index;
     QString _title;
     QVariant::Type _type;
 };
@@ -99,17 +124,17 @@ private:
     QString sqlCreate() const;
 };
 
-#define DECLARE_COL(name, type)\
-    const Ori::Sql::ColDef& name()\
-    {\
-        static int index = -1;\
-        if (index < 0)\
-        {\
-            index = _cols.size();\
-            _cols.append(Ori::Sql::ColDef(#name, type));\
-        }\
-        return _cols.at(index);\
-    }
+//#define DECLARE_COL(name, type)\
+//    const Ori::Sql::ColDef& name()\
+//    {\
+//        static int index = -1;\
+//        if (index < 0)\
+//        {\
+//            index = _cols.size();\
+//            _cols.append(Ori::Sql::ColDef(#name, type));\
+//        }\
+//        return _cols.at(index);\
+//    }
 
 } // namespace Sql
 } // namespace Ori

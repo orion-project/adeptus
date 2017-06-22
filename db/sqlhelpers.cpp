@@ -50,12 +50,12 @@ QString errorText(const QSqlError &error)
 namespace Ori {
 namespace Sql {
 
-QVariant ColDef::value(const QSqlRecord& record) const
+QVariant ColDef::fromRecord(const QSqlRecord& record) const
 {
     return record.value(_title);
 }
 
-void ColDef::setValue(QSqlRecord& record, const QVariant& value) const
+void ColDef::toRecord(QSqlRecord& record, const QVariant& value) const
 {
     QSqlField field(_title, _type);
     field.setValue(value);

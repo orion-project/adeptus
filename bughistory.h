@@ -17,7 +17,6 @@ class BugHistory : public QWidget
 
 public:
     explicit BugHistory(int id, QWidget *parent = 0);
-    ~BugHistory();
 
     void populate();
     int id() const { return _id; }
@@ -35,7 +34,6 @@ private:
     QMap<int, QPair<QString, QString> > _changedTexts;
     int _id, _status, _changedTextIndex;
     QList<int> _relatedIds;
-    //BugProvider* _bugProvider;
     bool _showOnlyOpenedRelations = false;
 
     QString formatSectionTitle(const QString& title);
