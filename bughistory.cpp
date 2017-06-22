@@ -172,7 +172,7 @@ QString BugHistory::formatRelations()
 {
     QString sectionTitle = formatSectionTitle(tr("Related Issues"));
 
-    IntListResult res = _bugProvider->getRelations(_id);
+    IntListResult res = BugManager::getRelations(_id);
     if (!res.ok()) return finishWithError(sectionTitle, res.error());
 
     _relatedIds = res.result();

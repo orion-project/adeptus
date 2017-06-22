@@ -569,6 +569,26 @@ QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
     return file;
 }
 
+//BugHistoryResult BugManager::getHistory(int id)
+//{
+
+//}
+
+IntListResult BugManager::getRelations(int id)
+{
+    SelectQuery query(tableRelations().sqlSelectById(id));
+    if (query.isFailed())
+        return IntListResult::fail(query.error());
+
+    QList<int> ids;
+    while (query.next())
+    {
+        auto item = tableRelations().recordToObject(query.record());
+        ids.append(item.id1 == id? item.id2: item.id1);
+    }
+    return IntListResult::ok(ids);
+}
+
 //-----------------------------------------------------------------------------------------------
 
 QString BugComparer::writeHistory(const BugInfo& oldValue, const BugInfo& newValue)

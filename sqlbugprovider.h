@@ -11,8 +11,7 @@ class BugTableDef : public TableDef
 public:
     BugTableDef() : TableDef("Issue") {}
 
-    QString sqlSelectById(int id) const
-    {
+    QString sqlSelectById(int id) const {
         return QString("SELECT * FROM %1 WHERE Id = %2").arg(tableName()).arg(id);
     }
 
@@ -31,20 +30,54 @@ public:
 //    DECLARE_COL(Updated, QVariant::DateTime)
 };
 
+//-----------------------------------------------------------------------------------------------
+
+class BugHistoryTableDef : public TableDef
+{
+public:
+    BugHistoryTableDef() : TableDef("History") {}
+
+    QString sqlSelectById(int id) const {
+        return QString("SELECT * FROM %1 WHERE Issue = %2 ORDER BY EventNum").arg(tableName()).arg(id);
+    }
+
+    BugInfo recordToObject(const QSqlRecord& r) const;
+};
+
+//-----------------------------------------------------------------------------------------------
+
+class BugRelationsTableDef : public TableDef
+{
+public:
+    BugRelationsTableDef() : TableDef("Relations") {}
+
+    QString sqlSelectById(int id) const {
+        return QString("SELECT * FROM %1 WHERE Id1 = %2 OR Id2 = %2 ORDER BY Created").arg(tableName()).arg(id);
+    }
+
+    BugRelationItem recordToObject(const QSqlRecord& r) const;
+};
+
+//-----------------------------------------------------------------------------------------------
+
 const BugTableDef& tableBugs();
+const BugHistoryTableDef& tableHistory();
+const BugRelationsTableDef& tableRelations();
+
+//-----------------------------------------------------------------------------------------------
 
 class SqlBugProvider : public BugProvider
 {
 public:
     BugHistoryResult getHistory(int id) override;
-    IntListResult getRelations(int id) override;
+    //IntListResult getRelations(int id) override;
     QString bugParamName(int paramId) override;
 
 //    bool isBugOpened(int status) override;
 //    bool isBugClosed(int status) override;
 //    bool isBugSolved(int status) override;
 
-    static BugInfo recordToBugInfo(const QSqlRecord& record);
+    //static BugInfo recordToBugInfo(const QSqlRecord& record);
 
 private:
     BugHistoryItem::ChangedParam getChangedParam(const QSqlRecord& record);

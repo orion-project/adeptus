@@ -140,6 +140,10 @@ public:
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
     static bool isInvalid(int id) { return !isValid(id); }
+
+    //static BugHistoryResult getHistory(int id);
+    static IntListResult getRelations(int id);
+
 private:
     static QString createTable(const QString &name, const QString &columns);
     static QString insertDictValue(const QString &table, int id, const QString &value);

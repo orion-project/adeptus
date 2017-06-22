@@ -26,11 +26,21 @@ BugInfo BugTableDef::recordToObject(const QSqlRecord& r) const
     return info;
 }
 
-const BugTableDef& tableBugs()
+//-----------------------------------------------------------------------------------------------
+
+BugRelationItem BugRelationsTableDef::recordToObject(const QSqlRecord& r) const
 {
-    static BugTableDef table;
-    return table;
+    BugRelationItem item;
+    item.id1 = r.value("Id1").toInt();
+    item.id2 = r.value("Id2").toInt();
+    return item;
 }
+
+//-----------------------------------------------------------------------------------------------
+
+const BugTableDef& tableBugs() { static BugTableDef t; return t; }
+const BugHistoryTableDef& tableHistory() { static BugHistoryTableDef t; return t; }
+const BugRelationsTableDef& tableRelations() { static BugRelationsTableDef t; return t; }
 
 //-----------------------------------------------------------------------------------------------
 
@@ -51,16 +61,16 @@ public:
 };
 
 
-class BugRelationsQuery : public Ori::Sql::SelectQuery
-{
-public:
-    BugRelationsQuery(int id) : Ori::Sql::SelectQuery(
-        QString("select * from %1 where Id1 = %2 or Id2 = %2 order by Created").arg(TABLE_RELATIONS).arg(id))
-    {}
+//class BugRelationsQuery : public Ori::Sql::SelectQuery
+//{
+//public:
+//    BugRelationsQuery(int id) : Ori::Sql::SelectQuery(
+//        QString("select * from %1 where Id1 = %2 or Id2 = %2 order by Created").arg(TABLE_RELATIONS).arg(id))
+//    {}
 
-    int id1() const { return _record.value("Id1").toInt(); }
-    int id2() const { return _record.value("Id2").toInt(); }
-};
+//    int id1() const { return _record.value("Id1").toInt(); }
+//    int id2() const { return _record.value("Id2").toInt(); }
+//};
 
 //-----------------------------------------------------------------------------------------------
 
@@ -104,21 +114,21 @@ BugHistoryResult SqlBugProvider::getHistory(int id)
     return BugHistoryResult::ok(history);
 }
 
-IntListResult SqlBugProvider::getRelations(int id)
-{
-    BugRelationsQuery query(id);
-    if (query.isFailed())
-        return IntListResult::fail(query.error());
+//IntListResult SqlBugProvider::getRelations(int id)
+//{
+//    BugRelationsQuery query(id);
+//    if (query.isFailed())
+//        return IntListResult::fail(query.error());
 
-    QList<int> ids;
-    while (query.next())
-    {
-        int id1 = query.id1();
-        int id2 = query.id2();
-        ids.append(id1 == id? id2: id1);
-    }
-    return IntListResult::ok(ids);
-}
+//    QList<int> ids;
+//    while (query.next())
+//    {
+//        int id1 = query.id1();
+//        int id2 = query.id2();
+//        ids.append(id1 == id? id2: id1);
+//    }
+//    return IntListResult::ok(ids);
+//}
 
 QString SqlBugProvider::bugParamName(int paramId)
 {

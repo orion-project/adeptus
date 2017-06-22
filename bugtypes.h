@@ -96,13 +96,22 @@ typedef QueryResult<BugHistoryItems> BugHistoryResult;
 
 //-----------------------------------------------------------------------------------------------
 
+class BugRelationItem
+{
+public:
+    int id1;
+    int id2;
+};
+
+//-----------------------------------------------------------------------------------------------
+
 class BugProvider
 {
 public:
     virtual ~BugProvider() {}
 
     virtual BugHistoryResult getHistory(int id) = 0;
-    virtual IntListResult getRelations(int id) = 0;
+    //virtual IntListResult getRelations(int id) = 0;
 
     virtual QString bugParamName(int paramId) = 0;
 
