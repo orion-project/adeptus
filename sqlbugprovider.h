@@ -6,16 +6,16 @@
 
 using namespace Ori::Sql;
 
-class BugTableDef : public TableDef
+class IssueTableDef : public TableDef
 {
 public:
-    BugTableDef() : TableDef("Issue") {}
+    IssueTableDef() : TableDef("Issue") {}
 
     QString sqlSelectById(int id) const {
         return QString("SELECT * FROM %1 WHERE Id = %2").arg(tableName()).arg(id);
     }
 
-    BugInfo recordToObject(const QSqlRecord& r) const;
+    IssueInfo recordToObject(const QSqlRecord& r) const;
 
 //    DECLARE_COL(Id, QVariant::Int)
 //    DECLARE_COL(Summary, QVariant::String)
@@ -32,37 +32,35 @@ public:
 
 //-----------------------------------------------------------------------------------------------
 
-class BugHistoryTableDef : public TableDef
+class HistoryTableDef : public TableDef
 {
 public:
-    BugHistoryTableDef() : TableDef("History") {}
+    HistoryTableDef() : TableDef("History") {}
 
     QString sqlSelectById(int id) const {
         return QString("SELECT * FROM %1 WHERE Issue = %2 ORDER BY EventNum").arg(tableName()).arg(id);
     }
-
-    BugInfo recordToObject(const QSqlRecord& r) const;
 };
 
 //-----------------------------------------------------------------------------------------------
 
-class BugRelationsTableDef : public TableDef
+class RelationsTableDef : public TableDef
 {
 public:
-    BugRelationsTableDef() : TableDef("Relations") {}
+    RelationsTableDef() : TableDef("Relations") {}
 
     QString sqlSelectById(int id) const {
         return QString("SELECT * FROM %1 WHERE Id1 = %2 OR Id2 = %2 ORDER BY Created").arg(tableName()).arg(id);
     }
 
-    BugRelationItem recordToObject(const QSqlRecord& r) const;
+    RelationItem recordToObject(const QSqlRecord& r) const;
 };
 
 //-----------------------------------------------------------------------------------------------
 
-const BugTableDef& tableBugs();
-const BugHistoryTableDef& tableHistory();
-const BugRelationsTableDef& tableRelations();
+const IssueTableDef& tableIssues();
+const HistoryTableDef& tableHistory();
+const RelationsTableDef& tableRelations();
 
 //-----------------------------------------------------------------------------------------------
 

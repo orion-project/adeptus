@@ -278,12 +278,12 @@ QString BugEditor::saveEdit()
     if (!Preferences::instance().bugEditorEnableDates)
         dateUpdated->setDateTime(QDateTime::currentDateTime());
 
-    BugInfo oldValues = tableBugs().recordToObject(tableModel->record(0));
+    IssueInfo oldValues = tableIssues().recordToObject(tableModel->record(0));
 
     if (!mapper->submit())
         return SqlHelper::errorText(tableModel);
 
-    BugInfo newValues = tableBugs().recordToObject(tableModel->record(0));
+    IssueInfo newValues = tableIssues().recordToObject(tableModel->record(0));
     QString res = BugComparer::writeHistory(oldValues, newValues);
     if (!res.isEmpty()) // do not return error, only show it
         Ori::Dlg::error(tr("Error while writing history:\n\n%1").arg(res));

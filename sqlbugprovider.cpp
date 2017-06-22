@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------------------------
 
 // TODO: get column values by name, not by index
-BugInfo BugTableDef::recordToObject(const QSqlRecord& r) const
+IssueInfo IssueTableDef::recordToObject(const QSqlRecord& r) const
 {
     BugInfo info;
     info.id = r.value(COL_ID).toInt();
@@ -28,9 +28,9 @@ BugInfo BugTableDef::recordToObject(const QSqlRecord& r) const
 
 //-----------------------------------------------------------------------------------------------
 
-BugRelationItem BugRelationsTableDef::recordToObject(const QSqlRecord& r) const
+RelationItem RelationsTableDef::recordToObject(const QSqlRecord& r) const
 {
-    BugRelationItem item;
+    RelationItem item;
     item.id1 = r.value("Id1").toInt();
     item.id2 = r.value("Id2").toInt();
     return item;
@@ -38,9 +38,9 @@ BugRelationItem BugRelationsTableDef::recordToObject(const QSqlRecord& r) const
 
 //-----------------------------------------------------------------------------------------------
 
-const BugTableDef& tableBugs() { static BugTableDef t; return t; }
-const BugHistoryTableDef& tableHistory() { static BugHistoryTableDef t; return t; }
-const BugRelationsTableDef& tableRelations() { static BugRelationsTableDef t; return t; }
+const IssueTableDef& tableIssues() { static IssueTableDef t; return t; }
+const HistoryTableDef& tableHistory() { static HistoryTableDef t; return t; }
+const RelationsTableDef& tableRelations() { static RelationsTableDef t; return t; }
 
 //-----------------------------------------------------------------------------------------------
 

@@ -473,18 +473,6 @@ QSqlRecord BugManager::getBugRecord(int id, QString& result)
     return sql.record();
 }
 
-BugResult BugManager::getBug(int id)
-{
-    SelectQuery query(tableBugs().sqlSelectById(id));
-    if (query.isFailed())
-        return BugResult::fail(query.error());
-
-    if (!query.next())
-        return BugResult::fail(qApp->tr("Issue not found (#%1)").arg(id));
-
-    return BugResult::ok(tableBugs().recordToObject(query.record()));
-}
-
 QString BugManager::deleteBug(int id)
 {
     QSqlQuery sql(QString("DELETE FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id));
@@ -567,26 +555,6 @@ QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
     file.setFile(file.absoluteDir().path() % '/' % file.completeBaseName() %
                  QLatin1Literal(".files/") % fileName);
     return file;
-}
-
-//BugHistoryResult BugManager::getHistory(int id)
-//{
-
-//}
-
-IntListResult BugManager::getRelations(int id)
-{
-    SelectQuery query(tableRelations().sqlSelectById(id));
-    if (query.isFailed())
-        return IntListResult::fail(query.error());
-
-    QList<int> ids;
-    while (query.next())
-    {
-        auto item = tableRelations().recordToObject(query.record());
-        ids.append(item.id1 == id? item.id2: item.id1);
-    }
-    return IntListResult::ok(ids);
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -985,3 +953,40 @@ public:
 
 //-----------------------------------------------------------------------------------------------
 
+namespace DB {
+
+const IssueManager& issues() { static IssueManager m; return m; }
+const RelationManager& relations() { static RelationManager m; return m; }
+
+} // namespace Database
+
+//-----------------------------------------------------------------------------------------------
+
+IntListResult RelationManager::get(int issueId) const
+{
+    SelectQuery query(tableRelations().sqlSelectById(issueId));
+    if (query.isFailed())
+        return IntListResult::fail(query.error());
+
+    QList<int> ids;
+    while (query.next())
+    {
+        auto item = tableRelations().recordToObject(query.record());
+        ids.append(item.id1 == issueId? item.id2: item.id1);
+    }
+    return IntListResult::ok(ids);
+}
+
+//-----------------------------------------------------------------------------------------------
+
+IssueResult IssueManager::get(int id) const
+{
+    SelectQuery query(tableIssues().sqlSelectById(id));
+    if (query.isFailed())
+        return BugResult::fail(query.error());
+
+    if (!query.next())
+        return BugResult::fail(qApp->tr("Issue not found (#%1)").arg(id));
+
+    return BugResult::ok(tableIssues().recordToObject(query.record()));
+}

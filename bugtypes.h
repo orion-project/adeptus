@@ -65,7 +65,9 @@ public:
     bool isSolved() const;
 };
 
+typedef BugInfo IssueInfo;
 typedef QueryResult<BugInfo> BugResult;
+typedef QueryResult<BugInfo> IssueResult;
 
 //-----------------------------------------------------------------------------------------------
 
@@ -96,7 +98,7 @@ typedef QueryResult<BugHistoryItems> BugHistoryResult;
 
 //-----------------------------------------------------------------------------------------------
 
-class BugRelationItem
+class RelationItem
 {
 public:
     int id1;

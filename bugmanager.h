@@ -89,6 +89,21 @@ QT_END_NAMESPACE
 
 typedef QMap<int, QString> DictionaryCash;
 
+
+class RelationManager
+{
+public:
+    IntListResult get(int issueId) const;
+};
+
+
+class IssueManager
+{
+public:
+    IssueResult get(int id) const;
+};
+
+
 class BugManager
 {
 public:
@@ -122,8 +137,6 @@ public:
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
     static QString debugGenerateIssues(QSqlTableModel *, int count);
 
-    static BugResult getBug(int id);
-
     static bool isOpened(int status) { return status == STATUS_OPENED; }
     static bool isClosed(int status) { return status == STATUS_CLOSED; }
     static bool isSolved(int status) { return status == STATUS_SOLVED; }
@@ -134,15 +147,11 @@ public:
 
     static QString makeRelation(int id1, int id2);
     static QString deleteRelation(int id1, int id2);
-    static QString getRelations(int id, QList<int>& ids);
 
     static QList<int> dictionaryIds();
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
     static bool isInvalid(int id) { return !isValid(id); }
-
-    //static BugHistoryResult getHistory(int id);
-    static IntListResult getRelations(int id);
 
 private:
     static QString createTable(const QString &name, const QString &columns);
@@ -151,12 +160,20 @@ private:
     static QSqlRecord getBugRecord(int id, QString& result);
 };
 
+
+namespace DB {
+const IssueManager& issues();
+const RelationManager& relations();
+} // namespace Database
+
+
 class DictManager
 {
 public:
     static QString status(int id);
     static QString solution(int id);
 };
+
 
 class BugComparer
 {

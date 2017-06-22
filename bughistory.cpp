@@ -70,10 +70,10 @@ BugHistory::~BugHistory()
 void BugHistory::populate()
 {
     QString content;
-    BugResult result = BugManager::getBug(_id);
+    IssueResult result = DB::issues().get(_id);
     if (result.ok())
     {
-        const BugInfo& bug = result.result();
+        const IssueInfo& bug = result.result();
         _summary = bug.summary;
         _status = bug.status;
 
@@ -172,7 +172,7 @@ QString BugHistory::formatRelations()
 {
     QString sectionTitle = formatSectionTitle(tr("Related Issues"));
 
-    IntListResult res = BugManager::getRelations(_id);
+    IntListResult res = DB::relations().get(_id);
     if (!res.ok()) return finishWithError(sectionTitle, res.error());
 
     _relatedIds = res.result();
@@ -185,24 +185,24 @@ QString BugHistory::formatRelations()
         QString moment, command;
         QString row_class("opened_ref");
         QString title = QString("#%1: ").arg(relatedId);
-        BugResult res = BugManager::getBug(relatedId);
+        IssueResult res = DB::issues().get(relatedId);
         if (res.ok())
         {
-            BugInfo bug = res.result();
-            QString status = bug.statusStr();
-            if (!bug.isOpened())
+            const IssueInfo& issue = res.result();
+            QString status = issue.statusStr();
+            if (!issue.isOpened())
             {
                 if (_showOnlyOpenedRelations)
                     continue;
 
-                row_class = bug.isClosed() ? "closed_ref" : "solved_ref";
-                status += ":" + bug.solutionStr();
+                row_class = issue.isClosed() ? "closed_ref" : "solved_ref";
+                status += ":" + issue.solutionStr();
             }
             else countOpened++;
 
             title += QString("(%1) ").arg(status) %
-                BrowserCommands::showRelated().format(relatedId, sanitizeHtml(bug.summary));
-            moment = formatMoment(bug.created);
+                BrowserCommands::showRelated().format(relatedId, sanitizeHtml(issue.summary));
+            moment = formatMoment(issue.created);
             command = BrowserCommands::delRelated().format(_id, relatedId, "<img src=':/tools/delete'>");
         }
         else title += formatError(res.error());
