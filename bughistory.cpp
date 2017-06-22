@@ -20,7 +20,7 @@
 #include "bugoperations.h"
 #include "issuetextview.h"
 #include "markdown.h"
-#include "SqlBugProvider.h"
+#include "sqlbugprovider.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 
@@ -70,11 +70,10 @@ BugHistory::~BugHistory()
 void BugHistory::populate()
 {
     QString content;
-    BugResult result = _bugProvider->getBug(_id);
+    BugResult result = BugManager::getBug(_id);
     if (result.ok())
     {
         const BugInfo& bug = result.result();
-
         _summary = bug.summary;
         _status = bug.status;
 
@@ -154,8 +153,8 @@ QString BugHistory::formatSummary(const BugInfo& bug)
 
 QString BugHistory::headerClass() const
 {
-    if (_bugProvider->isBugClosed(_status)) return QStringLiteral("header_closed");
-    if (_bugProvider->isBugSolved(_status)) return QStringLiteral("header_solved");
+    if (BugManager::isClosed(_status)) return QStringLiteral("header_closed");
+    if (BugManager::isSolved(_status)) return QStringLiteral("header_solved");
     return QStringLiteral("header");
 }
 
@@ -186,17 +185,17 @@ QString BugHistory::formatRelations()
         QString moment, command;
         QString row_class("opened_ref");
         QString title = QString("#%1: ").arg(relatedId);
-        BugResult res = _bugProvider->getBug(relatedId);
+        BugResult res = BugManager::getBug(relatedId);
         if (res.ok())
         {
             BugInfo bug = res.result();
             QString status = bug.statusStr();
-            if (!_bugProvider->isBugOpened(bug.status))
+            if (!bug.isOpened())
             {
                 if (_showOnlyOpenedRelations)
                     continue;
 
-                row_class = _bugProvider->isBugClosed(bug.status) ? "closed_ref" : "solved_ref";
+                row_class = bug.isClosed() ? "closed_ref" : "solved_ref";
                 status += ":" + bug.solutionStr();
             }
             else countOpened++;

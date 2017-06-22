@@ -32,13 +32,13 @@ SOURCES += main.cpp\
     bugoperations.cpp \
     bugtypes.cpp \
     ImageViewWindow.cpp \
-    SqlBugProvider.cpp \
-    SqlHelpers.cpp \
     markdown.cpp \
     browsercommands.cpp \
     guiactions.cpp \
     markdowneditor.cpp \
-    issuetextview.cpp
+    issuetextview.cpp \
+    sqlhelpers.cpp \
+    sqlbugprovider.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -57,13 +57,13 @@ HEADERS  += mainwindow.h \
     bugoperations.h \
     bugtypes.h \
     ImageViewWindow.h \
-    SqlBugProvider.h \
-    SqlHelpers.h \
     markdown.h \
     browsercommands.h \
     guiactions.h \
     markdowneditor.h \
-    issuetextview.h
+    issuetextview.h \
+    sqlhelpers.h \
+    sqlbugprovider.h
 
 RESOURCES = images.qrc
 

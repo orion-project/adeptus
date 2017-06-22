@@ -5,15 +5,19 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QSqlTableModel>
 
 //-----------------------------------------------------------------------------------------------
 
 namespace SqlHelper {
 
+void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value);
+void addField(QSqlRecord &record, const QString &name, const QVariant &value);
+
 QString errorText(const QSqlQuery &query, bool includeSql = false);
 QString errorText(const QSqlQuery *query, bool includeSql = false);
-//QString errorText(const QSqlTableModel &model);
-//QString errorText(const QSqlTableModel *model);
+QString errorText(const QSqlTableModel &model);
+QString errorText(const QSqlTableModel *model);
 QString errorText(const QSqlError &error);
 
 } // namespace SqlHelper
@@ -52,7 +56,7 @@ private:
     QString _error;
 };
 
-/*
+
 class ColDef
 {
 public:
@@ -109,7 +113,7 @@ private:
         }\
         return _cols.at(index);\
     }
-*/
+
 } // namespace Sql
 } // namespace Ori
 

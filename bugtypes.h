@@ -35,15 +35,15 @@ class BugInfo
 {
 public:
     BugInfo() {}
-    int id;
+    int id = -1;
     QString summary;
     QString extra;
-    int category;
-    int severity;
-    int priority;
-    int status;
-    int solution;
-    int repeat;
+    int category = -1;
+    int severity = -1;
+    int priority = -1;
+    int status = -1;
+    int solution = -1;
+    int repeat = -1;
     QDateTime created;
     QDateTime updated;
 
@@ -59,6 +59,10 @@ public:
     QString statusStr() const;
     QString solutionStr() const;
     QString repeatStr() const;
+
+    bool isOpened() const;
+    bool isClosed() const;
+    bool isSolved() const;
 };
 
 typedef QueryResult<BugInfo> BugResult;
@@ -97,15 +101,14 @@ class BugProvider
 public:
     virtual ~BugProvider() {}
 
-    virtual BugResult getBug(int id) = 0;
     virtual BugHistoryResult getHistory(int id) = 0;
     virtual IntListResult getRelations(int id) = 0;
 
     virtual QString bugParamName(int paramId) = 0;
 
-    virtual bool isBugOpened(int status) = 0;
-    virtual bool isBugClosed(int status) = 0;
-    virtual bool isBugSolved(int status) = 0;
+//    virtual bool isBugOpened(int status) = 0;
+//    virtual bool isBugClosed(int status) = 0;
+//    virtual bool isBugSolved(int status) = 0;
 };
 
 //-----------------------------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
+#include "sqlhelpers.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 

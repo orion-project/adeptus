@@ -1,40 +1,38 @@
-#include "SqlBugProvider.h"
+#include "sqlbugprovider.h"
 
 #include "bugmanager.h"
-#include "SqlHelpers.h"
+#include "sqlhelpers.h"
 
 #include <QApplication>
 #include <QSqlField>
 
 //-----------------------------------------------------------------------------------------------
 
+// TODO: get column values by name, not by index
+BugInfo BugTableDef::recordToObject(const QSqlRecord& r) const
+{
+    BugInfo info;
+    info.id = r.value(COL_ID).toInt();
+    info.summary = r.value(COL_SUMMARY).toString().trimmed();
+    info.extra = r.value(COL_EXTRA).toString().trimmed();
+    info.category = r.value(COL_CATEGORY).toInt();
+    info.severity = r.value(COL_SEVERITY).toInt();
+    info.priority = r.value(COL_PRIORITY).toInt();
+    info.status = r.value(COL_STATUS).toInt();
+    info.solution = r.value(COL_SOLUTION).toInt();
+    info.repeat = r.value(COL_REPEAT).toInt();
+    info.created = r.value(COL_CREATED).toDateTime();
+    info.updated = r.value(COL_UPDATED).toDateTime();
+    return info;
+}
+
+const BugTableDef& tableBugs()
+{
+    static BugTableDef table;
+    return table;
+}
+
 //-----------------------------------------------------------------------------------------------
-
-class BugRecord : public QSqlRecord
-{
-public:
-    int id() const { return value(COL_ID).toInt(); }
-    QString summary() const { return value(COL_SUMMARY).toString().trimmed(); }
-    QString extra() const { return value(COL_EXTRA).toString().trimmed(); }
-    int category() const { return value(COL_CATEGORY).toInt(); }
-    int severity() const { return value(COL_SEVERITY).toInt(); }
-    int priority() const { return value(COL_PRIORITY).toInt(); }
-    int status() const { return value(COL_STATUS).toInt(); }
-    int solution() const { return value(COL_SOLUTION).toInt(); }
-    int repeat() const { return value(COL_REPEAT).toInt(); }
-    QDateTime created() const { return value(COL_CREATED).toDateTime(); }
-    QDateTime updated() const { return value(COL_UPDATED).toDateTime(); }
-};
-
-
-class BugQuery : public Ori::Sql::SelectQuery
-{
-public:
-    BugQuery(int id) : Ori::Sql::SelectQuery(
-        QString("SELECT * FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id))
-    {}
-};
-
 
 class BugHistoryQuery : public Ori::Sql::SelectQuery
 {
@@ -65,36 +63,6 @@ public:
 };
 
 //-----------------------------------------------------------------------------------------------
-
-BugResult SqlBugProvider::getBug(int id)
-{
-    BugQuery query(id);
-    if (query.isFailed())
-        return BugResult::fail(query.error());
-
-    if (!query.next())
-        return BugResult::fail(qApp->tr("Issue not found (#%1)").arg(id));
-
-    return BugResult::ok(recordToBugInfo(query.record()));
-}
-
-BugInfo SqlBugProvider::recordToBugInfo(const QSqlRecord& record)
-{
-    const BugRecord& r = (const BugRecord&)record;
-    BugInfo info;
-    info.id = r.id();
-    info.summary = r.summary();
-    info.extra = r.extra();
-    info.category = r.category();
-    info.severity = r.severity();
-    info.priority = r.priority();
-    info.status = r.status();
-    info.solution = r.solution();
-    info.repeat = r.repeat();
-    info.created = r.created();
-    info.updated = r.updated();
-    return info;
-}
 
 BugHistoryResult SqlBugProvider::getHistory(int id)
 {
@@ -160,6 +128,6 @@ QString SqlBugProvider::bugParamName(int paramId)
     return name;
 }
 
-bool SqlBugProvider::isBugOpened(int status) { return status == STATUS_OPENED; }
-bool SqlBugProvider::isBugClosed(int status) { return status == STATUS_CLOSED; }
-bool SqlBugProvider::isBugSolved(int status) { return status == STATUS_SOLVED; }
+//bool SqlBugProvider::isBugOpened(int status) { return status == STATUS_OPENED; }
+//bool SqlBugProvider::isBugClosed(int status) { return status == STATUS_CLOSED; }
+//bool SqlBugProvider::isBugSolved(int status) { return status == STATUS_SOLVED; }

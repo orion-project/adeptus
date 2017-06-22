@@ -1,6 +1,22 @@
-#include "SqlHelpers.h"
+#include "sqlhelpers.h"
+
+#include <QSqlField>
 
 namespace SqlHelper {
+
+void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value)
+{
+    QSqlField field(name, type);
+    field.setValue(value);
+    record.append(field);
+}
+
+void addField(QSqlRecord &record, const QString &name, const QVariant &value)
+{
+    QSqlField field(name, value.type());
+    field.setValue(value);
+    record.append(field);
+}
 
 QString errorText(const QSqlQuery &query, bool includeSql)
 {
@@ -15,15 +31,15 @@ QString errorText(const QSqlQuery *query, bool includeSql)
     return text + errorText(query->lastError());
 }
 
-//QString errorText(const QSqlTableModel &model)
-//{
-//    return errorText(model.lastError());
-//}
+QString errorText(const QSqlTableModel &model)
+{
+    return errorText(model.lastError());
+}
 
-//QString errorText(const QSqlTableModel *model)
-//{
-//    return errorText(model->lastError());
-//}
+QString errorText(const QSqlTableModel *model)
+{
+    return errorText(model->lastError());
+}
 
 QString errorText(const QSqlError &error)
 {
@@ -32,9 +48,10 @@ QString errorText(const QSqlError &error)
 
 } // namespace SqlHelper
 
+
 namespace Ori {
 namespace Sql {
-/*
+
 QVariant ColDef::value(const QSqlRecord& record) const
 {
     return record.value(_title);
@@ -87,6 +104,6 @@ QString TableDef::sqlSelectAll(const QString& orderBy) const
     if (!orderBy.isEmpty()) sql += " order by " + orderBy;
     return sql;
 }
-*/
+
 } // namespace Sql
 } // namespace Ori

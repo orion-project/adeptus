@@ -1,6 +1,6 @@
 #include "bugtypes.h"
 
-#include "bugmanager.h" // TODO eliminate
+#include "bugmanager.h"
 
 QString BugInfo::categoryTitle() { return BugManager::columnTitle(COL_CATEGORY); }
 QString BugInfo::severityTitle() { return BugManager::columnTitle(COL_SEVERITY); }
@@ -15,6 +15,10 @@ QString BugInfo::priorityStr() const { return BugManager::dictionaryCash(COL_PRI
 QString BugInfo::statusStr() const { return BugManager::dictionaryCash(COL_STATUS)->value(status); }
 QString BugInfo::solutionStr() const { return BugManager::dictionaryCash(COL_SOLUTION)->value(solution); }
 QString BugInfo::repeatStr() const { return BugManager::dictionaryCash(COL_REPEAT)->value(repeat); }
+
+bool BugInfo::isOpened() const { return BugManager::isOpened(status); }
+bool BugInfo::isClosed() const { return BugManager::isClosed(status); }
+bool BugInfo::isSolved() const { return BugManager::isSolved(status); }
 
 //-----------------------------------------------------------------------------
 

@@ -1,12 +1,15 @@
-#include <QtCore>
-#include <QtSql>
+#include <QApplication>
 #include <QBoxLayout>
 #include <QDebug>
+#include <QDir>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QMessageBox>
+#include <QSqlField>
 
 #include "bugmanager.h"
-#include "SqlHelpers.h"
+#include "sqlbugprovider.h"
+
 
 #define CREATE_TABLE(table, columns) \
     res = createTable(table, columns); \
@@ -453,7 +456,7 @@ QString BugManager::debugGenerateIssues(QSqlTableModel*, int count)
     return "";
 }
 
-QSqlRecord BugManager::bug(int id, QString& result)
+QSqlRecord BugManager::getBugRecord(int id, QString& result)
 {
     result.clear();
     QSqlQuery sql(QString("SELECT * FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id));
@@ -468,6 +471,18 @@ QSqlRecord BugManager::bug(int id, QString& result)
         return QSqlRecord();
     }
     return sql.record();
+}
+
+BugResult BugManager::getBug(int id)
+{
+    SelectQuery query(tableBugs().sqlSelectById(id));
+    if (query.isFailed())
+        return BugResult::fail(query.error());
+
+    if (!query.next())
+        return BugResult::fail(qApp->tr("Issue not found (#%1)").arg(id));
+
+    return BugResult::ok(tableBugs().recordToObject(query.record()));
 }
 
 QString BugManager::deleteBug(int id)
@@ -518,8 +533,8 @@ QString BugManager::makeRelation(int id1, int id2)
     if (id1 == id2)
         return qApp->tr("Unable to relate an issue with itself");
     QString result;
-    bug(id1, result); if (!result.isEmpty()) return result;
-    bug(id2, result); if (!result.isEmpty()) return result;
+    getBugRecord(id1, result); if (!result.isEmpty()) return result;
+    getBugRecord(id2, result); if (!result.isEmpty()) return result;
     QSqlQuery query;
     if (!query.exec(QString("select * from %1 where (Id1 = %2 and Id2 = %3) "
                             "or (Id1 = %3 and Id2 = %2)").arg(TABLE_RELATIONS).arg(id1).arg(id2)))
@@ -594,36 +609,6 @@ QString BugComparer::writeHistory(const BugInfo& oldValue, const BugInfo& newVal
                                              COL_REPEAT, oldValue.repeat, newValue.repeat);
     return result;
 }
-
-//-----------------------------------------------------------------------------------------------
-
-namespace SqlHelper {
-
-void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value)
-{
-    QSqlField field(name, type);
-    field.setValue(value);
-    record.append(field);
-}
-
-void addField(QSqlRecord &record, const QString &name, const QVariant &value)
-{
-    QSqlField field(name, value.type());
-    field.setValue(value);
-    record.append(field);
-}
-
-QString errorText(const QSqlTableModel &model)
-{
-    return errorText(model.lastError());
-}
-
-QString errorText(const QSqlTableModel *model)
-{
-    return errorText(model->lastError());
-}
-
-} // namespace SqlHelper
 
 //-----------------------------------------------------------------------------------------------
 

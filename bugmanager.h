@@ -121,13 +121,21 @@ public:
                                   const QVariant &oldValue, const QVariant &newValue);
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
     static QString debugGenerateIssues(QSqlTableModel *, int count);
-    static QSqlRecord bug(int id, QString& result);
+
+    static BugResult getBug(int id);
+
+    static bool isOpened(int status) { return status == STATUS_OPENED; }
+    static bool isClosed(int status) { return status == STATUS_CLOSED; }
+    static bool isSolved(int status) { return status == STATUS_SOLVED; }
+
     static QString deleteBug(int id);
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
+
     static QString makeRelation(int id1, int id2);
     static QString deleteRelation(int id1, int id2);
     static QString getRelations(int id, QList<int>& ids);
+
     static QList<int> dictionaryIds();
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
@@ -135,6 +143,8 @@ public:
 private:
     static QString createTable(const QString &name, const QString &columns);
     static QString insertDictValue(const QString &table, int id, const QString &value);
+
+    static QSqlRecord getBugRecord(int id, QString& result);
 };
 
 class DictManager
@@ -150,14 +160,6 @@ public:
     static QString writeHistory(const BugInfo& oldValue, const BugInfo& newValue);
 };
 
-namespace SqlHelper {
-
-void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value);
-void addField(QSqlRecord &record, const QString &name, const QVariant &value);
-QString errorText(const QSqlTableModel &model);
-QString errorText(const QSqlTableModel *model);
-
-} // namespace SqlHelper
 
 class WidgetHelper
 {
@@ -168,6 +170,7 @@ public:
     static QVariant selectedId(QComboBox *combo);
 };
 
+
 struct IssueFilter
 {
     bool check;
@@ -176,6 +179,7 @@ struct IssueFilter
     QString condition;
     QString getSql() const;
 };
+
 
 class IssueFilters
 {
@@ -190,6 +194,7 @@ protected:
     virtual QString saveInternal(class DbSettings&);
     virtual QString loadInternal(class DbSettings&);
 };
+
 
 class IssueFiltersPreset : public IssueFilters
 {
@@ -208,6 +213,7 @@ private:
     QString _title;
 };
 
+
 class DbSettings
 {
 public:
@@ -222,12 +228,14 @@ private:
     QString lastErrorStr();
 };
 
+
 QVariant ptr2var(void *p);
 
 template <typename T> T* var2obj(const QVariant& var)
 {
     return reinterpret_cast<T*>(var.value<void*>());
 }
+
 
 bool checkResult(QWidget *parent, const QVariant& result, const QString& message);
 bool checkResult(QWidget *parent, const QString& result, const QString& message);
