@@ -119,7 +119,6 @@ public:
                                   const QVariant &oldValue, const QVariant &newValue);
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
 
-    static QString deleteBug(int id);
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
 

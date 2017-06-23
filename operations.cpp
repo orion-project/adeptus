@@ -10,7 +10,21 @@ Operations* Operations::instance() { static Operations instance; return &instanc
 
 void Operations::showIssue(int id)
 {
-    emit instance()->operationRequest(ShowIssue, id);
+    emit instance()->requestShowIssue(id);
+}
+
+void Operations::deleteIssue(int id)
+{
+    if (id > 0 && Ori::Dlg::yes(tr("Delete issue #%1?").arg(id)))
+    {
+        auto res = DB::issues().remove(id);
+        if (!res.isEmpty())
+        {
+            Ori::Dlg::error(tr("Failed to delete issue #%1:\n\n%2").arg(id).arg(res));
+            return;
+        }
+        emit instance()->issueDeleted(id);
+    }
 }
 
 void Operations::commentIssue(int id)
@@ -29,8 +43,8 @@ void Operations::makeRelation(int id)
     QString  res = DB::relations().make(id1, id2);
     if (!res.isEmpty())
         Ori::Dlg::error(res);
-    requestRefresh(id1);
-    requestRefresh(id2);
+    emit instance()->issueChanged(id1);
+    emit instance()->issueChanged(id2);
 }
 
 void Operations::deleteRelation(int id1, int id2)
@@ -40,12 +54,7 @@ void Operations::deleteRelation(int id1, int id2)
         QString res = DB::relations().remove(id1, id2);
         if (!res.isEmpty())
             Ori::Dlg::error(res);
-        requestRefresh(id1);
-        requestRefresh(id2);
+        emit instance()->issueChanged(id1);
+        emit instance()->issueChanged(id2);
     }
-}
-
-void Operations::requestRefresh(int id)
-{
-    emit instance()->operationRequest(RefreshIssue, id);
 }

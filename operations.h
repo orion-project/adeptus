@@ -8,26 +8,23 @@ class Operations : public QObject
     Q_OBJECT
 
 public:
-    enum Options {
-        ShowIssue,
-        RefreshIssue,
-        CommentIssue
-    };
-
     static Operations* instance();
 
     static void showIssue(int id);
+    static void deleteIssue(int id);
     static void commentIssue(int id);
+
     static void makeRelation(int id);
     static void deleteRelation(int id1, int id2);
 
 signals:
-    void operationRequest(int operation, int id);
+    void requestShowIssue(int id);
+
+    void issueDeleted(int id);
+    void issueChanged(int id);
 
 private:
     explicit Operations(QObject *parent = 0) : QObject(parent) {}
-
-    static void requestRefresh(int id);
 };
 
 #endif // OPERATIONS_H

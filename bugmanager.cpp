@@ -412,14 +412,6 @@ QString BugManager::countBugs(int& total, int& opened, int& displayed, const QSt
     return QString();
 }
 
-QString BugManager::deleteBug(int id)
-{
-    QSqlQuery sql(QString("DELETE FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id));
-    if (!sql.exec())
-        return SqlHelper::errorText(sql);
-    return "";
-}
-
 QString BugManager::columnTitle(int colId)
 {
     switch (colId)

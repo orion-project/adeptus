@@ -12,6 +12,7 @@
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
+#include "operations.h"
 #include "db/sqlhelpers.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -39,7 +40,7 @@ BugSolver* BugSolver::initWindow(QWidget *parent, int id, const QString& title)
         }
         __BugSolver_openedWindows.insert(id, wnd);
     }
-    wnd->connect(BugOperations::instance(), SIGNAL(bugDeleted(int)), wnd, SLOT(bugDeleted(int)));
+    wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugSolver::issueDeleted);
     wnd->setWindowTitle(tr("%1 #%2").arg(title).arg(id));
     wnd->show();
     qApp->setActiveWindow(wnd);
@@ -271,7 +272,7 @@ QString BugSolver::saveIssue()
     return QString();
 }
 
-void BugSolver::bugDeleted(int id)
+void BugSolver::issueDeleted(int id)
 {
     if (id == currentId) QWidget::close();
 }

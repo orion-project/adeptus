@@ -16,11 +16,6 @@ void BugOperations::raiseBugChanged(int id)
     emit bugChanged(id);
 }
 
-void BugOperations::raiseBugDeleted(int id)
-{
-    emit bugDeleted(id);
-}
-
 void BugOperations::raiseBugCommentAdded(int bugId)
 {
     emit bugCommentAdded(bugId);

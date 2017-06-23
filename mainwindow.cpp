@@ -68,7 +68,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(BugOperations::instance(), SIGNAL(bugChanged(int)), this, SLOT(updateView(int)));
     connect(BugOperations::instance(), SIGNAL(bugAdded(int)), this, SLOT(bugAdded(int)));
-    connect(Operations::instance(), &Operations::operationRequest, this, &MainWindow::processOperation);
+    connect(Operations::instance(), &Operations::requestShowIssue, this, &MainWindow::openHistoryPage);
+    connect(Operations::instance(), &Operations::issueDeleted, this, &MainWindow::issueDeleted);
+    connect(Operations::instance(), &Operations::issueChanged, this, &MainWindow::updatePageById);
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +110,7 @@ void MainWindow::createMenus()
     QAction* actionHistory = menuBug->addAction(tr("History"), this, SLOT(showHistory()), Qt::Key_Return);
     menuBug->addSeparator();
     menuBug->addAction(tr("Edit..."), this, SLOT(editBug()), Qt::Key_F2);
-    menuBug->addAction(tr("Delete"), this, SLOT(deleteBug()));
+    menuBug->addAction(tr("Delete"), [this](){ Operations::deleteIssue(this->currentId()); });
     menuBug->addSeparator();
     menuBug->addAction(tr("Make Relation..."), [this](){ Operations::makeRelation(this->currentId()); });
 
@@ -284,38 +286,18 @@ void MainWindow::bugAdded(int id)
     issueTable->setSelectedId(id);
 
     if (Preferences::instance().openNewBugOnPage)
-        showHistory(id);
+        openHistoryPage(id);
     else
         issueTabs->setCurrentIndex(0);
 }
 
-void MainWindow::deleteBug()
+void MainWindow::issueDeleted(int id)
 {
-    int id = currentId();
-    if (id > 0 && Ori::Dlg::yes(tr("Delete issue #%1?").arg(id)))
-    {
-        auto res = BugManager::deleteBug(id);
-        if (!res.isEmpty())
-        {
-            Ori::Dlg::error(tr("Failed to delete issue #%1:\n\n%2").arg(id).arg(res));
-            return;
-        }
-        tableModel->select();
-        issueTable->adjustHeader();
-        updateCounter();
-        updatePagesByRelatedId(id);
-        closeTab(indexOfId(id));
-        BugOperations::instance()->raiseBugDeleted(id);
-    }
-}
-
-void MainWindow::processOperation(int operation, int id)
-{
-    switch (operation)
-    {
-    case Operations::ShowIssue: showHistory(id); return;
-    case Operations::RefreshIssue: updatePageById(id); break;
-    }
+    tableModel->select();
+    issueTable->adjustHeader();
+    updateCounter();
+    updatePagesByRelatedId(id);
+    closeTab(indexOfId(id));
 }
 
 void MainWindow::editBug()
@@ -332,10 +314,10 @@ void MainWindow::showHistory()
 {
     if (!tableModel || page()) return;
 
-    showHistory(issueTable->selectedId());
+    openHistoryPage(issueTable->selectedId());
 }
 
-void MainWindow::showHistory(int id)
+void MainWindow::openHistoryPage(int id)
 {
     if (id < 0) return;
     BugHistory* history = pageById(id);

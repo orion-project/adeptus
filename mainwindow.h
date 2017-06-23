@@ -36,7 +36,6 @@ private slots:
     void openFile(const QString &fileName);
     void editDictionary();
     void appendBug();
-    void deleteBug();
     void editBug();
     void processBug();
     void menuBugOpened();
@@ -44,7 +43,6 @@ private slots:
     void updateCounter();
     void tabCloseRequested(int index);
     void about();
-    void processOperation(int operation, int id);
     void updateView(int id);
     void bugAdded(int id);
 
@@ -72,10 +70,11 @@ private:
     void closeTab(int index);
     int currentId();
     int currentStatus();
-    void showHistory(int id);
+    void openHistoryPage(int id);
     BugHistory* page(int index = -1);
     BugHistory* pageById(int id);
     int indexOfId(int id);
+    void issueDeleted(int id);
     void updatePageById(int id);
     void updatePagesByRelatedId(int id);
 };

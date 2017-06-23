@@ -31,7 +31,7 @@ public:
     void setIcon(const QString& path);
 
 public slots:
-    void bugDeleted(int id);
+    void issueDeleted(int id);
 
 private slots:
     void save();

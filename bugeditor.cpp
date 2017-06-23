@@ -13,6 +13,7 @@
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
+#include "operations.h"
 #include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -64,7 +65,7 @@ void BugEditor::edit(QWidget *parent, int id)
             return;
         }
         __BugEditor_openedWindows.insert(id, wnd);
-        wnd->connect(BugOperations::instance(), SIGNAL(bugDeleted(int)), wnd, SLOT(bugDeleted(int)));
+        wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugEditor::issueDeleted);
     }
     wnd->show();
     qApp->setActiveWindow(wnd);
@@ -291,7 +292,7 @@ QString BugEditor::saveEdit()
     return QString();
 }
 
-void BugEditor::bugDeleted(int id)
+void BugEditor::issueDeleted(int id)
 {
     if (id == currentId) close();
 }

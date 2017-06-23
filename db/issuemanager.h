@@ -21,19 +21,11 @@ public:
         return QString("SELECT Id FROM Issue WHERE Id = %1").arg(id);
     }
 
-    IssueInfo recordToObject(const QSqlRecord& r) const;
+    QString sqlDelete(int id) const {
+        return QString("DELETE FROM Issue WHERE Id = %1").arg(id);
+    }
 
-//    DECLARE_COL(Id, QVariant::Int)
-//    DECLARE_COL(Summary, QVariant::String)
-//    DECLARE_COL(Extra, QVariant::String)
-//    DECLARE_COL(Category, QVariant::Int)
-//    DECLARE_COL(Severity, QVariant::Int)
-//    DECLARE_COL(Priority, QVariant::Int)
-//    DECLARE_COL(Repeat, QVariant::Int)
-//    DECLARE_COL(Status, QVariant::Int)
-//    DECLARE_COL(Solution, QVariant::Int)
-//    DECLARE_COL(Created, QVariant::DateTime)
-//    DECLARE_COL(Updated, QVariant::DateTime)
+    IssueInfo recordToObject(const QSqlRecord& r) const;
 };
 
 
@@ -42,6 +34,7 @@ class IssueManager
 public:
     IssueResult get(int id) const;
     BoolResult exists(int id) const;
+    QString remove(int id) const;
 
     static bool isOpened(int status) { return status == STATUS_OPENED; }
     static bool isClosed(int status) { return status == STATUS_CLOSED; }

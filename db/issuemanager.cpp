@@ -43,3 +43,8 @@ BoolResult IssueManager::exists(int id) const
     return BoolResult::ok(query.next());
 }
 
+QString IssueManager::remove(int id) const
+{
+    QString res = ActionQuery(_table.sqlDelete(id)).exec();
+    return !res.isEmpty() ? res : QString();
+}
