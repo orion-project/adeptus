@@ -44,7 +44,6 @@ private slots:
     void tabCloseRequested(int index);
     void about();
     void updateView(int id);
-    void bugAdded(int id);
 
 private:
     QMenu *menuBug, *menuDicts, *menuDebug, *contextMenu;
@@ -74,6 +73,7 @@ private:
     BugHistory* page(int index = -1);
     BugHistory* pageById(int id);
     int indexOfId(int id);
+    void issueAdded(int id);
     void issueDeleted(int id);
     void updatePageById(int id);
     void updatePagesByRelatedId(int id);

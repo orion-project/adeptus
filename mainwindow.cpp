@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFileDialog>
-//#include <QInputDialog>
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -16,7 +15,6 @@
 #include "bugsolver.h"
 #include "bughistory.h"
 #include "dicteditor.h"
-#include "bugoperations.h"
 #include "prefseditor.h"
 #include "preferences.h"
 #include "issuetable.h"
@@ -66,11 +64,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setCurrentFile("");
     setUnifiedTitleAndToolBarOnMac(true);
 
-    connect(BugOperations::instance(), SIGNAL(bugChanged(int)), this, SLOT(updateView(int)));
-    connect(BugOperations::instance(), SIGNAL(bugAdded(int)), this, SLOT(bugAdded(int)));
-    connect(Operations::instance(), &Operations::requestShowIssue, this, &MainWindow::openHistoryPage);
+    connect(Operations::instance(), &Operations::issueAdded, this, &MainWindow::issueAdded);
     connect(Operations::instance(), &Operations::issueDeleted, this, &MainWindow::issueDeleted);
-    connect(Operations::instance(), &Operations::issueChanged, this, &MainWindow::updatePageById);
+    connect(Operations::instance(), &Operations::issueChanged, this, &MainWindow::updateView);
+    connect(Operations::instance(), &Operations::relationsChanged, this, &MainWindow::updatePageById);
+    connect(Operations::instance(), &Operations::requestShowIssue, this, &MainWindow::openHistoryPage);
 }
 
 MainWindow::~MainWindow()
@@ -270,7 +268,7 @@ void MainWindow::appendBug()
     BugEditor::append(this);
 }
 
-void MainWindow::bugAdded(int id)
+void MainWindow::issueAdded(int id)
 {
     if (BugManager::isInvalid(id)) return;
 

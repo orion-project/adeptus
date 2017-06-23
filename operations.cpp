@@ -8,6 +8,10 @@
 
 Operations* Operations::instance() { static Operations instance; return &instance; }
 
+void Operations::notifyIssueAdded(int id) { emit instance()->issueAdded(id); }
+void Operations::notifyIssueChanged(int id) { emit instance()->issueChanged(id); }
+void Operations::notifyCommentAdded(int id) { emit instance()->commentAdded(id); }
+
 void Operations::showIssue(int id)
 {
     emit instance()->requestShowIssue(id);
@@ -43,8 +47,8 @@ void Operations::makeRelation(int id)
     QString  res = DB::relations().make(id1, id2);
     if (!res.isEmpty())
         Ori::Dlg::error(res);
-    emit instance()->issueChanged(id1);
-    emit instance()->issueChanged(id2);
+    emit instance()->relationsChanged(id1);
+    emit instance()->relationsChanged(id2);
 }
 
 void Operations::deleteRelation(int id1, int id2)
@@ -54,7 +58,7 @@ void Operations::deleteRelation(int id1, int id2)
         QString res = DB::relations().remove(id1, id2);
         if (!res.isEmpty())
             Ori::Dlg::error(res);
-        emit instance()->issueChanged(id1);
-        emit instance()->issueChanged(id2);
+        emit instance()->relationsChanged(id1);
+        emit instance()->relationsChanged(id2);
     }
 }

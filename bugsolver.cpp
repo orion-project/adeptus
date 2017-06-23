@@ -8,7 +8,6 @@
 
 #include "bugsolver.h"
 #include "bugmanager.h"
-#include "bugoperations.h"
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
@@ -259,8 +258,10 @@ void BugSolver::save()
 
     db.commit();
 
-    BugOperations::instance()->raiseBugChanged(currentId);
-    BugOperations::instance()->raiseBugCommentAdded(currentId);
+    // TODO: if only comment was added and no status was changed then it does not affect issue table view,
+    // so we can use more weak change event to update only opened page, like after relation was created/deleted.
+    Operations::notifyIssueChanged(currentId);
+    Operations::notifyCommentAdded(currentId);
     QWidget::close();
 }
 

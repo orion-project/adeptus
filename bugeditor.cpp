@@ -9,7 +9,6 @@
 
 #include "bugeditor.h"
 #include "bugmanager.h"
-#include "bugoperations.h"
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
@@ -236,11 +235,11 @@ void BugEditor::save()
     switch (mode)
     {
     case MODE_APPEND:
-        BugOperations::instance()->raiseBugAdded(currentId);
+        Operations::notifyIssueAdded(currentId);
         break;
 
     case MODE_EDIT:
-        BugOperations::instance()->raiseBugChanged(currentId);
+        Operations::notifyIssueChanged(currentId);
         break;
     }
 

@@ -55,7 +55,7 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
             .setSpacing(0)
             .useFor(this);
 
-    connect(BugOperations::instance(), SIGNAL(bugCommentAdded(int)), this, SLOT(commentAdded(int)));
+    connect(Operations::instance(), &Operations::commentAdded, this, &BugHistory::commentAdded);
 }
 
 void BugHistory::populate()

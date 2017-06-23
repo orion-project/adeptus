@@ -29,7 +29,6 @@ SOURCES += main.cpp\
     startpage.cpp \
     filterpanel.cpp \
     appearance.cpp \
-    bugoperations.cpp \
     bugtypes.cpp \
     ImageViewWindow.cpp \
     markdown.cpp \
@@ -57,7 +56,6 @@ HEADERS  += mainwindow.h \
     startpage.h \
     filterpanel.h \
     appearance.h \
-    bugoperations.h \
     bugtypes.h \
     ImageViewWindow.h \
     markdown.h \
