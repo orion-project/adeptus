@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+// TODO merge this into Operations
 class BugOperations : public QObject
 {
     Q_OBJECT

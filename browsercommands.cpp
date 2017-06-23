@@ -5,7 +5,7 @@
 
 #include "browsercommands.h"
 #include "bugmanager.h"
-#include "guiactions.h"
+#include "operations.h"
 #include "ImageViewWindow.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriTools.h"
@@ -43,7 +43,7 @@ public:
 
     void exec(const QUrl& url) const override
     {
-        GuiActions::showIssue(arg1Int(url));
+        Operations::showIssue(arg1Int(url));
     }
 };
 
@@ -56,7 +56,7 @@ public:
 
     void exec(const QUrl& url) const override
     {
-        GuiActions::deleteRelation(arg1Int(url), arg2Int(url));
+        Operations::deleteRelation(arg1Int(url), arg2Int(url));
     }
 };
 

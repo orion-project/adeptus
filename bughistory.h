@@ -25,9 +25,6 @@ public:
     const QList<int>& relatedIds() const { return _relatedIds; }
     void setFocus();
 
-signals:
-    void operationRequest(int operation, int id);
-
 private:
     QTextBrowser* contentView;
     QString _summary;

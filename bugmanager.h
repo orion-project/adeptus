@@ -92,8 +92,6 @@ typedef QMap<int, QString> DictionaryCash;
 class BugManager
 {
 public:
-    enum BugOperation { Operation_Comment, Operation_Update, Operation_Show, Operation_MakeRelation };
-
     static QString openDatabase(const QString &fileName);
     static QString newDatabase(const QString &fileName);
     static void closeDatabase();

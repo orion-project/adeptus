@@ -124,18 +124,6 @@ private:
     QString sqlCreate() const;
 };
 
-//#define DECLARE_COL(name, type)\
-//    const Ori::Sql::ColDef& name()\
-//    {\
-//        static int index = -1;\
-//        if (index < 0)\
-//        {\
-//            index = _cols.size();\
-//            _cols.append(Ori::Sql::ColDef(#name, type));\
-//        }\
-//        return _cols.at(index);\
-//    }
-
 } // namespace Sql
 } // namespace Ori
 

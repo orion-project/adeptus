@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFileDialog>
-#include <QInputDialog>
+//#include <QInputDialog>
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -17,11 +17,11 @@
 #include "bughistory.h"
 #include "dicteditor.h"
 #include "bugoperations.h"
-#include "guiactions.h"
 #include "prefseditor.h"
 #include "preferences.h"
 #include "issuetable.h"
 #include "aboutwindow.h"
+#include "operations.h"
 #include "startpage.h"
 #include "db/db.h"
 #include "helpers/OriDialogs.h"
@@ -68,7 +68,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(BugOperations::instance(), SIGNAL(bugChanged(int)), this, SLOT(updateView(int)));
     connect(BugOperations::instance(), SIGNAL(bugAdded(int)), this, SLOT(bugAdded(int)));
-    connect(GuiActions::instance(), SIGNAL(operationRequest(int,int)), this, SLOT(processBug(int,int)));
+    connect(Operations::instance(), &Operations::operationRequest, this, &MainWindow::processOperation);
 }
 
 MainWindow::~MainWindow()
@@ -95,7 +95,7 @@ void MainWindow::createMenus()
     /////////////// View
     QMenu* menuView = menuBar()->addMenu(tr("View"));
     menuView->addSeparator();
-    menuView->addAction(tr("Preferences..."), this, SLOT(editPreferences()));
+    menuView->addAction(tr("Preferences..."), [this](){ PrefsEditor::show(this); });
     menuView->addSeparator();
     menuView->addMenu(new Ori::Widgets::StylesMenu);
 
@@ -104,13 +104,13 @@ void MainWindow::createMenus()
     menuBug->addAction(QIcon(":/tools/append"), tr("New..."), this, SLOT(appendBug()), QKeySequence::New);
     menuBug->addSeparator();
     actionProcessBug = menuBug->addAction(QString(), this, SLOT(processBug()), Qt::Key_F9);
-    QAction* actionComment = menuBug->addAction(tr("Comment..."), this, SLOT(commentBug()), Qt::Key_F4);
+    QAction* actionComment = menuBug->addAction(tr("Comment..."), [this](){ Operations::commentIssue(this->currentId()); }, Qt::Key_F4);
     QAction* actionHistory = menuBug->addAction(tr("History"), this, SLOT(showHistory()), Qt::Key_Return);
     menuBug->addSeparator();
     menuBug->addAction(tr("Edit..."), this, SLOT(editBug()), Qt::Key_F2);
     menuBug->addAction(tr("Delete"), this, SLOT(deleteBug()));
     menuBug->addSeparator();
-    menuBug->addAction(tr("Make Relation..."), this, SLOT(makeRelation()));
+    menuBug->addAction(tr("Make Relation..."), [this](){ Operations::makeRelation(this->currentId()); });
 
     contextMenu = new QMenu(this);
     contextMenu->addAction(actionProcessBug);
@@ -125,10 +125,6 @@ void MainWindow::createMenus()
     foreach (int dictId, BugManager::dictionaryIds())
         menuDicts->addAction(BugManager::columnTitle(dictId), this, SLOT(editDictionary()))->setData(dictId);
 
-    /////////////// Debug
-//    menuDebug = menuBar()->addMenu(tr("Debug"));
-//    menuDebug->addAction(tr("Generate a lot of issues..."), this, SLOT(debugGenerateIssues()));
-    
     /////////////// Help
     QMenu* menuHelp = menuBar()->addMenu(tr("Help"));
     menuHelp->addAction(tr("About ") + qApp->applicationName(), this, SLOT(about()));
@@ -313,25 +309,18 @@ void MainWindow::deleteBug()
     }
 }
 
-void MainWindow::processBug(int operation, int id)
+void MainWindow::processOperation(int operation, int id)
 {
     switch (operation)
     {
-    case BugManager::Operation_Comment: commentBug(); break;
-    case BugManager::Operation_Update: updatePageById(id); break;
-    case BugManager::Operation_Show: showHistory(id); break;
-    case BugManager::Operation_MakeRelation: makeRelation(); break;
+    case Operations::ShowIssue: showHistory(id); return;
+    case Operations::RefreshIssue: updatePageById(id); break;
     }
 }
 
 void MainWindow::editBug()
 {
     BugEditor::edit(this, currentId());
-}
-
-void MainWindow::commentBug()
-{
-    BugSolver::comment(this, currentId());
 }
 
 void MainWindow::processBug()
@@ -355,32 +344,8 @@ void MainWindow::showHistory(int id)
         history = new BugHistory(id);
         issueTabs->addTab(history, "");
         updatePageById(id);
-        connect(history, SIGNAL(operationRequest(int,int)), this, SLOT(processBug(int,int)));
     }
     issueTabs->setCurrentWidget(history);
-}
-
-void MainWindow::makeRelation()
-{
-    int id1 = currentId();
-    if (id1 < 0) return;
-    bool ok;
-    int id2 = QInputDialog::getInt(this, tr("Make Relation"),
-        tr("Make relation for #%1.\nRelated issue identifier:").arg(id1), 1, 1, INT_MAX, 1, &ok);
-    if (!ok) return;
-    QString  res = DB::relations().make(id1, id2);
-    if (!res.isEmpty())
-    {
-        Ori::Dlg::error(res);
-        return;
-    }
-    updatePageById(id1);
-    updatePageById(id2);
-}
-
-void MainWindow::editPreferences()
-{
-    PrefsEditor::show(this);
 }
 
 void MainWindow::updateCounter()
@@ -407,36 +372,6 @@ void MainWindow::updateCounter()
         statusTotalCount->setText("");
         statusOpenedCount->setText("");
         statusDisplayCount->setText("");
-    }
-}
-
-void MainWindow::debugGenerateIssues()
-{
-    if (!tableModel) return;
-
-    bool ok;
-    int count = QInputDialog::getInt(this, tr("Random Issue Generator"),
-                                     tr("Populate issuebase with a number of random issues.\n"
-                                        "This command is intended for test purposes only!\n"
-                                        "DO NOT execute it on your working issuebase.\n\n"
-                                        "Enter issue count:"), 1000, 1, 1000000, 1, &ok);
-    if (ok)
-    {
-    #ifndef QT_NO_CURSOR
-        QApplication::setOverrideCursor(Qt::WaitCursor);
-    #endif
-
-        QString result = BugManager::debugGenerateIssues(tableModel, count);
-
-    #ifndef QT_NO_CURSOR
-        QApplication::restoreOverrideCursor();
-    #endif
-
-        if (!result.isEmpty())
-        {
-            QMessageBox::critical(this, qApp->applicationName(),
-                tr("Error while generating issues.\n\n%1").arg(result));
-        }
     }
 }
 
@@ -548,5 +483,4 @@ void MainWindow::updateActions()
 {
     menuBug->setEnabled(tableModel);
     menuDicts->setEnabled(tableModel);
-    //menuDebug->setEnabled(tableModel);
 }

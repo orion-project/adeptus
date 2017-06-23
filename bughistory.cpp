@@ -14,10 +14,9 @@
 #include "appearance.h"
 #include "browsercommands.h"
 #include "bughistory.h"
-#include "bugsolver.h"
-#include "bugeditor.h"
 #include "bugoperations.h"
 #include "issuetextview.h"
+#include "operations.h"
 #include "markdown.h"
 #include "db/db.h"
 #include "helpers/OriDialogs.h"
@@ -315,10 +314,10 @@ void BugHistory::linkClicked(const QUrl& url)
             QApplication::clipboard()->setText(QString("#%1: %2").arg(_id).arg(_summary));
 
         else if (BrowserCommands::addComment() == cmd)
-           emit operationRequest(BugManager::Operation_Comment, 0);
+            Operations::commentIssue(_id);
 
         else if (BrowserCommands::makeRelation() == cmd)
-            emit operationRequest(BugManager::Operation_MakeRelation, 0);
+            Operations::makeRelation(_id);
 
         else if (BrowserCommands::showText() == cmd)
             showChangedText(BrowserCommands::showText().arg1Int(url));

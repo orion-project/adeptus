@@ -34,14 +34,14 @@ SOURCES += main.cpp\
     ImageViewWindow.cpp \
     markdown.cpp \
     browsercommands.cpp \
-    guiactions.cpp \
     markdowneditor.cpp \
     issuetextview.cpp \
     db/sqlhelpers.cpp \
     db/historymanager.cpp \
     db/db.cpp \
     db/issuemanager.cpp \
-    db/relationmanager.cpp
+    db/relationmanager.cpp \
+    operations.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -62,14 +62,14 @@ HEADERS  += mainwindow.h \
     ImageViewWindow.h \
     markdown.h \
     browsercommands.h \
-    guiactions.h \
     markdowneditor.h \
     issuetextview.h \
     db/sqlhelpers.h \
     db/historymanager.h \
     db/db.h \
     db/issuemanager.h \
-    db/relationmanager.h
+    db/relationmanager.h \
+    operations.h
 
 RESOURCES = images.qrc
 

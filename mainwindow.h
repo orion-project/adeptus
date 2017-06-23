@@ -38,17 +38,13 @@ private slots:
     void appendBug();
     void deleteBug();
     void editBug();
-    void commentBug();
     void processBug();
     void menuBugOpened();
     void showHistory();
-    void makeRelation();
-    void editPreferences();
     void updateCounter();
-    void debugGenerateIssues();
     void tabCloseRequested(int index);
     void about();
-    void processBug(int operation, int id);
+    void processOperation(int operation, int id);
     void updateView(int id);
     void bugAdded(int id);
 
