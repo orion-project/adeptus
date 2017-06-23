@@ -28,10 +28,7 @@ void Operations::makeRelation(int id)
     if (!ok) return;
     QString  res = DB::relations().make(id1, id2);
     if (!res.isEmpty())
-    {
         Ori::Dlg::error(res);
-        return;
-    }
     requestRefresh(id1);
     requestRefresh(id2);
 }
@@ -40,9 +37,9 @@ void Operations::deleteRelation(int id1, int id2)
 {
     if (Ori::Dlg::yes(qApp->tr("Delete relation [#%1 - #%2]?").arg(id1).arg(id2)))
     {
-//        QString res = BugManager::deleteRelation(id1, id2);
-//        if (!res.isEmpty())
-//            Ori::Dlg::error(res);
+        QString res = DB::relations().remove(id1, id2);
+        if (!res.isEmpty())
+            Ori::Dlg::error(res);
         requestRefresh(id1);
         requestRefresh(id2);
     }

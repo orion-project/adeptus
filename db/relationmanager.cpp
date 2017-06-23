@@ -50,13 +50,21 @@ QString RelationManager::make(int id1, int id2) const
     if (query.next())
         return qApp->tr("There is an relation between #%1 and #%2 already.").arg(id1).arg(id2);
 
-    QString res = _table.insertQuery()
-                        .param(_table.id1, id1)
-                        .param(_table.id2, id2)
-                        .param(_table.created, QDateTime::currentDateTime())
-                        .exec();
+    QString res = ActionQuery(_table.sqlInsert)
+            .param(_table.id1, id1)
+            .param(_table.id2, id2)
+            .param(_table.created, QDateTime::currentDateTime())
+            .exec();
     if (!res.isEmpty())
         return qApp->tr("Failed to make new relation:\n\n%1").arg(res);
     return QString();
 }
 
+QString RelationManager::remove(int id1, int id2) const
+{
+    QString res = ActionQuery(_table.sqlDelete)
+            .param(_table.id1, id1)
+            .param(_table.id2, id2)
+            .exec();
+    return !res.isEmpty() ? res : QString();
+}

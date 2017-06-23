@@ -118,13 +118,10 @@ public:
                                   const QDateTime &moment, int changedParam,
                                   const QVariant &oldValue, const QVariant &newValue);
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
-    static QString debugGenerateIssues(QSqlTableModel *, int count);
 
     static QString deleteBug(int id);
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
-
-    static QString deleteRelation(int id1, int id2);
 
     static QList<int> dictionaryIds();
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
@@ -134,8 +131,6 @@ public:
 private:
     static QString createTable(const QString &name, const QString &columns);
     static QString insertDictValue(const QString &table, int id, const QString &value);
-
-    static QSqlRecord getBugRecord(int id, QString& result);
 };
 
 

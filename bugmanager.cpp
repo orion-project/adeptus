@@ -412,65 +412,6 @@ QString BugManager::countBugs(int& total, int& opened, int& displayed, const QSt
     return QString();
 }
 
-QString BugManager::debugGenerateIssues(QSqlTableModel*, int count)
-{
-    QSqlQuery query;
-    for (int i = 0; i < count; i++)
-    {
-        QVariant id = BugManager::generateBugId();
-        if (id.type() == QVariant::String)
-            return qApp->tr("Unable to generate new issue id.\n\n%1").arg(id.toString());
-
-        QString sql = QString("INSERT INTO %1 (Id, Summary, Extra, Category, Severity, "
-                              "Priority, Repeat, Status, Solution, Created, Updated) "
-                              "VALUES (%2, \"%3\", \"%4\", %5, %6, %7, %8, %9, %10, \"%11\", \"%11\")")
-                      .arg(TABLE_BUGS)
-                      .arg(id.toInt())
-                      .arg("Lorem ipsum dolor sit amet, consectetuer adipiscing elit, "
-                           "sed diam nonummy nibh euismod tincidunt ut laoreet dolore "
-                           "magna aliquam erat volutpat.")
-                      .arg("Ut wisi enim ad minim veniam, quis nostrud exerci tation "
-                           "ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo "
-                           "consequat. Duis autem vel eum iriure dolor in hendrerit in "
-                           "vulputate velit esse molestie consequat, vel illum dolore eu "
-                           "feugiat nulla facilisis at vero eros et accumsan et iusto odio "
-                           "dignissim qui blandit praesent luptatum zzril delenit augue duis "
-                           "dolore te feugait nulla facilisi. Nam liber tempor cum soluta nobis "
-                           "eleifend option congue nihil imperdiet doming id quod mazim placerat "
-                           "facer possim assum. Typi non habent claritatem insitam; est usus "
-                           "legentis in iis qui facit eorum claritatem. Investigationes "
-                           "demonstraverunt lectores legere me lius quod ii legunt saepius.")
-                      .arg(CATEGORY_NONE)
-                      .arg(500/*SEVERITY_ERROR*/) // TODO select random
-                      .arg(PRIORITY_NORMAL)
-                      .arg(REPEAT_ALWAYS)
-                      .arg(STATUS_OPENED)
-                      .arg(SOLUTION_NONE)
-                      .arg(QDateTime::currentDateTime().toString());
-
-        if (!query.exec(sql))
-            return qApp->tr("Unable to insert new records: %1").arg(query.lastError().text());
-    }
-    return "";
-}
-
-QSqlRecord BugManager::getBugRecord(int id, QString& result)
-{
-    result.clear();
-    QSqlQuery sql(QString("SELECT * FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id));
-    if (!sql.exec())
-    {
-        result = SqlHelper::errorText(sql);
-        return QSqlRecord();
-    }
-    if (!sql.isSelect() || !sql.first())
-    {
-        result = qApp->tr("Issue not found (#%1)").arg(id);
-        return QSqlRecord();
-    }
-    return sql.record();
-}
-
 QString BugManager::deleteBug(int id)
 {
     QSqlQuery sql(QString("DELETE FROM %1 WHERE Id = %2").arg(TABLE_BUGS).arg(id));
@@ -512,15 +453,6 @@ QString BugManager::operationTitle(int status)
 QList<int> BugManager::dictionaryIds()
 {
     return { COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_STATUS, COL_SOLUTION, COL_REPEAT };
-}
-
-QString BugManager::deleteRelation(int id1, int id2)
-{
-    QSqlQuery query;
-    if (!query.exec(QString("delete from %1 where (Id1 = %2 and Id2 = %3) "
-                            "or (Id1 = %3 and Id2 = %2)").arg(TABLE_RELATIONS).arg(id1).arg(id2)))
-        return SqlHelper::errorText(query);
-    return QString();
 }
 
 QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
