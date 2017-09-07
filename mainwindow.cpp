@@ -84,6 +84,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::createMenus()
 {
+    menuBar()->setNativeMenuBar(false);
+
     /////////////// File
     QMenu* menuFile = menuBar()->addMenu(tr("&File"));
     menuFile->addAction(tr("New..."), this, SLOT(newFile()));

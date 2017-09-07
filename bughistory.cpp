@@ -14,7 +14,6 @@
 #include "appearance.h"
 #include "browsercommands.h"
 #include "bughistory.h"
-#include "bugoperations.h"
 #include "issuetextview.h"
 #include "operations.h"
 #include "markdown.h"
