@@ -20,7 +20,6 @@
 #include "issuetable.h"
 #include "aboutwindow.h"
 #include "operations.h"
-#include "startpage.h"
 #include "db/db.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -41,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(mruList, SIGNAL(clicked(QString)), this, SLOT(openFile(QString)));
 
     issueTable = new IssueTableWidget(this);
+    issueTable->setVisible(false);
     connect(issueTable, SIGNAL(onFilter()), this, SLOT(updateCounter()));
     connect(issueTable, SIGNAL(onDoubleClick()), this, SLOT(showHistory()));
     connect(issueTable, SIGNAL(onAppendBug()), this, SLOT(appendBug()));
@@ -86,7 +86,7 @@ void MainWindow::createMenus()
 {
     menuBar()->setNativeMenuBar(false);
 
-    /////////////// File
+    // File
     QMenu* menuFile = menuBar()->addMenu(tr("&File"));
     menuFile->addAction(tr("New..."), this, SLOT(newFile()));
     menuFile->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open);
@@ -94,14 +94,14 @@ void MainWindow::createMenus()
     auto actionExit = menuFile->addAction(tr("Exit"), this, SLOT(close()), QKeySequence::Quit);
     new Ori::Widgets::MruMenuPart(mruList, menuFile, actionExit, this);
 
-    /////////////// View
+    // View
     QMenu* menuView = menuBar()->addMenu(tr("View"));
     menuView->addSeparator();
     menuView->addAction(tr("Preferences..."), [this](){ PrefsEditor::show(this); });
     menuView->addSeparator();
     menuView->addMenu(new Ori::Widgets::StylesMenu);
 
-    /////////////// Bug
+    // Bug
     menuBug = menuBar()->addMenu(tr("Issue"));
     menuBug->addAction(QIcon(":/tools/append"), tr("New..."), this, SLOT(appendBug()), QKeySequence::New);
     menuBug->addSeparator();
@@ -122,12 +122,12 @@ void MainWindow::createMenus()
     connect(menuBug, SIGNAL(aboutToShow()), this, SLOT(menuBugOpened()));
     connect(contextMenu, SIGNAL(aboutToShow()), this, SLOT(menuBugOpened()));
 
-    /////////////// Dicts
+    // Dicts
     menuDicts = menuBar()->addMenu(tr("Dictionaries"));
     foreach (int dictId, BugManager::dictionaryIds())
         menuDicts->addAction(BugManager::columnTitle(dictId), this, SLOT(editDictionary()))->setData(dictId);
 
-    /////////////// Help
+    // Help
     QMenu* menuHelp = menuBar()->addMenu(tr("Help"));
     menuHelp->addAction(tr("About ") + qApp->applicationName(), this, SLOT(about()));
 }
@@ -234,13 +234,17 @@ void MainWindow::setCurrentFile(const QString &fileName)
         mruList->append(fileName);
         statusFileName->setText(QDir::toNativeSeparators(currentFile));
         tableModel = issueTable->update();
+        issueTable->setVisible(true);
         issueTable->loadFilters();
         issueTable->contextMenu = contextMenu;
         issueTabs->addTab(issueTable, tr("Issues"));
         updateCounter();
     }
     else
+    {
+        issueTable->setVisible(false);
         setWindowTitle(qApp->applicationName());
+    }
 
     updateActions();
 }
@@ -400,7 +404,7 @@ BugHistory* MainWindow::pageById(int id)
         BugHistory *h = page(i);
         if (h && h->id() == id) return h;
     }
-    return NULL;
+    return nullptr;
 }
 
 int MainWindow::indexOfId(int id)
