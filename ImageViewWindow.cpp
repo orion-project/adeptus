@@ -9,7 +9,6 @@
 ImageViewWindow::ImageViewWindow(const QFileInfo &file, QWidget *parent) : QScrollArea(parent)
 {
     _picture = new QLabel(this);
-    //  TODO: QPixmap for icons only, use QPicture
     _picture->setPixmap(QPixmap(file.filePath()));
     _picture->setToolTip(QDir::toNativeSeparators(file.filePath()));
 
