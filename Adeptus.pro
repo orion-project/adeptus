@@ -14,6 +14,28 @@ DESTDIR = $$_PRO_FILE_PWD_/bin
 
 include($$_PRO_FILE_PWD_"/orion/orion.pri")
 
+#------------------------------------------------------------
+# Version information
+
+include(release/version.pri)
+DEFINES += "APP_VER_MAJOR=$$APP_VER_MAJOR"
+DEFINES += "APP_VER_MINOR=$$APP_VER_MINOR"
+DEFINES += "APP_VER_PATCH=$$APP_VER_PATCH"
+DEFINES += "APP_VER_CODENAME=\"\\\"$$APP_VER_CODENAME\\\"\""
+
+win32 {
+    DEFINES += "APP_BUILDDATE=\"\\\"$$system(date /T)\\\"\""
+    DEFINES += "APP_BUILDTIME=\"\\\"$$system(time /T)\\\"\""
+}
+else {
+    DEFINES += "APP_BUILDDATE=\"\\\"$$system(date '+%F')\\\"\""
+    DEFINES += "APP_BUILDTIME=\"\\\"$$system(date '+%T')\\\"\""
+}
+
+win32: RC_FILE = app.rc
+
+#------------------------------------------------------------
+
 SOURCES += main.cpp\
     mainwindow.cpp \
     bugmanager.cpp \
@@ -70,15 +92,3 @@ HEADERS  += mainwindow.h \
     operations.h
 
 RESOURCES = images.qrc
-
-DEFINES += "APP_VER_MAJOR=1"
-DEFINES += "APP_VER_MINOR=0"
-
-win32 {
-    DEFINES += "APP_BUILDDATE=\"\\\"$$system(date /T)\\\"\""
-    DEFINES += "APP_BUILDTIME=\"\\\"$$system(time /T)\\\"\""
-}
-else {
-    DEFINES += "APP_BUILDDATE=\"\\\"$$system(date '+%F')\\\"\""
-    DEFINES += "APP_BUILDTIME=\"\\\"$$system(date '+%T')\\\"\""
-}

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Adeptus
+Comment=Personal projects issue tracker
+Exec=adeptus
+Icon=adeptus
+Categories=Development
