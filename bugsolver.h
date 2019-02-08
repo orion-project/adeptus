@@ -31,7 +31,7 @@ public:
     void setIcon(const QString& path);
 
 public slots:
-    void bugDeleted(int id);
+    void issueDeleted(int id);
 
 private slots:
     void save();
@@ -58,6 +58,7 @@ private:
     QString initWindow(int id);
     QString addHistroyItem(int eventNum, int changedParam, QVariant &oldValue, QVariant &newValue, bool doComment);
     QString saveIssue();
+    void restoreGeometry();
 };
 
 #endif // BUG_SOLVER_H

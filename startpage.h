@@ -9,7 +9,7 @@ class StartPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StartPage(QWidget *parent = 0);
+    explicit StartPage(QWidget *parent = nullptr);
 protected:
     void paintEvent(QPaintEvent*);
 private:

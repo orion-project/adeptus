@@ -5,12 +5,14 @@
 
 #include "browsercommands.h"
 #include "bugmanager.h"
-#include "guiactions.h"
+#include "operations.h"
 #include "ImageViewWindow.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriTools.h"
 
 namespace BrowserCommands {
+
+Command::~Command() {}
 
 QString Command::format(const QString& title) const
 {
@@ -40,12 +42,13 @@ class CommandShowRelated : public Command
 {
 public:
     CommandShowRelated(const QString& cmd, const QString& arg) : Command(cmd, arg) {}
-
-    void exec(const QUrl& url) const override
-    {
-        GuiActions::showIssue(arg1Int(url));
-    }
+    void exec(const QUrl& url) const override;
 };
+
+void CommandShowRelated::exec(const QUrl& url) const
+{
+    Operations::showIssue(arg1Int(url));
+}
 
 //-----------------------------------------------------------------------------
 
@@ -53,12 +56,13 @@ class CommandDelRelated : public Command
 {
 public:
     CommandDelRelated(const QString& cmd, const QString& arg1, const QString& arg2) : Command(cmd, arg1, arg2) {}
-
-    void exec(const QUrl& url) const override
-    {
-        GuiActions::deleteRelation(arg1Int(url), arg2Int(url));
-    }
+    void exec(const QUrl& url) const override;
 };
+
+void CommandDelRelated::exec(const QUrl& url) const
+{
+    Operations::deleteRelation(arg1Int(url), arg2Int(url));
+}
 
 //-----------------------------------------------------------------------------
 
@@ -66,40 +70,35 @@ class CommandShowImage : public Command
 {
 public:
     CommandShowImage(const QString& cmd, const QString& arg) : Command(cmd, arg) {}
-
-    void exec(const QUrl& url) const override
-    {
-        showImage(arg1Str(url));
-    }
-
-    static void showImage(const QString& fileName)
-    {
-        QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
-        if (!file.exists())
-        {
-            if (!file.suffix().isEmpty())
-                return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(file.filePath()));
-
-            QFileInfo f = trySuffixes(file, {"png", "jpg", "jpeg"});
-            if (!f.isFile())
-                return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(file.filePath()));
-
-            file = f;
-        }
-        ImageViewWindow::showImage(file, qApp->activeWindow());
-    }
-
-    static QFileInfo trySuffixes(const QFileInfo& file, const QStringList& suffixes)
-    {
-        QString baseName = file.absolutePath() % QDir::separator() % file.baseName() % '.';
-        for (const QString& suffix: suffixes)
-        {
-            QFileInfo f(baseName % suffix);
-            if (f.exists()) return f;
-        }
-        return QFileInfo();
-    }
+    void exec(const QUrl& url) const override;
 };
+
+void CommandShowImage::exec(const QUrl& url) const
+{
+    auto fileName = arg1Str(url);
+    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
+    auto sourcePath = file.absoluteFilePath();
+    if (!file.exists())
+    {
+        static const QStringList suffixes({".png", ".jpg", ".jpeg"});
+        bool fileNotFound = true;
+        for (auto suffix : suffixes)
+        {
+            if (!sourcePath.endsWith(suffix, Qt::CaseInsensitive))
+            {
+                file.setFile(sourcePath + suffix);
+                if (file.exists())
+                {
+                    fileNotFound = false;
+                    break;
+                }
+            }
+        }
+        if (fileNotFound)
+            return Ori::Dlg::warning(qApp->tr("Image file not found:\n%1").arg(sourcePath));
+    }
+    ImageViewWindow::showImage(file, qApp->activeWindow());
+}
 
 //-----------------------------------------------------------------------------
 
@@ -107,48 +106,46 @@ class CommandGetFile : public Command
 {
 public:
     CommandGetFile(const QString& cmd, const QString& arg) : Command(cmd, arg) {}
-
-    void exec(const QUrl& url) const override
-    {
-        processFileLink(arg1Str(url));
-    }
-
-    void processFileLink(const QString &fileName) const
-    {
-        QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
-        if (!file.exists())
-            return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(QDir::toNativeSeparators(file.filePath())));
-
-        auto targetFile = QFileDialog::getSaveFileName(qApp->activeWindow(), qApp->tr("Export Attached File"));
-        if (targetFile.isEmpty()) return;
-
-        QFile source(file.filePath());
-        if (!source.open(QIODevice::ReadOnly))
-            return Ori::Dlg::error(qApp->tr("Unable to open source file '%1' for reading\n\n%2")
-                                   .arg(file.filePath()).arg(source.errorString()));
-
-        QFile target(targetFile);
-        if (!target.open(QIODevice::WriteOnly))
-            return Ori::Dlg::error(qApp->tr("Unable to open target file '%1' for writing\n\n%2")
-                                   .arg(targetFile).arg(target.errorString()));
-
-        QDataStream sourceData(&source);
-        QDataStream targetData(&target);
-
-        char buf[4096];
-        int bytesRead;
-        while ((bytesRead = sourceData.readRawData(&buf[0], 4096)) != 0)
-        {
-            if (bytesRead < 0)
-                return Ori::Dlg::error(qApp->tr("Error reading from source file '%1'\n\n%2")
-                   .arg(source.fileName()).append(source.errorString()));
-
-            if (targetData.writeRawData(buf, bytesRead) < 0)
-                return Ori::Dlg::error(qApp->tr("Error writing to target file '%1'\n\n%2")
-                   .arg(target.fileName()).append(target.errorString()));
-        }
-    }
+    void exec(const QUrl& url) const override;
 };
+
+void CommandGetFile::exec(const QUrl& url) const
+{
+    auto fileName = arg1Str(url);
+    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
+    if (!file.exists())
+        return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(QDir::toNativeSeparators(file.filePath())));
+
+    auto targetFile = QFileDialog::getSaveFileName(qApp->activeWindow(), qApp->tr("Export Attached File"));
+    if (targetFile.isEmpty()) return;
+
+    QFile source(file.filePath());
+    if (!source.open(QIODevice::ReadOnly))
+        return Ori::Dlg::error(qApp->tr("Unable to open source file '%1' for reading\n\n%2")
+                               .arg(file.filePath()).arg(source.errorString()));
+
+    QFile target(targetFile);
+    if (!target.open(QIODevice::WriteOnly))
+        return Ori::Dlg::error(qApp->tr("Unable to open target file '%1' for writing\n\n%2")
+                               .arg(targetFile).arg(target.errorString()));
+
+    QDataStream sourceData(&source);
+    QDataStream targetData(&target);
+
+    char buf[4096];
+    int bytesRead;
+    while ((bytesRead = sourceData.readRawData(&buf[0], 4096)) != 0)
+    {
+        if (bytesRead < 0)
+            return Ori::Dlg::error(qApp->tr("Error reading from source file '%1'\n\n%2")
+               .arg(source.fileName()).append(source.errorString()));
+
+        if (targetData.writeRawData(buf, bytesRead) < 0)
+            return Ori::Dlg::error(qApp->tr("Error writing to target file '%1'\n\n%2")
+               .arg(target.fileName()).append(target.errorString()));
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 
@@ -191,6 +188,5 @@ QString getHint(const QUrl& url)
     if (showOpenedRelations() == cmd) return qApp->tr("Show only opened relations");
     return QString();
 }
-
 
 } // namespace BrowserCommands

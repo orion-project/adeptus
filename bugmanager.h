@@ -7,6 +7,8 @@
 #include <QVector>
 #include <QFileInfo>
 
+#include "bugtypes.h"
+
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
@@ -85,15 +87,11 @@ QT_END_NAMESPACE
 
 #define BUGS_FILES "Issue Databases (*.bugs);;All files (*.*)"
 
-#include "bugtypes.h"
-
 typedef QMap<int, QString> DictionaryCash;
 
 class BugManager
 {
 public:
-    enum BugOperation { Operation_Comment, Operation_Update, Operation_Show, Operation_MakeRelation };
-
     static QString openDatabase(const QString &fileName);
     static QString newDatabase(const QString &fileName);
     static void closeDatabase();
@@ -120,22 +118,20 @@ public:
                                   const QDateTime &moment, int changedParam,
                                   const QVariant &oldValue, const QVariant &newValue);
     static QString countBugs(int &total, int &opened, int& displayed, const QString& filter);
-    static QString debugGenerateIssues(QSqlTableModel *, int count);
-    static QSqlRecord bug(int id, QString& result);
-    static QString deleteBug(int id);
+
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
-    static QString makeRelation(int id1, int id2);
-    static QString deleteRelation(int id1, int id2);
-    static QString getRelations(int id, QList<int>& ids);
+
     static QList<int> dictionaryIds();
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
     static bool isInvalid(int id) { return !isValid(id); }
+
 private:
     static QString createTable(const QString &name, const QString &columns);
     static QString insertDictValue(const QString &table, int id, const QString &value);
 };
+
 
 class DictManager
 {
@@ -144,20 +140,13 @@ public:
     static QString solution(int id);
 };
 
+
 class BugComparer
 {
 public:
     static QString writeHistory(const BugInfo& oldValue, const BugInfo& newValue);
 };
 
-namespace SqlHelper {
-
-void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value);
-void addField(QSqlRecord &record, const QString &name, const QVariant &value);
-QString errorText(const QSqlTableModel &model);
-QString errorText(const QSqlTableModel *model);
-
-} // namespace SqlHelper
 
 class WidgetHelper
 {
@@ -168,6 +157,7 @@ public:
     static QVariant selectedId(QComboBox *combo);
 };
 
+
 struct IssueFilter
 {
     bool check;
@@ -176,6 +166,7 @@ struct IssueFilter
     QString condition;
     QString getSql() const;
 };
+
 
 class IssueFilters
 {
@@ -190,6 +181,7 @@ protected:
     virtual QString saveInternal(class DbSettings&);
     virtual QString loadInternal(class DbSettings&);
 };
+
 
 class IssueFiltersPreset : public IssueFilters
 {
@@ -208,6 +200,7 @@ private:
     QString _title;
 };
 
+
 class DbSettings
 {
 public:
@@ -222,12 +215,14 @@ private:
     QString lastErrorStr();
 };
 
+
 QVariant ptr2var(void *p);
 
 template <typename T> T* var2obj(const QVariant& var)
 {
     return reinterpret_cast<T*>(var.value<void*>());
 }
+
 
 bool checkResult(QWidget *parent, const QVariant& result, const QString& message);
 bool checkResult(QWidget *parent, const QString& result, const QString& message);

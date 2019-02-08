@@ -15,6 +15,7 @@ public:
     Command(const QString& cmd): _cmd(cmd) {}
     Command(const QString& cmd, const QString& arg1): _cmd(cmd), _arg1(arg1) {}
     Command(const QString& cmd, const QString& arg1, const QString& arg2): _cmd(cmd), _arg1(arg1), _arg2(arg2) {}
+    virtual ~Command();
     const QString cmd() const { return _cmd; }
     const QString arg1() const { return _arg1; }
     const QString arg2() const { return _arg2; }

@@ -28,7 +28,7 @@ public:
     static void edit(QWidget *parent, int id);
 
 public slots:
-    void bugDeleted(int id);
+    void issueDeleted(int id);
 
 private slots:
     void save();

@@ -8,14 +8,17 @@
 
 #include "bugsolver.h"
 #include "bugmanager.h"
-#include "bugoperations.h"
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
+#include "operations.h"
+#include "db/sqlhelpers.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
+#include "helpers/OriWindows.h"
 
 QMap<int, BugSolver*> __BugSolver_openedWindows;
+QByteArray __BugSolver_storedGeometry;
 
 BugSolver* BugSolver::initWindow(QWidget *parent, int id, const QString& title)
 {
@@ -38,7 +41,7 @@ BugSolver* BugSolver::initWindow(QWidget *parent, int id, const QString& title)
         }
         __BugSolver_openedWindows.insert(id, wnd);
     }
-    wnd->connect(BugOperations::instance(), SIGNAL(bugDeleted(int)), wnd, SLOT(bugDeleted(int)));
+    wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugSolver::issueDeleted);
     wnd->setWindowTitle(tr("%1 #%2").arg(title).arg(id));
     wnd->show();
     qApp->setActiveWindow(wnd);
@@ -124,8 +127,6 @@ QString BugSolver::initWindow(int id)
     return QString();
 }
 
-QByteArray __BugSolver_storedGeometry;
-
 BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -146,6 +147,10 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
     connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
 
+    // Actions to make hotkeys available
+    addAction(Ori::Gui::action("", this, SLOT(reject()), 0, QKeySequence(Qt::Key_Escape, Qt::Key_Escape)));
+    addAction(Ori::Gui::action("", this, SLOT(save()), 0, QKeySequence("Ctrl+Return")));
+
     QHBoxLayout *layoutProps = new QHBoxLayout;
     layoutProps->setSpacing(6);
     layoutProps->addWidget(new QLabel(tr("Date:")));
@@ -163,15 +168,12 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     layoutMain->setSpacing(3);
     layoutMain->addLayout(layoutProps);
     layoutMain->addSpacing(6);
-    //layoutMain->addWidget(new QLabel(tr("Comment")));
     layoutMain->addWidget(textComment);
     layoutMain->addSpacing(12);
     layoutMain->addWidget(buttons);
     setLayout(layoutMain);
 
-    if (!__BugSolver_storedGeometry.isEmpty())
-        restoreGeometry(__BugSolver_storedGeometry);
-    else resize(600, 300);
+    restoreGeometry();
 
     textComment->setFocus();
 }
@@ -180,6 +182,17 @@ BugSolver::~BugSolver()
 {
     __BugSolver_storedGeometry = saveGeometry();
     __BugSolver_openedWindows.remove(currentId);
+}
+
+void BugSolver::restoreGeometry()
+{
+    if (!__BugSolver_storedGeometry.isEmpty())
+        QWidget::restoreGeometry(__BugSolver_storedGeometry);
+    else
+    {
+        resize(600, 300);
+        Ori::Wnd::moveToScreenCenter(this, qApp->activeWindow());
+    }
 }
 
 void BugSolver::setIcon(const QString& path)
@@ -257,8 +270,10 @@ void BugSolver::save()
 
     db.commit();
 
-    BugOperations::instance()->raiseBugChanged(currentId);
-    BugOperations::instance()->raiseBugCommentAdded(currentId);
+    // TODO: if only comment was added and no status was changed then it does not affect issue table view,
+    // so we can use more weak change event to update only opened page, like after relation was created/deleted.
+    Operations::notifyIssueChanged(currentId);
+    Operations::notifyCommentAdded(currentId);
     QWidget::close();
 }
 
@@ -270,7 +285,7 @@ QString BugSolver::saveIssue()
     return QString();
 }
 
-void BugSolver::bugDeleted(int id)
+void BugSolver::issueDeleted(int id)
 {
     if (id == currentId) QWidget::close();
 }

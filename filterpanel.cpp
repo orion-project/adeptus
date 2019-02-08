@@ -35,7 +35,9 @@ FilterView::FilterView(const QString& name, int dictId) : QWidget(), _name(name)
 
     auto layout = new QHBoxLayout(this);
     layout->setMargin(0);
+#ifndef Q_OS_MAC
     layout->setSpacing(3);
+#endif
     layout->addWidget(enabledFlag);
     layout->addWidget(conditionCombo);
     layout->addWidget(valueCombo);

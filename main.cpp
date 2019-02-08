@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[])
 {
-    Ori::Debug::installMessageHandler();
+    //Ori::Debug::installMessageHandler();
 
     QApplication app(argc, argv);
 

@@ -9,16 +9,19 @@
 
 #include "bugeditor.h"
 #include "bugmanager.h"
-#include "bugoperations.h"
 #include "markdowneditor.h"
 #include "preferences.h"
 #include "bugitemdelegate.h"
-#include "SqlBugProvider.h"
+#include "operations.h"
+#include "db/db.h"
 #include "helpers/OriDialogs.h"
+#include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
 #include "tools/OriSettings.h"
 
-#define PROP_SPACING    Ori::Gui::defaultSpacing(1)
+using namespace Ori::Layouts;
+
+#define PROP_SPACING    Space(8)
 
 #define MODE_APPEND     0
 #define MODE_EDIT       1
@@ -61,7 +64,7 @@ void BugEditor::edit(QWidget *parent, int id)
             return;
         }
         __BugEditor_openedWindows.insert(id, wnd);
-        wnd->connect(BugOperations::instance(), SIGNAL(bugDeleted(int)), wnd, SLOT(bugDeleted(int)));
+        wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugEditor::issueDeleted);
     }
     wnd->show();
     qApp->setActiveWindow(wnd);
@@ -100,37 +103,29 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
 
     Ori::Gui::adjustFont(textSummary);
 
-
-    auto layoutProps = Ori::Gui::layoutV(
-    {
-                        columnTitle(COL_CREATED), dateCreated, PROP_SPACING,
-                        columnTitle(COL_UPDATED), dateUpdated, PROP_SPACING,
-        labelStatus =   columnTitle(COL_STATUS), comboStatus, PROP_SPACING,
-                        columnTitle(COL_SEVERITY), comboSeverity, PROP_SPACING,
-                        columnTitle(COL_CATEGORY), comboCategory, PROP_SPACING,
-                        columnTitle(COL_PRIORITY), comboPriority, PROP_SPACING,
-        labelSolution = columnTitle(COL_SOLUTION), comboSolution, PROP_SPACING,
-                        columnTitle(COL_REPEAT), comboRepeat,
-        0
-    });
-
-    auto layoutText = Ori::Gui::layoutV(
-    {
-        columnTitle(COL_SUMMARY),
-        textSummary,
+    LayoutH({
+        LayoutV({
+                            columnTitle(COL_CREATED), dateCreated, PROP_SPACING,
+                            columnTitle(COL_UPDATED), dateUpdated, PROP_SPACING,
+            labelStatus =   columnTitle(COL_STATUS), comboStatus, PROP_SPACING,
+                            columnTitle(COL_SEVERITY), comboSeverity, PROP_SPACING,
+                            columnTitle(COL_CATEGORY), comboCategory, PROP_SPACING,
+                            columnTitle(COL_PRIORITY), comboPriority, PROP_SPACING,
+            labelSolution = columnTitle(COL_SOLUTION), comboSolution, PROP_SPACING,
+                            columnTitle(COL_REPEAT), comboRepeat,
+                            Stretch()
+        }),
         PROP_SPACING,
-        //columnTitle(COL_EXTRA),
-        textExtra,
-        PROP_SPACING,
-        buttons
-    });
-
-    setLayout(Ori::Gui::layoutH(
-    {
-          layoutProps,
-          Ori::Gui::defaultSpacing(3),
-          layoutText
-    }));
+        LayoutV({
+            columnTitle(COL_SUMMARY),
+            textSummary,
+            PROP_SPACING,
+            textExtra,
+            PROP_SPACING,
+            buttons
+        })
+    })
+        .useFor(this);
 
     Ori::Settings::restoreWindow(this, QSize(800, 480));
 
@@ -240,11 +235,11 @@ void BugEditor::save()
     switch (mode)
     {
     case MODE_APPEND:
-        BugOperations::instance()->raiseBugAdded(currentId);
+        Operations::notifyIssueAdded(currentId);
         break;
 
     case MODE_EDIT:
-        BugOperations::instance()->raiseBugChanged(currentId);
+        Operations::notifyIssueChanged(currentId);
         break;
     }
 
@@ -283,12 +278,12 @@ QString BugEditor::saveEdit()
     if (!Preferences::instance().bugEditorEnableDates)
         dateUpdated->setDateTime(QDateTime::currentDateTime());
 
-    BugInfo oldValues = SqlBugProvider::recordToBugInfo(tableModel->record(0));
+    IssueInfo oldValues = DB::issues().table().recordToObject(tableModel->record(0));
 
     if (!mapper->submit())
         return SqlHelper::errorText(tableModel);
 
-    BugInfo newValues = SqlBugProvider::recordToBugInfo(tableModel->record(0));
+    IssueInfo newValues = DB::issues().table().recordToObject(tableModel->record(0));
     QString res = BugComparer::writeHistory(oldValues, newValues);
     if (!res.isEmpty()) // do not return error, only show it
         Ori::Dlg::error(tr("Error while writing history:\n\n%1").arg(res));
@@ -296,7 +291,7 @@ QString BugEditor::saveEdit()
     return QString();
 }
 
-void BugEditor::bugDeleted(int id)
+void BugEditor::issueDeleted(int id)
 {
     if (id == currentId) close();
 }

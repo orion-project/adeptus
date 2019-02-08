@@ -29,16 +29,18 @@ SOURCES += main.cpp\
     startpage.cpp \
     filterpanel.cpp \
     appearance.cpp \
-    bugoperations.cpp \
     bugtypes.cpp \
     ImageViewWindow.cpp \
-    SqlBugProvider.cpp \
-    SqlHelpers.cpp \
     markdown.cpp \
     browsercommands.cpp \
-    guiactions.cpp \
     markdowneditor.cpp \
-    issuetextview.cpp
+    issuetextview.cpp \
+    db/sqlhelpers.cpp \
+    db/historymanager.cpp \
+    db/db.cpp \
+    db/issuemanager.cpp \
+    db/relationmanager.cpp \
+    operations.cpp
 
 HEADERS  += mainwindow.h \
     bugmanager.h \
@@ -54,16 +56,18 @@ HEADERS  += mainwindow.h \
     startpage.h \
     filterpanel.h \
     appearance.h \
-    bugoperations.h \
     bugtypes.h \
     ImageViewWindow.h \
-    SqlBugProvider.h \
-    SqlHelpers.h \
     markdown.h \
     browsercommands.h \
-    guiactions.h \
     markdowneditor.h \
-    issuetextview.h
+    issuetextview.h \
+    db/sqlhelpers.h \
+    db/historymanager.h \
+    db/db.h \
+    db/issuemanager.h \
+    db/relationmanager.h \
+    operations.h
 
 RESOURCES = images.qrc
 
