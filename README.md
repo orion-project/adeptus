@@ -8,7 +8,7 @@ Adeptus manages project issues storing them in a single SQLite database. It does
 
 Sorry for that, I'm tracking my issues in Russian, but you can get a clue anyway :) 
 
-![Main Window](./img/main_window.png)
+![Main Window](./img/screen/main_window.png)
 
 ## Build
 
