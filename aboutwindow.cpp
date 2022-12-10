@@ -69,7 +69,7 @@ AboutWindow::AboutWindow(QWidget *parent) : QWidget(parent)
 
 QLabel* AboutWindow::label(const QString& text, const char* styleSheet, const char* slot, QObject* receiver)
 {
-    QLabel* label = slot? new Ori::Widgets::ClickableLabel : new QLabel;
+    QLabel* label = slot? new Ori::Widgets::Label : new QLabel;
     label->setText(text);
     label->setStyleSheet(styleSheet);
     if (slot)
@@ -93,7 +93,7 @@ void AboutWindow::setBackImageAndResizeTo()
     resize(bckgnd.size());
 
     auto p = palette();
-    p.setBrush(QPalette::Background, QBrush(bckgnd));
+    p.setBrush(QPalette::Window, QBrush(bckgnd));
     setPalette(p);
 }
 

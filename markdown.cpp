@@ -1,5 +1,9 @@
 #include "markdown.h"
 
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+#include <QStringRef>
+#endif
+
 QString Markdown::hint()
 {
     return QString(QStringLiteral("'''<b>bold</b>'''&nbsp;&nbsp;"

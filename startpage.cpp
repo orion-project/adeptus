@@ -13,7 +13,7 @@ StartPageItem::StartPageItem(const QString& text, const QPixmap& pixmap) : QWidg
     QLabel *icon = new QLabel;
     icon->setPixmap(pixmap);
 
-    auto label = new Ori::Widgets::ClickableLabel(text);
+    auto label = new Ori::Widgets::Label(text);
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(icon);

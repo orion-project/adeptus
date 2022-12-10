@@ -93,9 +93,15 @@ QString formatError(const QString& s)
 
 QString formatMoment(const QDateTime& moment)
 {
-    return QString::fromLatin1("<nobr>%1 <span style='color:#555'>%2</span></nobr>")
-        .arg(moment.date().toString(Qt::SystemLocaleShortDate))
-        .arg(moment.time().toString(Qt::SystemLocaleShortDate));
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    auto locale = QLocale::system();
+    QString date = locale.toString(moment.date(), QLocale::ShortFormat);
+    QString time = locale.toString(moment.time(), QLocale::ShortFormat);
+#else
+    QString date = moment.date().toString(Qt::SystemLocaleShortDate);
+    QString time = moment.time().toString(Qt::SystemLocaleShortDate);
+#endif
+    return QString::fromLatin1("<nobr>%1 <span style='color:#555'>%2</span></nobr>").arg(date, time);
 }
 
 QString formatProp(const QString& title, const QString& value)

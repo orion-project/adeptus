@@ -34,7 +34,7 @@ FilterView::FilterView(const QString& name, int dictId) : QWidget(), _name(name)
     connect(enabledFlag, SIGNAL(toggled(bool)), conditionCombo, SLOT(setEnabled(bool)));
 
     auto layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 #ifndef Q_OS_MAC
     layout->setSpacing(3);
 #endif
@@ -197,7 +197,7 @@ FilterPanel::FilterPanel() : QWidget()
     filterLayout->addWidget(applyButton);
 
     auto mainLayout = new QVBoxLayout;
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
     mainLayout->addStretch();
     mainLayout->addLayout(filterLayout);

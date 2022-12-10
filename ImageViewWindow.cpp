@@ -22,7 +22,13 @@ ImageViewWindow::ImageViewWindow(const QFileInfo &file, QWidget *parent) : QScro
 
 void ImageViewWindow::moveToScreenCenter()
 {
-    auto windowSize = _picture->pixmap()->size() + QSize(24, 24);
+    auto windowSize =
+        #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+            _picture->pixmap().size()
+        #else
+            _picture->pixmap()->size()
+        #endif
+            + QSize(24, 24);
     auto screenSize = QGuiApplication::primaryScreen()->availableSize();
     if ((windowSize.width() > screenSize.width() * 0.9) ||
          windowSize.height() > screenSize.height() * 0.9)

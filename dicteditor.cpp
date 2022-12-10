@@ -54,7 +54,7 @@ DictEditor::DictEditor(QWidget *parent, int dictId) : QDialog(parent), modified(
     createActions();
 
     QVBoxLayout *layoutMain = new QVBoxLayout;
-    layoutMain->setMargin(6);
+    layoutMain->setContentsMargins(6, 6, 6, 6);
     layoutMain->addWidget(tableView);
 
     setLayout(layoutMain);

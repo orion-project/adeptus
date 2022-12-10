@@ -89,7 +89,7 @@ public:
     QString comment;
     QDateTime moment;
     QList<ChangedParam> changedParams;
-    QString momentStr() const { return moment.toString(Qt::SystemLocaleShortDate); }
+    QString momentStr() const;
     bool isValid() const { return number > 0; }
     QString str() const;
 };

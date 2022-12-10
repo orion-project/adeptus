@@ -325,7 +325,11 @@ QString BugManager::displayDictValue(int dictId, const QVariant &dictKey)
 
 QString BugManager::displayDateTime(const QVariant &value)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return QLocale::system().toString(value.toDateTime(), QLocale::ShortFormat);
+#else
     return value.toDateTime().toString(Qt::SystemLocaleShortDate);
+#endif
 }
 
 QString BugManager::addHistroyItem(int bugId, const QVariant& eventNum,
@@ -450,8 +454,8 @@ QList<int> BugManager::dictionaryIds()
 QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
 {
     QFileInfo file(currentFile());
-    file.setFile(file.absoluteDir().path() % '/' % file.completeBaseName() %
-                 QLatin1Literal(".files/") % fileName);
+    file.setFile(file.absoluteDir().path() + '/' + file.completeBaseName() +
+                 QStringLiteral(".files/") + fileName);
     return file;
 }
 
@@ -610,7 +614,12 @@ QString IssueFilters::loadInternal(DbSettings& dbs)
     QString prefix = storagePrefix();
     QString key, res = dbs.loadSetting(QString("%1\\Names").arg(prefix), value, "");
     if (!res.isEmpty() || value.toString().isEmpty()) return res;
-    QStringList names = value.toString().split(';', QString::SkipEmptyParts);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    auto skipEmptyParts = Qt::SkipEmptyParts;
+#else
+    auto skipEmptyParts = QString::SkipEmptyParts;
+#endif
+    QStringList names = value.toString().split(';', skipEmptyParts);
     for (const QString& name: names)
     {
         IssueFilter filter;

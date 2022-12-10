@@ -20,7 +20,7 @@ QString BugInfo::repeatStr() const { return BugManager::dictionaryCash(COL_REPEA
 
 QString BugHistoryItem::str() const
 {
-    QStringList params;
+    QVector<QString> params;
     params.append(QString("%1 @ %2").arg(number).arg(moment.toString()));
 
     for (const ChangedParam& p : changedParams)
@@ -28,4 +28,13 @@ QString BugHistoryItem::str() const
 
     params.append(comment);
     return params.join("\n");
+}
+
+QString BugHistoryItem::momentStr() const
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
+    return QLocale::system().toString(moment, QLocale::ShortFormat);
+#else
+    return moment.toString(Qt::SystemLocaleShortDate);
+#endif
 }

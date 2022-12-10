@@ -104,13 +104,13 @@ IssueTableWidget::IssueTableWidget(QWidget *parent) : QWidget(parent)
     toolbar->addAction(QIcon(":/tools/append"), tr("New issue..."), this, SLOT(appendBug()));
 
     auto toolbarLayout = new QHBoxLayout;
-    toolbarLayout->setMargin(0);
+    toolbarLayout->setContentsMargins(0, 0, 0, 0);
     toolbarLayout->setSpacing(0);
     toolbarLayout->addWidget(toolbar);
     toolbarLayout->addWidget(filterPanel);
 
     mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(3);
+    mainLayout->setContentsMargins(3, 3, 3, 3);
     mainLayout->setSpacing(3);
     mainLayout->addLayout(toolbarLayout);
 }
