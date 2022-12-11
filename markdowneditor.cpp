@@ -1,19 +1,30 @@
-#include <QBoxLayout>
-#include <QLabel>
-#include <QTabWidget>
-#include <QPlainTextEdit>
+#include "markdowneditor.h"
 
+#include "issuetextedit.h"
 #include "issuetextview.h"
 #include "markdown.h"
-#include "markdowneditor.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriLayouts.h"
 
+#include <QLabel>
+#include <QTabWidget>
+
 using namespace Ori::Layouts;
+
+static QLabel* makeHintLabel()
+{
+    auto label = new QLabel(Markdown::hint());
+    auto palette = label->palette();
+    auto color = palette.color(QPalette::WindowText);
+    color.setAlpha(80);
+    palette.setColor(QPalette::WindowText, color);
+    label->setPalette(palette);
+    return label;
+}
 
 MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) : QWidget(parent)
 {
-    _editor = new QPlainTextEdit;
+    _editor = new IssueTextEdit;
     Ori::Gui::adjustFont(_editor);
 
     _preview = new IssueTextView;
@@ -30,17 +41,6 @@ MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) :
     connect(_tabs, &QTabWidget::currentChanged, this, &MarkdownEditor::tabSwitched);
 
     LayoutH({_tabs}).setMargin(0).setSpacing(0).useFor(this);
-}
-
-QLabel* MarkdownEditor::makeHintLabel()
-{
-    auto label = new QLabel(Markdown::hint());
-    auto palette = label->palette();
-    auto color = palette.color(QPalette::WindowText);
-    color.setAlpha(80);
-    palette.setColor(QPalette::WindowText, color);
-    label->setPalette(palette);
-    return label;
 }
 
 bool MarkdownEditor::isModified() const
@@ -63,4 +63,9 @@ void MarkdownEditor::tabSwitched(int tabIndex)
 {
     if (tabIndex == _tabIndexPreview)
         _preview->setHtml(Markdown::process(_editor->toPlainText()));
+}
+
+QPlainTextEdit* MarkdownEditor::editor()
+{
+    return qobject_cast<QPlainTextEdit*>(_editor);
 }

@@ -21,6 +21,9 @@
                     "text": "Issue references can be inserted in GitHib style (#123)."
                 },
                 {
+                    "text": "Can insert screenshots and sample files via clipboard and drag and drop."
+                },
+                {
                     "text": "Fix: crash on the second open of issue editor for the same issue."
                 }
             ]
