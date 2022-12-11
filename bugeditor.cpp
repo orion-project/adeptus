@@ -135,6 +135,7 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
 BugEditor::~BugEditor()
 {
     Ori::Settings::storeWindow(this);
+    __BugEditor_openedWindows.remove(currentId);
 }
 
 QLabel* BugEditor::columnTitle(int columnId)

@@ -25,9 +25,9 @@ MarkdownEditor::MarkdownEditor(const QString &editorTabTitle, QWidget *parent) :
     LayoutV({_preview}).setMargin(Ori::Gui::layoutSpacing()).useFor(previewTab);
 
     _tabs = new QTabWidget;
-    connect(_tabs, &QTabWidget::currentChanged, this, &MarkdownEditor::tabSwitched);
     _tabIndexEditor = _tabs->addTab(editorTab, editorTabTitle.isEmpty()? tr("Edit"): editorTabTitle);
     _tabIndexPreview = _tabs->addTab(previewTab, tr("Preview"));
+    connect(_tabs, &QTabWidget::currentChanged, this, &MarkdownEditor::tabSwitched);
 
     LayoutH({_tabs}).setMargin(0).setSpacing(0).useFor(this);
 }
@@ -62,5 +62,5 @@ void MarkdownEditor::setFocus()
 void MarkdownEditor::tabSwitched(int tabIndex)
 {
     if (tabIndex == _tabIndexPreview)
-        _preview->setHtml(Markdown::process(sanitizeHtml(_editor->toPlainText())));
+        _preview->setHtml(Markdown::process(_editor->toPlainText()));
 }

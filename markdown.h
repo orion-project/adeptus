@@ -20,6 +20,8 @@ private:
     static QString processFile(const QString& s, bool& ok);
     static QString processBug(const QString& s, bool& ok);
     static QString processResource(const QString& s, const QString& tag, const BrowserCommands::Command& cmd, bool& ok);
+    static QString processMarkdownResource(const QString& s, bool& ok);
+    static QString processIssueNum(const QString& s, int& offset, bool& ok);
 };
 
 #endif // MARKDOWN_H

@@ -1,25 +1,21 @@
-#include <QtSql>
-#include <QApplication>
-#include <QBoxLayout>
-#include <QClipboard>
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QLabel>
-#include <QPlainTextEdit>
-#include <QScreen>
-#include <QScrollArea>
-#include <QTabWidget>
-#include <QToolTip>
+#include "bughistory.h"
 
 #include "appearance.h"
 #include "browsercommands.h"
-#include "bughistory.h"
 #include "issuetextview.h"
 #include "operations.h"
 #include "markdown.h"
 #include "db/db.h"
-#include "helpers/OriDialogs.h"
+
 #include "helpers/OriLayouts.h"
+
+#include <QtSql>
+#include <QApplication>
+#include <QBoxLayout>
+#include <QClipboard>
+#include <QDialog>
+#include <QPlainTextEdit>
+#include <QTabWidget>
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -46,8 +42,7 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
             .arg(ColorProvider::closedColor().name())
     );
 
-    connect(contentView, SIGNAL(anchorClicked(QUrl)), this, SLOT(linkClicked(QUrl)));
-    connect(contentView, SIGNAL(highlighted(QUrl)), this, SLOT(linkHovered(QUrl)));
+    connect(contentView, &IssueTextView::processCommand, this, &BugHistory::processCommand);
 
     Ori::Layouts::LayoutV({contentView})
             .setMargin(0)
@@ -140,7 +135,7 @@ QString BugHistory::formatSummary(const BugInfo& bug)
             << "</td></tr>";
 
     if (!bug.extra.isEmpty())
-        content << QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(sanitizeHtml(bug.extra)));
+        content << QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(bug.extra));
 
     content << "</table>";
 
@@ -266,8 +261,7 @@ QString BugHistory::formatHistory()
             content += QString("<tr class='props'><td>%1</td></tr>").arg(changedParams);
 
         if (!item.comment.isEmpty())
-            content += QString("<tr class='extra'><td>%1</td></tr>")
-                    .arg(Markdown::process(sanitizeHtml(item.comment)));
+            content += QString("<tr class='extra'><td>%1</td></tr>").arg(Markdown::process(item.comment));
 
         content += "</table>";
 
@@ -310,38 +304,28 @@ QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param
             .arg(sanitizeHtml(newValue.toString()));
 }
 
-void BugHistory::linkClicked(const QUrl& url)
+void BugHistory::processCommand(const QString& cmd, const QUrl& url)
 {
-    if (url.scheme() == "cmd")
-    {
-        QString cmd = url.host();
-        if (BrowserCommands::copySummary() == cmd)
-            QApplication::clipboard()->setText(QString("#%1: %2").arg(_id).arg(_summary));
+    if (BrowserCommands::copySummary() == cmd)
+        QApplication::clipboard()->setText(QString("#%1: %2").arg(_id).arg(_summary));
 
-        else if (BrowserCommands::addComment() == cmd)
-            Operations::commentIssue(_id);
+    else if (BrowserCommands::addComment() == cmd)
+        Operations::commentIssue(_id);
 
-        else if (BrowserCommands::makeRelation() == cmd)
-            Operations::makeRelation(_id);
+    else if (BrowserCommands::makeRelation() == cmd)
+        Operations::makeRelation(_id);
 
-        else if (BrowserCommands::showText() == cmd)
-            showChangedText(BrowserCommands::showText().arg1Int(url));
+    else if (BrowserCommands::delRelated() == cmd)
+        BrowserCommands::delRelated().exec(url);
 
-        else if (BrowserCommands::showAllRelations() == cmd)
-            setShowOnlyOpenedRelations(false);
+    else if (BrowserCommands::showText() == cmd)
+        showChangedText(BrowserCommands::showText().arg1Int(url));
 
-        else if (BrowserCommands::showOpenedRelations() == cmd)
-            setShowOnlyOpenedRelations(true);
-    }
-}
+    else if (BrowserCommands::showAllRelations() == cmd)
+        setShowOnlyOpenedRelations(false);
 
-void BugHistory::linkHovered(const class QUrl& url)
-{
-    QString tooltip = BrowserCommands::getHint(url);
-    if (!tooltip.isEmpty())
-        QToolTip::showText(QCursor::pos(), tooltip);
-    else
-        QToolTip::hideText();
+    else if (BrowserCommands::showOpenedRelations() == cmd)
+        setShowOnlyOpenedRelations(true);
 }
 
 void BugHistory::showChangedText(int id)
