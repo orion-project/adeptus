@@ -12,7 +12,7 @@ BEGIN
             VALUE "CompanyName",      "orion-project.org\0"
             VALUE "FileVersion",      "{v1}.{v2}.{v3}.{v4}\0"
             VALUE "InternalName",     "Adeptus\0"
-            VALUE "LegalCopyright",   "Chunosov N.I. (c) 2012-2019\0"
+            VALUE "LegalCopyright",   "Chunosov N.I. (c) 2012-{year}\0"
             VALUE "OriginalFilename", "Adeptus.exe\0"
             VALUE "ProductName",      "Adeptus\0"
             VALUE "ProductVersion",   "{v1}.{v2}.{v3}.{v4}\0"

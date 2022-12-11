@@ -16,7 +16,7 @@
 #define STYLE_BUILD "font-family: " FONT_NAME "; font-size: 20px; color: white"
 #define STYLE_QT "font-family: " FONT_NAME "; font-size: 20px; color: #8e7e8c; margin-right: 1px"
 
-#define APP_COPYRIGHT "Chunosov N.I. (c) 2012-2019"
+#define APP_COPYRIGHT QString("Chunosov N.I. (c) 2012-%1").arg(APP_VER_YEAR)
 #define APP_WWW "http://github.com/orion-project/adeptus"
 #define APP_MAIL "adeptus@orion-project.org"
 
@@ -28,8 +28,8 @@ AboutWindow::AboutWindow(QWidget *parent) : QWidget(parent)
     setBackImageAndResizeTo();
 
     auto appBuild = QString("Built %1 %2")
-            .arg(QString(APP_BUILDDATE).trimmed())
-            .arg(QString(APP_BUILDTIME).trimmed());
+            .arg(QString(BUILDDATE).trimmed())
+            .arg(QString(BUILDTIME).trimmed());
 
     auto appVersion = QString("%1.%2.%3").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH);
 

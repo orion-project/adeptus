@@ -1,7 +1,7 @@
 // Setting the Version Info
 1 VERSIONINFO
-PRODUCTVERSION 	1,1,0,0
-FILEVERSION    	1,1,0,0
+PRODUCTVERSION 	1,1,1,0
+FILEVERSION    	1,1,1,0
 FILEOS         	0x4
 FILETYPE       	0
 BEGIN
@@ -10,12 +10,12 @@ BEGIN
         BLOCK "040904B0"
         BEGIN
             VALUE "CompanyName",      "orion-project.org\0"
-            VALUE "FileVersion",      "1.1.0.0\0"
+            VALUE "FileVersion",      "1.1.1.0\0"
             VALUE "InternalName",     "Adeptus\0"
-            VALUE "LegalCopyright",   "Chunosov N.I. (c) 2012-2019\0"
-            VALUE "OriginalFilename", "adeptus.exe\0"
-            VALUE "ProductName",      "adeptus\0"
-            VALUE "ProductVersion",   "1.1.0.0\0"
+            VALUE "LegalCopyright",   "Chunosov N.I. (c) 2012-2022\0"
+            VALUE "OriginalFilename", "Adeptus.exe\0"
+            VALUE "ProductName",      "Adeptus\0"
+            VALUE "ProductVersion",   "1.1.1.0\0"
         END
     END
     BLOCK "VarFileInfo"
