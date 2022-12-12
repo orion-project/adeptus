@@ -25,6 +25,7 @@ win32: RC_FILE = app.rc
 #------------------------------------------------------------
 
 SOURCES += main.cpp\
+    issuetextedit.cpp \
     mainwindow.cpp \
     bugmanager.cpp \
     dicteditor.cpp \
@@ -58,6 +59,7 @@ HEADERS  += mainwindow.h \
     bugeditor.h \
     bugsolver.h \
     bughistory.h \
+    issuetextedit.h \
     preferences.h \
     prefseditor.h \
     bugitemdelegate.h \

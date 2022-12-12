@@ -4,12 +4,11 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QLabel;
 class QPlainTextEdit;
 class QTabWidget;
-class QTextBrowser;
 QT_END_NAMESPACE
 
+class IssueTextEdit;
 class IssueTextView;
 
 class MarkdownEditor : public QWidget
@@ -22,20 +21,20 @@ public:
     bool isModified() const;
     QString getText() const;
 
-    QPlainTextEdit* editor() { return _editor; }
+    QPlainTextEdit* editor();
 
     void setFocus();
+
+    void cleanFiles();
 
 private slots:
     void tabSwitched(int tabIndex);
 
 private:
     QTabWidget* _tabs;
-    QPlainTextEdit* _editor;
+    IssueTextEdit* _editor;
     IssueTextView* _preview;
     int _tabIndexEditor, _tabIndexPreview;
-
-    static QLabel* makeHintLabel();
 };
 
 #endif // MARKDOWNEDITOR_H

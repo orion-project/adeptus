@@ -59,6 +59,7 @@ private:
     QString addHistroyItem(int eventNum, int changedParam, QVariant &oldValue, QVariant &newValue, bool doComment);
     QString saveIssue();
     void restoreGeometry();
+    void cancelDlg();
 };
 
 #endif // BUG_SOLVER_H

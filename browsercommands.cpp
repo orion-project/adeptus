@@ -73,16 +73,31 @@ public:
     void exec(const QUrl& url) const override;
 };
 
+static QStringList supportedImgExts()
+{
+    static const QStringList suffixes({".png", ".jpg", ".jpeg"});
+    return suffixes;
+}
+
+bool isSupportedImg(const QString& path)
+{
+    for (auto& suffix : supportedImgExts())
+        if (path.endsWith(suffix, Qt::CaseInsensitive))
+            return true;
+    return false;
+}
+
 void CommandShowImage::exec(const QUrl& url) const
 {
     auto fileName = arg1Str(url);
     QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
-    auto sourcePath = file.absoluteFilePath();
     if (!file.exists())
     {
-        static const QStringList suffixes({".png", ".jpg", ".jpeg"});
         bool fileNotFound = true;
-        for (auto suffix : suffixes)
+        auto sourcePath = file.absoluteFilePath();
+        // For old-style image tag [[Img:file]]
+        // try to guess file ext if it's not provided
+        for (auto& suffix : supportedImgExts())
         {
             if (!sourcePath.endsWith(suffix, Qt::CaseInsensitive))
             {
@@ -122,12 +137,12 @@ void CommandGetFile::exec(const QUrl& url) const
     QFile source(file.filePath());
     if (!source.open(QIODevice::ReadOnly))
         return Ori::Dlg::error(qApp->tr("Unable to open source file '%1' for reading\n\n%2")
-                               .arg(file.filePath()).arg(source.errorString()));
+                               .arg(file.filePath(), source.errorString()));
 
     QFile target(targetFile);
     if (!target.open(QIODevice::WriteOnly))
         return Ori::Dlg::error(qApp->tr("Unable to open target file '%1' for writing\n\n%2")
-                               .arg(targetFile).arg(target.errorString()));
+                               .arg(targetFile, target.errorString()));
 
     QDataStream sourceData(&source);
     QDataStream targetData(&target);
@@ -146,7 +161,6 @@ void CommandGetFile::exec(const QUrl& url) const
     }
 }
 
-
 //-----------------------------------------------------------------------------
 
 const Command& copySummary() { static Command c("copysummary");  return c; }
@@ -160,19 +174,11 @@ const Command& getFile() { static CommandGetFile c("getfile", "file"); return c;
 const Command& showAllRelations() { static Command c("showallrels"); return c; }
 const Command& showOpenedRelations() { static Command c("showopenrels"); return c; }
 
+static const QString marker() { return QStringLiteral("cmd"); }
+
 QString getCommand(const QUrl& url)
 {
-    return (url.scheme() == "cmd")? url.host(): QString();
-}
-
-void processCommand(const QUrl& url)
-{
-    QString cmd = getCommand(url);
-    // TODO put commands to list and iterate over
-    if (delRelated() == cmd) return delRelated().exec(url);
-    if (showRelated() == cmd) return showRelated().exec(url);
-    if (showImage() == cmd) return showImage().exec(url);
-    if (getFile() == cmd) return getFile().exec(url);
+    return (url.scheme() == marker())? url.host(): QString();
 }
 
 QString getHint(const QUrl& url)
@@ -181,12 +187,19 @@ QString getHint(const QUrl& url)
     // TODO put commands to list and iterate over
     if (copySummary() == cmd) return qApp->tr("Copy number and summary to the clipboard");
     if (showText() == cmd) return qApp->tr("Show text changes");
-    if (delRelated() == cmd) return qApp->tr("Delete relation");
-    if (showRelated() == cmd) return qApp->tr("Show issue in new page");
     if (makeRelation() == cmd) return qApp->tr("Make new relation");
+    if (showRelated() == cmd) return qApp->tr("Show issue #%1 in new page").arg(showRelated().arg1Str(url));
+    if (delRelated() == cmd) return qApp->tr("Delete relation #%1").arg(delRelated().arg1Str(url));
+    if (showImage() == cmd) return qApp->tr("Show image %1").arg(showImage().arg1Str(url));
+    if (getFile() == cmd) return qApp->tr("Download file %1").arg(getFile().arg1Str(url));
     if (showAllRelations() == cmd) return qApp->tr("Show all relations");
     if (showOpenedRelations() == cmd) return qApp->tr("Show only opened relations");
     return QString();
+}
+
+bool isCommand(const QUrl& url)
+{
+    return url.scheme() == marker();
 }
 
 } // namespace BrowserCommands

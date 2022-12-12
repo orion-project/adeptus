@@ -10,8 +10,12 @@ class IssueTextView : public QTextBrowser
 public:
     explicit IssueTextView(QWidget *parent = 0);
 
-private slots:
-    void linkClicked(const class QUrl&);
+signals:
+    void processCommand(const QString& cmd, const QUrl& url);
+
+private:
+    void linkClicked(const QUrl&);
+    void linkHovered(const QUrl&);
 };
 
 QString sanitizeHtml(const QString& s);

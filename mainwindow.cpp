@@ -97,7 +97,7 @@ void MainWindow::createMenus()
     // View
     QMenu* menuView = menuBar()->addMenu(tr("View"));
     menuView->addSeparator();
-    menuView->addAction(tr("Preferences..."), [this](){ PrefsEditor::show(this); });
+    menuView->addAction(tr("Preferences..."), this, [this](){ PrefsEditor::show(this); });
     menuView->addSeparator();
     menuView->addMenu(new Ori::Widgets::StylesMenu);
 
@@ -106,13 +106,13 @@ void MainWindow::createMenus()
     menuBug->addAction(QIcon(":/tools/append"), tr("New..."), this, SLOT(appendBug()), QKeySequence::New);
     menuBug->addSeparator();
     actionProcessBug = menuBug->addAction(QString(), this, SLOT(processBug()), Qt::Key_F9);
-    QAction* actionComment = menuBug->addAction(tr("Comment..."), [this](){ Operations::commentIssue(this->currentId()); }, Qt::Key_F4);
+    QAction* actionComment = menuBug->addAction(tr("Comment..."), this, [this](){ Operations::commentIssue(this->currentId()); }, Qt::Key_F4);
     QAction* actionHistory = menuBug->addAction(tr("History"), this, SLOT(showHistory()), Qt::Key_Return);
     menuBug->addSeparator();
     menuBug->addAction(tr("Edit..."), this, SLOT(editBug()), Qt::Key_F2);
-    menuBug->addAction(tr("Delete"), [this](){ Operations::deleteIssue(this->currentId()); });
+    menuBug->addAction(tr("Delete"), this, [this](){ Operations::deleteIssue(this->currentId()); });
     menuBug->addSeparator();
-    menuBug->addAction(tr("Make Relation..."), [this](){ Operations::makeRelation(this->currentId()); });
+    menuBug->addAction(tr("Make Relation..."), this, [this](){ Operations::makeRelation(this->currentId()); });
 
     contextMenu = new QMenu(this);
     contextMenu->addAction(actionProcessBug);

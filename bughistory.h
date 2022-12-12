@@ -11,6 +11,8 @@ class QTextBrowser;
 class QSqlRecord;
 QT_END_NAMESPACE
 
+class IssueTextView;
+
 class BugHistory : public QWidget
 {
     Q_OBJECT
@@ -26,7 +28,7 @@ public:
     void setFocus();
 
 private:
-    QTextBrowser* contentView;
+    IssueTextView* contentView;
     QString _summary;
     QMap<int, QPair<QString, QString> > _changedTexts;
     int _id, _status, _changedTextIndex;
@@ -41,7 +43,6 @@ private:
     QString formatChangedParams(const QList<BugHistoryItem::ChangedParam>& params);
     QString formatChangedParam(const BugHistoryItem::ChangedParam& param);
     QString finishWithError(const QString& content, const QString& error);
-    QString processWikiTags(const QString& s);
 
     void showChangedText(int id);
     void scrollToEnd();
@@ -49,9 +50,9 @@ private:
 
     QString headerClass() const;
 
+    void processCommand(const QString& cmd, const QUrl& url);
+
 private slots:
-    void linkClicked(const class QUrl&);
-    void linkHovered(const class QUrl&);
     void commentAdded(int bugId);
 };
 

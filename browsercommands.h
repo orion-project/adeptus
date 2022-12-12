@@ -45,8 +45,11 @@ const Command& getFile();
 const Command& showAllRelations();
 const Command& showOpenedRelations();
 
-void processCommand(const QUrl& url);
+QString getCommand(const QUrl& url);
 QString getHint(const QUrl &url);
+bool isCommand(const QUrl& url);
+
+bool isSupportedImg(const QString& path);
 
 } // namespace BrowserCommands
 
