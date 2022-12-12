@@ -3,8 +3,9 @@
 #include "issuetextedit.h"
 #include "issuetextview.h"
 #include "markdown.h"
-#include "helpers/OriWidgets.h"
+#include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
+#include "helpers/OriWidgets.h"
 
 #include <QLabel>
 #include <QTabWidget>
@@ -68,4 +69,11 @@ void MarkdownEditor::tabSwitched(int tabIndex)
 QPlainTextEdit* MarkdownEditor::editor()
 {
     return qobject_cast<QPlainTextEdit*>(_editor);
+}
+
+void MarkdownEditor::cleanFiles()
+{
+    QString res = _editor->cleanFiles();
+    if (!res.isEmpty())
+        Ori::Dlg::error(tr("There are errors while deleting imported files:\n\n%1").arg(res));
 }

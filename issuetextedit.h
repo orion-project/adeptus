@@ -14,9 +14,13 @@ public:
     void insertFromMimeData(const QMimeData* source) override;
     void dropEvent(QDropEvent *event) override;
 
+    QString cleanFiles();
+
 private:
     void pasteImage(const QImage& img);
     void pasteFile(const QMimeData* source);
+
+    QStringList _generatedFiles;
 };
 
 #endif // ISSUETEXTEDIT_H

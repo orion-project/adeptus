@@ -67,6 +67,7 @@ void IssueTextEdit::pasteImage(const QImage& img)
             Ori::Dlg::error(tr("Failed to save image %1: %2").arg(fi.absoluteFilePath(), writer.errorString()));
             return;
         }
+        _generatedFiles.append(fi.absoluteFilePath());
         textCursor().insertText(QString("![](%1)").arg(fi.fileName()));
     }
 }
@@ -135,20 +136,20 @@ void IssueTextEdit::pasteFile(const QMimeData* source)
             Ori::Dlg::error(tr("Failed to save file %1: %2").arg(dst.absoluteFilePath(), srcFile.errorString()));
             return;
         }
+        _generatedFiles.append(dst.absoluteFilePath());
         textCursor().insertText(QString("![%1](%2)").arg(src.fileName(), dst.fileName()));
     }
 }
 
 void IssueTextEdit::insertFromMimeData(const QMimeData* source)
 {
-    // TODO: track generated file names and remove them if editor dialog canceled
     if (source->hasImage())
     {
         auto img = qvariant_cast<QImage>(source->imageData());
         pasteImage(img);
         return;
     }
-    else if (source->hasUrls())
+    if (source->hasUrls())
     {
         pasteFile(source);
         return;
@@ -159,4 +160,20 @@ void IssueTextEdit::insertFromMimeData(const QMimeData* source)
 void IssueTextEdit::dropEvent(QDropEvent *event)
 {
     insertFromMimeData(event->mimeData());
+}
+
+QString IssueTextEdit::cleanFiles()
+{
+    QStringList report;
+    for (auto& fn : _generatedFiles)
+    {
+        QFile f(fn);
+        if (!f.remove())
+        {
+            report.append(fn + ": " + f.errorString());
+            qWarning() << "Deleting" << fn << f.errorString();
+        }
+        //else qDebug() << "Deleted" << fn;
+    }
+    return report.join('\n');
 }

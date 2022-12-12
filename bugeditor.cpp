@@ -150,7 +150,7 @@ void BugEditor::reject()
                 textExtra->isModified()))
         if (!Ori::Dlg::yes(tr("Text has been changed. Cancel anyway?"))) return;
 
-    close();
+    cancelDlg();
 }
 
 void BugEditor::initAppend()
@@ -294,5 +294,12 @@ QString BugEditor::saveEdit()
 
 void BugEditor::issueDeleted(int id)
 {
-    if (id == currentId) close();
+    if (id == currentId) cancelDlg();
+}
+
+void BugEditor::cancelDlg()
+{
+    textExtra->cleanFiles();
+
+    close();
 }

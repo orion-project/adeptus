@@ -205,7 +205,7 @@ void BugSolver::reject()
     if (textComment->isModified() && Preferences::instance().confirmCancel)
         if (!Ori::Dlg::yes(tr("Text has been changed. Cancel anyway?"))) return;
 
-    QWidget::close();
+    cancelDlg();
 }
 
 void BugSolver::save()
@@ -287,5 +287,12 @@ QString BugSolver::saveIssue()
 
 void BugSolver::issueDeleted(int id)
 {
-    if (id == currentId) QWidget::close();
+    if (id == currentId) cancelDlg();
+}
+
+void BugSolver::cancelDlg()
+{
+    textComment->cleanFiles();
+
+    QWidget::close();
 }

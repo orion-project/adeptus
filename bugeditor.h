@@ -57,6 +57,7 @@ private:
     QString saveNew();
     QString saveEdit();
     QLabel* columnTitle(int columnId);
+    void cancelDlg();
 };
 
 #endif // BUG_EDITOR_H

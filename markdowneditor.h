@@ -25,6 +25,8 @@ public:
 
     void setFocus();
 
+    void cleanFiles();
+
 private slots:
     void tabSwitched(int tabIndex);
 
