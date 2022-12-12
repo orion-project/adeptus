@@ -7,6 +7,7 @@
 #include "helpers/OriLayouts.h"
 
 #include <QDateTime>
+#include <QDir>
 #include <QFormLayout>
 #include <QImageWriter>
 #include <QLabel>
@@ -61,6 +62,8 @@ void IssueTextEdit::pasteImage(const QImage& img)
 
     if (Ori::Dlg::Dialog(w, true).withTitle(tr("Add Image to Database")).withContentToButtonsSpacingFactor(2).exec())
     {
+        if (!ensureFilesDir())
+            return;
         QImageWriter writer(fi.absoluteFilePath());
         if (!writer.write(img))
         {
@@ -118,13 +121,15 @@ void IssueTextEdit::pasteFile(const QMimeData* source)
     form->setContentsMargins(0, 0, 0, 0);
     form->setLabelAlignment(Qt::AlignRight);
     form->setHorizontalSpacing(9);
-    form->addRow(tr("<b>Source path:</b>"), new QLabel(src.absoluteFilePath()));
+    form->addRow(tr("<b>Copy from:</b>"), new QLabel(src.absoluteFilePath()));
     form->addRow(tr("<b>Target name:</b>"), new QLabel(dst.fileName()));
     form->addRow(tr("<b>Display as:</b>"), new QLabel(src.fileName()));
     form->addRow(tr("<b>File size:</b>"), new QLabel(tr("%1 bytes").arg(src.size())));
 
     if (Ori::Dlg::Dialog(w, true).withTitle(tr("Add File to Database")).withContentToButtonsSpacingFactor(2).exec())
     {
+        if (!ensureFilesDir())
+            return;
         QFile srcFile(src.absoluteFilePath());
         if (!srcFile.open(QIODeviceBase::ReadOnly))
         {
@@ -176,4 +181,17 @@ QString IssueTextEdit::cleanFiles()
         //else qDebug() << "Deleted" << fn;
     }
     return report.join('\n');
+}
+
+bool IssueTextEdit::ensureFilesDir()
+{
+    auto fi = BugManager::fileInDatabaseFiles("");
+    if (fi.isDir() && fi.exists())
+        return true;
+    if (!QDir().mkdir(fi.absoluteFilePath()))
+    {
+        Ori::Dlg::error(tr("Failed to create files directory %1").arg(fi.absolutePath()));
+        return false;
+    }
+    return true;
 }

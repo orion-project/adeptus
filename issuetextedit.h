@@ -19,6 +19,7 @@ public:
 private:
     void pasteImage(const QImage& img);
     void pasteFile(const QMimeData* source);
+    bool ensureFilesDir();
 
     QStringList _generatedFiles;
 };
