@@ -1,6 +1,3 @@
 // Setting the Application Icon
 // http://doc.qt.digia.com/qt/appicon.html
-
 IDI_ICON1 ICON DISCARDABLE "icon/icon.ico"
-
-#include "release/version.rc"

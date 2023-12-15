@@ -27,12 +27,8 @@ AboutWindow::AboutWindow(QWidget *parent) : QWidget(parent)
     setupAutoDeletableDialog();
     setBackImageAndResizeTo();
 
-    auto appBuild = QString("Built %1 %2")
-            .arg(QString(BUILDDATE).trimmed())
-            .arg(QString(BUILDTIME).trimmed());
-
+    auto appBuild = QString("Built %1").arg(BUILD_DATE);
     auto appVersion = QString("%1.%2.%3").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH);
-
     auto qtVersion = QString("Based on Qt %1").arg(QT_VERSION_STR);
 
     LayoutV({
