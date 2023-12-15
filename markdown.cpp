@@ -4,10 +4,6 @@
 #include <QTextDocument>
 #include <QImage>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-#include <QStringRef>
-#endif
-
 QString Markdown::hint()
 {
     return QString(QStringLiteral("**<b>bold</b>**&nbsp;&nbsp;"
@@ -70,12 +66,12 @@ QString Markdown::processIssueNum(const QString& s, int& offset, bool& ok)
         endPos++;
     if (endPos > startPos && (endPos == s.size() || s[endPos].isSpace() || s[endPos].isPunct()))
     {
-        QString numStr = QStringRef(&s, startPos, endPos-startPos).toString();
+        QString numStr = s.sliced(startPos, endPos-startPos);
         QString link = BrowserCommands::showRelated().format(numStr, '#'+numStr);
         offset = startPos-1 + link.size();
 
-        QStringRef strBegin(&s, 0, startPos-1);
-        QStringRef strEnd(&s, endPos, s.length() - endPos);
+        auto strBegin = QStringView(s).first(startPos-1);
+        auto strEnd = QStringView(s).sliced(endPos);
         return strBegin % link % strEnd;
     }
 
@@ -111,9 +107,9 @@ QString Markdown::processResource(const QString& s, const QString& tag, const Br
     int endPos = s.indexOf(tagEnd, resourceStartPos+1);
     if (endPos < 0) return s;
 
-    QStringRef strBegin(&s, 0, startPos);
-    QStringRef strMid(&s, resourceStartPos, endPos - resourceStartPos);
-    QStringRef strEnd(&s, endPos+2, s.length() - (endPos+2));
+    auto strBegin = QStringView(s).first(startPos);
+    auto strMid = QStringView(s).sliced(resourceStartPos, endPos - resourceStartPos);
+    auto strEnd = QStringView(s).sliced(endPos+2, s.length() - (endPos+2));
 
     QString resource = strMid.trimmed().toString();
     if (resource.isEmpty())
@@ -149,10 +145,10 @@ QString Markdown::processMarkdownResource(const QString& s, bool& ok)
     int endPos = s.indexOf(tagEnd, linkStartPos);
     if (endPos < 0) return s;
 
-    QStringRef strBegin(&s, 0, startPos);
-    QStringRef strAlt(&s, altStartPos, midPos - altStartPos);
-    QStringRef strLink(&s, linkStartPos, endPos - linkStartPos);
-    QStringRef strEnd(&s, endPos+1, s.length() - (endPos+1));
+    auto strBegin = QStringView(s).first(startPos);
+    auto strAlt = QStringView(s).sliced(altStartPos, midPos - altStartPos);
+    auto strLink = QStringView(s).sliced(linkStartPos, endPos - linkStartPos);
+    auto strEnd = QStringView(s).sliced(endPos+1, s.length() - (endPos+1));
 
     QString link = strLink.trimmed().toString();
     if (link.isEmpty())
