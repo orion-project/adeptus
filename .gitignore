@@ -44,3 +44,4 @@ __pycache__
 .qtc_clangd
 moc_*.cpp
 moc_*.h
+build

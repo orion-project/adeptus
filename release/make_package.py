@@ -67,7 +67,7 @@ def make_package_for_linux():
   execute('chmod +x usr/bin/' + PROJECT_EXE)
 
   copy_file('../../release/{}.desktop'.format(PROJECT_NAME), 'usr/share/applications')
-  shutil.copyfile('../../icon/adeptus.iconset/icon_256x256.png', 'usr/share/icons/hicolor/256x256/apps/{}.png'.format(PROJECT_NAME))
+  shutil.copyfile('../../icon/adeptus.png', 'usr/share/icons/hicolor/256x256/apps/{}.png'.format(PROJECT_NAME))
 
   #print_header('Copy project files...')
 
@@ -79,8 +79,12 @@ def make_package_for_linux():
   # See discussion here: https://github.com/probonopd/linuxdeployqt/issues/340
   # But I have nor a machine running Trusty or a wish to stick at Qt 5.5
   # (the last supported for Trusty) so have to use a more relaxed 5th version of the tool.
+  # TODO: it doesn't work on Ubuntu 24
   linuxdeployqt = 'linuxdeployqt-5-x86_64.AppImage'
   linuxdeployqt_url = 'https://github.com/probonopd/linuxdeployqt/releases/download/5/'
+  # Version 10 requires Ubuntu 20 (Focal Forca)
+  #linuxdeployqt = 'linuxdeployqt-continuous-x86_64.AppImage'
+  #linuxdeployqt_url = 'https://github.com/probonopd/linuxdeployqt/releases/download/10/'
   download_file(linuxdeployqt_url, linuxdeployqt, mark_executable = True)
 
   print_header('Create AppImage...')

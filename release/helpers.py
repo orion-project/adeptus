@@ -28,7 +28,7 @@ else:
 
 
 PROJECT_NAME = 'Adeptus'
-PROJECT_FILE = 'Adeptus.pro'
+PROJECT_FILE = 'CMakeLists.txt'
 if IS_WINDOWS: PROJECT_EXE = 'Adeptus.exe'
 if IS_LINUX: PROJECT_EXE = 'adeptus'
 if IS_MACOS: PROJECT_EXE = 'adeptus.app'
