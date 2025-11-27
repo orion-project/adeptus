@@ -10,7 +10,7 @@
 #include "bugeditor.h"
 #include "bugmanager.h"
 #include "markdowneditor.h"
-#include "preferences.h"
+#include "Preferences.h"
 #include "bugitemdelegate.h"
 #include "operations.h"
 #include "db/db.h"

@@ -23,6 +23,7 @@ public:
     void load(Ori::Settings& s);
     void save(Ori::Settings& s);
     void save();
+    bool edit();
 };
 
 #endif // PREFERENCES_H

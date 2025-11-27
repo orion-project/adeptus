@@ -15,8 +15,7 @@
 #include "bugsolver.h"
 #include "bughistory.h"
 #include "dicteditor.h"
-#include "prefseditor.h"
-#include "preferences.h"
+#include "Preferences.h"
 #include "issuetable.h"
 #include "aboutwindow.h"
 #include "operations.h"
@@ -97,7 +96,7 @@ void MainWindow::createMenus()
     // View
     QMenu* menuView = menuBar()->addMenu(tr("View"));
     menuView->addSeparator();
-    menuView->addAction(tr("Preferences..."), this, [this](){ PrefsEditor::show(this); });
+    menuView->addAction(tr("Preferences..."), this, [this](){ Preferences::instance().edit(); });
     menuView->addSeparator();
     menuView->addMenu(new Ori::Widgets::StylesMenu);
 

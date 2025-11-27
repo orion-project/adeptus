@@ -14,5 +14,6 @@
         <file alias="solve">../img/check_green.svg</file>
         <file alias="close">../img/stop_green.svg</file>
         <file alias="reopen">../img/revert_red.svg</file>
+        <file alias="settings">../img/settings.svg</file>
     </qresource>
 </RCC>

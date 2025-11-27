@@ -61,8 +61,7 @@ set(PROJECT_SOURCES
     src/markdown.cpp
     src/markdowneditor.cpp
     src/operations.cpp
-    src/preferences.cpp
-    src/prefseditor.cpp
+    src/Preferences.cpp
     src/startpage.cpp
 )
 
