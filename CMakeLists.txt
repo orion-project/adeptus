@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
@@ -30,43 +30,43 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Widgets Sql)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Network Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Network Widgets Sql)
 
 set(PROJECT_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
-    ${CMAKE_CURRENT_SOURCE_DIR}/app.rc
-    aboutwindow.cpp
-    appearance.cpp
-    browsercommands.cpp
-    bugeditor.cpp
-    bughistory.cpp
-    bugitemdelegate.cpp
-    bugmanager.cpp
-    bugsolver.cpp
-    bugtypes.cpp
-    db/db.cpp
-    db/historymanager.cpp
-    db/issuemanager.cpp
-    db/relationmanager.cpp
-    db/sqlhelpers.cpp
-    dicteditor.cpp
-    filterpanel.cpp
-    ImageViewWindow.cpp
-    issuetable.cpp
-    issuetextedit.cpp
-    issuetextview.cpp
-    main.cpp
-    mainwindow.cpp
-    markdown.cpp
-    markdowneditor.cpp
-    operations.cpp
-    preferences.cpp
-    prefseditor.cpp
-    startpage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/app.rc
+    src/aboutwindow.cpp
+    src/appearance.cpp
+    src/browsercommands.cpp
+    src/bugeditor.cpp
+    src/bughistory.cpp
+    src/bugitemdelegate.cpp
+    src/bugmanager.cpp
+    src/bugsolver.cpp
+    src/bugtypes.cpp
+    src/db/db.cpp
+    src/db/historymanager.cpp
+    src/db/issuemanager.cpp
+    src/db/relationmanager.cpp
+    src/db/sqlhelpers.cpp
+    src/dicteditor.cpp
+    src/filterpanel.cpp
+    src/ImageViewWindow.cpp
+    src/issuetable.cpp
+    src/issuetextedit.cpp
+    src/issuetextview.cpp
+    src/main.cpp
+    src/mainwindow.cpp
+    src/markdown.cpp
+    src/markdowneditor.cpp
+    src/operations.cpp
+    src/preferences.cpp
+    src/prefseditor.cpp
+    src/startpage.cpp
 )
 
-qt_add_resources(PROJECT_SOURCES images.qrc)
+qt_add_resources(PROJECT_SOURCES src/app.qrc)
 
 add_subdirectory(orion)
 

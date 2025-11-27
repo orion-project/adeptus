@@ -1,6 +1,7 @@
 #include "aboutwindow.h"
-#include "orion/widgets/OriLabels.h"
-#include "orion/helpers/OriLayouts.h"
+
+#include "widgets/OriLabels.h"
+#include "helpers/OriLayouts.h"
 
 #include <QApplication>
 #include <QBoxLayout>

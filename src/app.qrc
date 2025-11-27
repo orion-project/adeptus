@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/window_icons">
+        <file alias="main">../img/icon/icon_gradient_lighten.png</file>
+    </qresource>
+    <qresource prefix="/about">
+        <file alias="main">../img/about/about.jpg</file>
+        <file alias="bug">../img/about/bug.png</file>
+    </qresource>
+    <qresource prefix="/tools">
+        <file alias="delete">../img/delete.png</file>
+        <file alias="append">../img/bug_big_eyes.svg</file>
+        <file alias="plus">../img/plus_blue.png</file>
+        <file alias="comment">../img/pencil.svg</file>
+        <file alias="solve">../img/check_green.svg</file>
+        <file alias="close">../img/stop_green.svg</file>
+        <file alias="reopen">../img/revert_red.svg</file>
+    </qresource>
+</RCC>
