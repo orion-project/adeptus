@@ -11,7 +11,7 @@
 
 #define FONT_NAME "Times New Roman"
 #define FONT_COLOR "#523450"
-#define STYLE_INFO "font-family:" FONT_NAME "; font-size: 14px; color:" FONT_COLOR
+#define STYLE_INFO "font-family:" FONT_NAME "; font-size: 15px; color:" FONT_COLOR
 #define STYLE_VERSION "font-family:" FONT_NAME "; font-size: 40px; font-weight: bold; color:" FONT_COLOR
 #define STYLE_BUILD "font-family: " FONT_NAME "; font-size: 20px; color: white"
 #define STYLE_QT "font-family: " FONT_NAME "; font-size: 20px; color: #8e7e8c; margin-right: 1px"
@@ -69,7 +69,10 @@ QLabel* AboutWindow::label(const QString& text, const char* styleSheet, const ch
     label->setText(text);
     label->setStyleSheet(styleSheet);
     if (slot)
+    {
         connect(label, SIGNAL(clicked()), receiver ? receiver : this, slot);
+        label->setCursor(Qt::PointingHandCursor);
+    }
     return label;
 }
 

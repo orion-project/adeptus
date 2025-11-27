@@ -59,7 +59,7 @@ void FilterView::collectTo(IssueFilters *filters)
 
 void FilterView::populateFrom(IssueFilters *filters)
 {
-    for (const IssueFilter& filter : filters->filters)
+    for (const IssueFilter& filter : std::as_const(filters->filters))
         if (filter.name == _name)
         {
             enabledFlag->setChecked(filter.check);
@@ -74,15 +74,16 @@ FilterPresets::FilterPresets(FilterPanel *parent) : QObject(parent)
 {
     _panel = parent;
     _menu = new QMenu(parent);
-    _actionSave = Ori::Gui::action(tr("Save Filter..."), this, SLOT(save()));
-    _actionDelete = Ori::Gui::action(tr("Delete Filter..."), this, SLOT(remove()));
+    _actionSave = Ori::Gui::V0::action(tr("Save Filter..."), this, SLOT(save()));
+    _actionDelete = Ori::Gui::V0::action(tr("Delete Filter..."), this, SLOT(remove()));
 }
 
 void FilterPresets::show(const QPoint& pos) { _menu->exec(pos); }
 
 void FilterPresets::load()
 {
-    for (const FilterPreset& it: _items) delete it.action;
+    for (const FilterPreset& it: std::as_const(_items))
+        delete it.action;
     _items.clear();
     _menu->clear();
 
@@ -112,7 +113,7 @@ void FilterPresets::save()
     QString title = QInputDialog::getText(qApp->activeWindow(), tr("Save Filter"), tr("Enter new filter title:"));
     if (title.isEmpty()) return;
 
-    for (const FilterPreset& it: _items)
+    for (const FilterPreset& it: std::as_const(_items))
         if (it.title == title)
             return Ori::Dlg::info(tr("There is a filter having this title already"));
 
@@ -137,7 +138,7 @@ void FilterPresets::save()
 
 void FilterPresets::makeAction(FilterPreset& preset)
 {
-    preset.action = Ori::Gui::action(preset.title, this, SLOT(apply()));
+    preset.action = Ori::Gui::V0::action(preset.title, this, SLOT(apply()));
     preset.action->setData(preset.id);
 }
 
@@ -192,7 +193,7 @@ FilterPanel::FilterPanel() : QWidget()
     connect(applyButton, SIGNAL(clicked()), this, SLOT(applyButtonClicked()));
 
     auto filterLayout = new Ori::Widgets::FlowLayout(6, 24, 6);
-    for (auto filter : _filters)
+    for (auto filter : std::as_const(_filters))
         filterLayout->addWidget(filter);
     filterLayout->addWidget(applyButton);
 
@@ -229,19 +230,19 @@ void FilterPanel::applyButtonClicked()
 
 void FilterPanel::updateModels()
 {
-    for (auto filter : _filters)
+    for (auto filter : std::as_const(_filters))
         filter->updateModel();
 }
 
 void FilterPanel::collectFilters(IssueFilters *filters)
 {
-    for (auto filter : _filters)
+    for (auto filter : std::as_const(_filters))
         filter->collectTo(filters);
 }
 
 void FilterPanel::displayFilters(IssueFilters *filters)
 {
-    for (auto filter : _filters)
+    for (auto filter : std::as_const(_filters))
         filter->populateFrom(filters);
 }
 

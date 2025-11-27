@@ -9,7 +9,7 @@
 
 namespace SqlHelper {
 
-void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value);
+void addField(QSqlRecord &record, const QString &name, QMetaType::Type type, const QVariant &value);
 void addField(QSqlRecord &record, const QString &name, const QVariant &value);
 
 QString errorText(const QSqlQuery &query, bool includeSql = false);
@@ -85,18 +85,18 @@ class ColDef
 {
 public:
     ColDef() {}
-    ColDef(const QString& title, QVariant::Type type):
+    ColDef(const QString& title, QMetaType type):
         _title(title), _type(type) { }
 
     QString title() const { return _title; }
-    QVariant::Type type() const { return _type; }
+    QMetaType type() const { return _type; }
 
     QVariant fromRecord(const QSqlRecord& record) const;
     void toRecord(QSqlRecord& record, const QVariant& value) const;
 
 private:
     QString _title;
-    QVariant::Type _type;
+    QMetaType _type;
 };
 
 

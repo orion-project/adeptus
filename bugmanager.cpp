@@ -348,17 +348,17 @@ QString BugManager::addHistroyItem(QSqlTableModel *model,
                                    const QVariant &oldValue, const QVariant &newValue)
 {
     QVariant eventPart = generateEventPart(bugId, eventNum.toInt());
-    if (eventPart.type() == QVariant::String)
+    if (eventPart.typeId() == QMetaType::QString)
         return qApp->tr("Unable to generate history item id.\n\n%1").arg(eventPart.toString());
 
     QSqlRecord record;
-    SqlHelper::addField(record, "Issue", QVariant::Int, bugId);
-    SqlHelper::addField(record, "EventNum", QVariant::Int, eventNum);
-    SqlHelper::addField(record, "EventPart", QVariant::Int, eventPart);
-    SqlHelper::addField(record, "ChangedParam", QVariant::Int, changedParam);
-    SqlHelper::addField(record, "OldValue", QVariant::Int, oldValue);
-    SqlHelper::addField(record, "NewValue", QVariant::Int, newValue);
-    SqlHelper::addField(record, "Moment", QVariant::DateTime, moment);
+    SqlHelper::addField(record, "Issue", QMetaType::Int, bugId);
+    SqlHelper::addField(record, "EventNum", QMetaType::Int, eventNum);
+    SqlHelper::addField(record, "EventPart", QMetaType::Int, eventPart);
+    SqlHelper::addField(record, "ChangedParam", QMetaType::Int, changedParam);
+    SqlHelper::addField(record, "OldValue", QMetaType::Int, oldValue);
+    SqlHelper::addField(record, "NewValue", QMetaType::Int, newValue);
+    SqlHelper::addField(record, "Moment", QMetaType::QDateTime, moment);
 
     if (!model->insertRecord(-1, record))
         return SqlHelper::errorText(model);
@@ -369,16 +369,16 @@ QString BugManager::addHistroyItem(QSqlTableModel *model,
 QString BugManager::addHistroyComment(int bugId, const QVariant& eventNum, const QDateTime &moment, const QString &comment)
 {
     QVariant eventPart = generateEventPart(bugId, eventNum.toInt());
-    if (eventPart.type() == QVariant::String)
+    if (eventPart.typeId() == QMetaType::QString)
         return qApp->tr("Unable to generate history item id.\n\n%1").arg(eventPart.toString());
 
     QSqlRecord record;
-    SqlHelper::addField(record, "Issue", QVariant::Int, bugId);
-    SqlHelper::addField(record, "EventNum", QVariant::Int, eventNum);
-    SqlHelper::addField(record, "EventPart", QVariant::Int, eventPart);
-    SqlHelper::addField(record, "ChangedParam", QVariant::Int, -1);
-    SqlHelper::addField(record, "Moment", QVariant::DateTime, moment);
-    SqlHelper::addField(record, "Comment", QVariant::String, comment);
+    SqlHelper::addField(record, "Issue", QMetaType::Int, bugId);
+    SqlHelper::addField(record, "EventNum", QMetaType::Int, eventNum);
+    SqlHelper::addField(record, "EventPart", QMetaType::Int, eventPart);
+    SqlHelper::addField(record, "ChangedParam", QMetaType::Int, -1);
+    SqlHelper::addField(record, "Moment", QMetaType::QDateTime, moment);
+    SqlHelper::addField(record, "Comment", QMetaType::QString, comment);
 
     QSqlTableModel model;
     model.setTable(TABLE_HISTORY);
@@ -464,7 +464,7 @@ QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
 QString BugComparer::writeHistory(const BugInfo& oldValue, const BugInfo& newValue)
 {
     QVariant eventNum = BugManager::generateEventId(oldValue.id);
-    if (eventNum.type() == QVariant::String)
+    if (eventNum.typeId() == QMetaType::QString)
         return qApp->tr("Unable to generate history item number.\n\n%1").arg(eventNum.toString());
 
     QSqlTableModel model;
@@ -620,7 +620,7 @@ QString IssueFilters::loadInternal(DbSettings& dbs)
     auto skipEmptyParts = QString::SkipEmptyParts;
 #endif
     QStringList names = value.toString().split(';', skipEmptyParts);
-    for (const QString& name: names)
+    for (const QString& name: std::as_const(names))
     {
         IssueFilter filter;
         filter.name = name;
@@ -769,10 +769,10 @@ QString DbSettings::loadSetting(const QString& name, QVariant& value, const QVar
     if (query.isSelect() && query.first())
     {
         value = query.record().value(0);
-        if (value.type() != QVariant::String)
+        if (value.typeId() != QMetaType::QString)
             return qApp->tr("Setting '%1' has no proper type").arg(name);
-        if (def.isValid() && def.type() != QVariant::String)
-            if (!value.convert(def.type()))
+        if (def.isValid() && def.typeId() != QMetaType::QString)
+            if (!value.convert(def.metaType()))
                 return qApp->tr("Setting '%1' has no proper type").arg(name);
     }
     else value = def;
@@ -788,7 +788,7 @@ QVariant ptr2var(void *p)
 
 bool checkResult(QWidget *parent, const QVariant& result, const QString& message)
 {
-    if (result.type() == QVariant::String)
+    if (result.typeId() == QMetaType::QString)
     {
         QMessageBox::critical(parent, qApp->applicationName(), message + "\n\n" + result.toString());
         return false;

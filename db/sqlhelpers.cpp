@@ -2,16 +2,16 @@
 
 namespace SqlHelper {
 
-void addField(QSqlRecord &record, const QString &name, QVariant::Type type, const QVariant &value)
+void addField(QSqlRecord &record, const QString &name, QMetaType::Type type, const QVariant &value)
 {
-    QSqlField field(name, type);
+    QSqlField field(name, QMetaType(type));
     field.setValue(value);
     record.append(field);
 }
 
 void addField(QSqlRecord &record, const QString &name, const QVariant &value)
 {
-    QSqlField field(name, value.type());
+    QSqlField field(name, value.metaType());
     field.setValue(value);
     record.append(field);
 }

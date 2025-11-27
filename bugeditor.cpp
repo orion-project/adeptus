@@ -67,7 +67,7 @@ void BugEditor::edit(QWidget *parent, int id)
         wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugEditor::issueDeleted);
     }
     wnd->show();
-    qApp->setActiveWindow(wnd);
+    wnd->activateWindow();
 }
 
 BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
@@ -250,21 +250,21 @@ void BugEditor::save()
 QString BugEditor::saveNew()
 {
     QVariant id = BugManager::generateBugId();
-    if (id.type() == QVariant::String)
+    if (id.typeId() == QMetaType::QString)
         return tr("Unable to generate new issue id.\n\n%1").arg(id.toString());
 
     QSqlRecord record;
-    SqlHelper::addField(record, "Id", QVariant::Int, id);
-    SqlHelper::addField(record, "Summary", QVariant::String, textSummary->toPlainText().trimmed());
-    SqlHelper::addField(record, "Extra", QVariant::String, textExtra->getText());
-    SqlHelper::addField(record, "Category", QVariant::Int, WidgetHelper::selectedId(comboCategory));
-    SqlHelper::addField(record, "Severity", QVariant::Int, WidgetHelper::selectedId(comboSeverity));
-    SqlHelper::addField(record, "Priority", QVariant::Int, WidgetHelper::selectedId(comboPriority));
-    SqlHelper::addField(record, "Repeat", QVariant::Int, WidgetHelper::selectedId(comboRepeat));
-    SqlHelper::addField(record, "Status", QVariant::Int, WidgetHelper::selectedId(comboStatus));
-    SqlHelper::addField(record, "Solution", QVariant::Int, WidgetHelper::selectedId(comboSolution));
-    SqlHelper::addField(record, "Created", QVariant::DateTime, dateCreated->dateTime());
-    SqlHelper::addField(record, "Updated", QVariant::DateTime, dateUpdated->dateTime());
+    SqlHelper::addField(record, "Id", QMetaType::Int, id);
+    SqlHelper::addField(record, "Summary", QMetaType::QString, textSummary->toPlainText().trimmed());
+    SqlHelper::addField(record, "Extra", QMetaType::QString, textExtra->getText());
+    SqlHelper::addField(record, "Category", QMetaType::Int, WidgetHelper::selectedId(comboCategory));
+    SqlHelper::addField(record, "Severity", QMetaType::Int, WidgetHelper::selectedId(comboSeverity));
+    SqlHelper::addField(record, "Priority", QMetaType::Int, WidgetHelper::selectedId(comboPriority));
+    SqlHelper::addField(record, "Repeat", QMetaType::Int, WidgetHelper::selectedId(comboRepeat));
+    SqlHelper::addField(record, "Status", QMetaType::Int, WidgetHelper::selectedId(comboStatus));
+    SqlHelper::addField(record, "Solution", QMetaType::Int, WidgetHelper::selectedId(comboSolution));
+    SqlHelper::addField(record, "Created", QMetaType::QDateTime, dateCreated->dateTime());
+    SqlHelper::addField(record, "Updated", QMetaType::QDateTime, dateUpdated->dateTime());
 
     if (!tableModel->insertRecord(-1, record))
         return SqlHelper::errorText(tableModel);

@@ -148,8 +148,8 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
     connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
 
     // Actions to make hotkeys available
-    addAction(Ori::Gui::action("", this, SLOT(reject()), 0, QKeySequence(Qt::Key_Escape, Qt::Key_Escape)));
-    addAction(Ori::Gui::action("", this, SLOT(save()), 0, QKeySequence("Ctrl+Return")));
+    addAction(Ori::Gui::V0::action("", this, SLOT(reject()), 0, QKeySequence(Qt::Key_Escape, Qt::Key_Escape)));
+    addAction(Ori::Gui::V0::action("", this, SLOT(save()), 0, QKeySequence("Ctrl+Return")));
 
     QHBoxLayout *layoutProps = new QHBoxLayout;
     layoutProps->setSpacing(6);
