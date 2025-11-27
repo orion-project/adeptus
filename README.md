@@ -12,7 +12,7 @@ Apart from textual description, issues contain several dictionary properties, li
 
 The main window with the issue table, filter panel, and filter presets menu:
 
-[<img src="./img/screens/table.png" width="400px">](./img/screens/table_1.1.2.png)
+[<img src="./img/screens/table_1.1.2.png" width="400px">](./img/screens/table_1.1.2.png)
 
 An issue page with a detailed description, pasted image, relations panel, and changes history:
 
