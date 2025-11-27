@@ -159,7 +159,7 @@ bool DictEditor::editElement(QModelIndex *item)
     QDataWidgetMapper *mapper = NULL;
     if (item) // edit mode
     {
-        setWindowTitle(tr("Edit Element"));
+        dlg.setWindowTitle(tr("Edit Element"));
         mapper = new QDataWidgetMapper(this);
         mapper->setModel(tableModel);
         mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -168,7 +168,7 @@ bool DictEditor::editElement(QModelIndex *item)
         mapper->setCurrentModelIndex(*item);
     }
     else
-        setWindowTitle(tr("Append Element"));
+        dlg.setWindowTitle(tr("Append Element"));
 
     QDialogButtonBox *buttons = new QDialogButtonBox(
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);

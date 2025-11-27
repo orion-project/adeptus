@@ -62,7 +62,6 @@ set(PROJECT_SOURCES
     src/markdowneditor.cpp
     src/operations.cpp
     src/Preferences.cpp
-    src/startpage.cpp
 )
 
 qt_add_resources(PROJECT_SOURCES src/app.qrc)
