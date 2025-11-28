@@ -1,3 +1,8 @@
+#include "bugmanager.h"
+
+#include "db/sqlhelpers.h"
+#include "db/Dicts.h"
+
 #include <QApplication>
 #include <QBoxLayout>
 #include <QDebug>
@@ -5,9 +10,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QMessageBox>
-
-#include "bugmanager.h"
-#include "db/sqlhelpers.h"
 
 #define CREATE_TABLE(table, columns) \
     res = createTable(table, columns); \
@@ -25,7 +27,7 @@ QSqlDatabase __db;
 
 void BugManager::closeDatabase()
 {
-    BugManager::closeDictionaries();
+    Db::Dicts::close();
 
     QString connection = __db.connectionName();
     __db.close();
@@ -92,7 +94,7 @@ QString BugManager::openDatabase(const QString &fileName)
 
     __db.commit();
 
-    loadDictionaries();
+    Db::Dicts::open();
 
     return res;
 }
@@ -154,7 +156,7 @@ QString BugManager::newDatabase(const QString &fileName)
 
     __db.commit();
 
-    loadDictionaries();
+    Db::Dicts::open();
 
     return res;
 }
@@ -214,113 +216,6 @@ QVariant BugManager::generateEventPart(int bugId, int eventId)
     if (query.isSelect() && query.first())
         return query.record().value(0).toInt() + 1;
     return 1;
-}
-
-QString BugManager::dictionaryTableName(int dictId)
-{
-    switch (dictId)
-    {
-    case COL_CATEGORY: return TABLE_CATEGORY;
-    case COL_SEVERITY: return TABLE_SEVERITY;
-    case COL_PRIORITY: return TABLE_PRIORITY;
-    case COL_STATUS: return TABLE_STATUS;
-    case COL_REPEAT: return TABLE_REPEAT;
-    case COL_SOLUTION: return TABLE_SOLUTION;
-    }
-    return "";
-}
-
-QMap<int, QSqlTableModel*> dictionaries;
-QMap<int, DictionaryCash*> dictionaryCashes;
-
-QSqlTableModel* BugManager::dictionary(int dictId)
-{
-    if (dictionaries.contains(dictId))
-        return dictionaries.value(dictId);
-    return NULL;
-}
-
-DictionaryCash *BugManager::dictionaryCash(int dictId)
-{
-    if (dictionaryCashes.contains(dictId))
-        return dictionaryCashes.value(dictId);
-    return NULL;
-}
-
-void BugManager::closeDictionaries()
-{
-    QSqlTableModel *table;
-    foreach (table, dictionaries.values())
-        delete table;
-    dictionaries.clear();
-
-    DictionaryCash *cash;
-    foreach (cash, dictionaryCashes.values())
-        delete cash;
-    dictionaryCashes.clear();
-}
-
-void BugManager::loadDictionaries()
-{
-    closeDictionaries();
-
-    loadDictionary(COL_STATUS);
-    loadDictionary(COL_SOLUTION);
-    loadDictionary(COL_SEVERITY);
-    loadDictionary(COL_PRIORITY);
-    loadDictionary(COL_REPEAT);
-    loadDictionary(COL_CATEGORY);
-
-    updateDictionaryCash(COL_STATUS);
-    updateDictionaryCash(COL_SOLUTION);
-    updateDictionaryCash(COL_SEVERITY);
-    updateDictionaryCash(COL_PRIORITY);
-    updateDictionaryCash(COL_REPEAT);
-    updateDictionaryCash(COL_CATEGORY);
-}
-
-void BugManager::loadDictionary(int dictId)
-{
-    QString tableName = dictionaryTableName(dictId);
-    if (tableName.isEmpty()) return;
-
-    QSqlTableModel *tableModel = new QSqlTableModel;
-    dictionaries.insert(dictId, tableModel);
-    tableModel->setTable(tableName);
-    tableModel->select();
-}
-
-void BugManager::updateDictionaryCash(int dictId)
-{
-    QSqlTableModel *table = dictionary(dictId);
-    if (!table) return;
-
-    DictionaryCash* cash = dictionaryCash(dictId);
-    if (!cash)
-    {
-        cash = new DictionaryCash;
-        dictionaryCashes.insert(dictId, cash);
-    }
-
-    cash->clear();
-    for (int row = 0; row < table->rowCount(); row++)
-    {
-        QSqlRecord record = table->record(row);
-        cash->insert(record.field(DICT_COL_ID).value().toInt(),
-                     record.field(DICT_COL_TITLE).value().toString());
-    }
-}
-
-QString BugManager::displayDictValue(int dictId, const QVariant &dictKey)
-{
-    QMap<int, QString>* dict = dictionaryCash(dictId);
-    if (!dict)
-        return dictKey.toString();
-
-    if (!dict->contains(dictKey.toInt()))
-        return dictKey.toString();
-
-    return dict->value(dictKey.toInt());
 }
 
 QString BugManager::displayDateTime(const QVariant &value)
@@ -501,15 +396,6 @@ QString BugComparer::writeHistory(const BugInfo& oldValue, const BugInfo& newVal
 }
 
 //-----------------------------------------------------------------------------------------------
-
-QComboBox* WidgetHelper::createDictionaryCombo(int dictId)
-{
-    QComboBox *combo = new QComboBox;
-    combo->setMaxVisibleItems(24);
-    combo->setModel(BugManager::dictionary(dictId));
-    combo->setModelColumn(DICT_COL_TITLE);
-    return combo;
-}
 
 void WidgetHelper::selectText(QComboBox *combo, const QString &value)
 {
@@ -807,7 +693,3 @@ bool checkResult(QWidget *parent, const QString& result, const QString& message)
 }
 
 //-----------------------------------------------------------------------------------------------
-QString DictManager::status(int id) { return BugManager::dictionaryCash(COL_STATUS)->value(id); }
-QString DictManager::solution(int id) { return BugManager::dictionaryCash(COL_SOLUTION)->value(id); }
-
-

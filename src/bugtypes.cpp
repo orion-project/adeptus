@@ -1,6 +1,7 @@
 #include "bugtypes.h"
 
 #include "bugmanager.h"
+#include "db/Dicts.h"
 
 QString BugInfo::categoryTitle() { return BugManager::columnTitle(COL_CATEGORY); }
 QString BugInfo::severityTitle() { return BugManager::columnTitle(COL_SEVERITY); }
@@ -9,12 +10,12 @@ QString BugInfo::statusTitle() { return BugManager::columnTitle(COL_STATUS); }
 QString BugInfo::solutionTitle() { return BugManager::columnTitle(COL_SOLUTION); }
 QString BugInfo::repeatTitle() { return BugManager::columnTitle(COL_REPEAT); }
 
-QString BugInfo::categoryStr() const { return BugManager::dictionaryCash(COL_CATEGORY)->value(category); }
-QString BugInfo::severityStr() const { return BugManager::dictionaryCash(COL_SEVERITY)->value(severity); }
-QString BugInfo::priorityStr() const { return BugManager::dictionaryCash(COL_PRIORITY)->value(priority); }
-QString BugInfo::statusStr() const { return BugManager::dictionaryCash(COL_STATUS)->value(status); }
-QString BugInfo::solutionStr() const { return BugManager::dictionaryCash(COL_SOLUTION)->value(solution); }
-QString BugInfo::repeatStr() const { return BugManager::dictionaryCash(COL_REPEAT)->value(repeat); }
+QString BugInfo::categoryStr() const { return Db::Dicts::value(COL_CATEGORY, category); }
+QString BugInfo::severityStr() const { return Db::Dicts::value(COL_SEVERITY, severity); }
+QString BugInfo::priorityStr() const { return Db::Dicts::value(COL_PRIORITY, priority); }
+QString BugInfo::statusStr() const { return Db::Dicts::value(COL_STATUS, status); }
+QString BugInfo::solutionStr() const { return Db::Dicts::value(COL_SOLUTION, solution); }
+QString BugInfo::repeatStr() const { return Db::Dicts::value(COL_REPEAT, repeat); }
 
 //-----------------------------------------------------------------------------
 

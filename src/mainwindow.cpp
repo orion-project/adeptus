@@ -1,15 +1,5 @@
-#include <QtSql>
-#include <QAction>
-#include <QApplication>
-#include <QCloseEvent>
-#include <QFileDialog>
-#include <QLabel>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QStatusBar>
-#include <QToolBar>
-
 #include "mainwindow.h"
+
 #include "bugmanager.h"
 #include "bugeditor.h"
 #include "bugsolver.h"
@@ -19,7 +9,8 @@
 #include "issuetable.h"
 #include "aboutwindow.h"
 #include "operations.h"
-#include "db/db.h"
+#include "db/Dicts.h"
+
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
@@ -30,6 +21,17 @@
 #include "widgets/OriStylesMenu.h"
 #include "widgets/OriMruMenu.h"
 #include "widgets/OriBackWidget.h"
+
+#include <QtSql>
+#include <QAction>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QLabel>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QStatusBar>
+#include <QToolBar>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -256,7 +258,7 @@ void MainWindow::editDictionary()
     int dictId = action->data().toInt();
     if (DictEditor::show(this, action->text(), dictId))
     {
-        BugManager::updateDictionaryCash(dictId);
+        Db::Dicts::updateCache(dictId);
         issueTable->adjustHeader();
         updatePageById(-1);
     }

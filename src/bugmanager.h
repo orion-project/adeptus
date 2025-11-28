@@ -8,6 +8,7 @@
 #include <QFileInfo>
 
 #include "bugtypes.h"
+#include "db/Consts.h"
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -20,36 +21,6 @@ class QSqlTableModel;
 class QVariant;
 class QWidget;
 QT_END_NAMESPACE
-
-#define COL_COUNT       11
-#define COL_ID          0
-#define COL_SUMMARY     1
-#define COL_EXTRA       2
-#define COL_CATEGORY    3
-#define COL_SEVERITY    4
-#define COL_PRIORITY    5
-#define COL_REPEAT      6
-#define COL_STATUS      7
-#define COL_SOLUTION    8
-#define COL_CREATED     9
-#define COL_UPDATED     10
-
-#define TABLE_BUGS      "Issue"
-#define TABLE_HISTORY   "History"
-#define TABLE_CATEGORY  "Category"
-#define TABLE_SEVERITY  "Severity"
-#define TABLE_PRIORITY  "Priority"
-#define TABLE_STATUS    "Status"
-#define TABLE_REPEAT    "Repeatability"
-#define TABLE_HISTORY   "History"
-#define TABLE_SOLUTION  "Solution"
-#define TABLE_SETTINGS  "Settings"
-#define TABLE_RELATIONS "Relations"
-
-#define DICT_ID         "Id"
-#define DICT_TITLE      "Title"
-#define DICT_COL_ID     0
-#define DICT_COL_TITLE  1
 
 #define CATEGORY_NONE   0
 
@@ -87,8 +58,6 @@ QT_END_NAMESPACE
 
 #define BUGS_FILES "Issue Databases (*.bugs);;All files (*.*)"
 
-typedef QMap<int, QString> DictionaryCash;
-
 class BugManager
 {
 public:
@@ -99,14 +68,6 @@ public:
     static QVariant generateBugId();
     static QVariant generateEventId(int bugId);
     static QVariant generateEventPart(int bugId, int eventId);
-    static QString dictionaryTableName(int dictId);
-    static QSqlTableModel* dictionary(int dictId);
-    static QString displayDictValue(int dictId, const QVariant &dictKey);
-    static DictionaryCash* dictionaryCash(int dictId);
-    static void updateDictionaryCash(int dictId);
-    static void closeDictionaries();
-    static void loadDictionaries();
-    static void loadDictionary(int dictId);
     static QString displayDateTime(const QVariant &value);
     static QString addHistroyComment(int bugId, const QVariant &eventNum,
                                      const QDateTime &moment, const QString &comment);
@@ -133,14 +94,6 @@ private:
 };
 
 
-class DictManager
-{
-public:
-    static QString status(int id);
-    static QString solution(int id);
-};
-
-
 class BugComparer
 {
 public:
@@ -151,7 +104,6 @@ public:
 class WidgetHelper
 {
 public:
-    static QComboBox* createDictionaryCombo(int dictId);
     static void selectText(QComboBox *combo, const QString &value);
     static void selectId(QComboBox *combo, const QVariant &value);
     static QVariant selectedId(QComboBox *combo);

@@ -14,6 +14,8 @@
 #include "bugmanager.h"
 #include "filterpanel.h"
 #include "issuetable.h"
+#include "db/Dicts.h"
+
 #include "helpers/OriWidgets.h"
 
 //-----------------------------------------------------------------------------------------------
@@ -81,7 +83,7 @@ public:
         case COL_PRIORITY:
         case COL_REPEAT:
         case COL_CATEGORY:
-            option->text = BugManager::displayDictValue(index.column(), index.data());
+            option->text = Db::Dicts::value(index.column(), index.data());
             break;
 
         case COL_CREATED:

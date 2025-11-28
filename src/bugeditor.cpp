@@ -1,3 +1,18 @@
+#include "bugeditor.h"
+
+#include "bugmanager.h"
+#include "markdowneditor.h"
+#include "Preferences.h"
+#include "bugitemdelegate.h"
+#include "operations.h"
+#include "db/db.h"
+#include "db/Dicts.h"
+
+#include "helpers/OriDialogs.h"
+#include "helpers/OriLayouts.h"
+#include "helpers/OriWidgets.h"
+#include "tools/OriSettings.h"
+
 #include <QtSql>
 #include <QApplication>
 #include <QBoxLayout>
@@ -6,18 +21,6 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPlainTextEdit>
-
-#include "bugeditor.h"
-#include "bugmanager.h"
-#include "markdowneditor.h"
-#include "Preferences.h"
-#include "bugitemdelegate.h"
-#include "operations.h"
-#include "db/db.h"
-#include "helpers/OriDialogs.h"
-#include "helpers/OriLayouts.h"
-#include "helpers/OriWidgets.h"
-#include "tools/OriSettings.h"
 
 using namespace Ori::Layouts;
 
@@ -83,12 +86,12 @@ BugEditor::BugEditor(QWidget *parent) : QWidget(parent)
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
     connect(buttons, SIGNAL(accepted()), this, SLOT(save()));
 
-    comboCategory = WidgetHelper::createDictionaryCombo(COL_CATEGORY);
-    comboStatus = WidgetHelper::createDictionaryCombo(COL_STATUS);
-    comboSeverity = WidgetHelper::createDictionaryCombo(COL_SEVERITY);
-    comboPriority = WidgetHelper::createDictionaryCombo(COL_PRIORITY);
-    comboRepeat = WidgetHelper::createDictionaryCombo(COL_REPEAT);
-    comboSolution = WidgetHelper::createDictionaryCombo(COL_SOLUTION);
+    comboCategory = Db::Dicts::makeComboBox(COL_CATEGORY);
+    comboStatus = Db::Dicts::makeComboBox(COL_STATUS);
+    comboSeverity = Db::Dicts::makeComboBox(COL_SEVERITY);
+    comboPriority = Db::Dicts::makeComboBox(COL_PRIORITY);
+    comboRepeat = Db::Dicts::makeComboBox(COL_REPEAT);
+    comboSolution = Db::Dicts::makeComboBox(COL_SOLUTION);
     dateCreated = new QDateTimeEdit;
     dateUpdated = new QDateTimeEdit;
     textSummary = new SummaryTextEdit;

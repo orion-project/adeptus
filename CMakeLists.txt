@@ -46,6 +46,7 @@ set(PROJECT_SOURCES
     src/bugsolver.cpp
     src/bugtypes.cpp
     src/db/db.cpp
+    src/db/Dicts.cpp
     src/db/historymanager.cpp
     src/db/issuemanager.cpp
     src/db/relationmanager.cpp

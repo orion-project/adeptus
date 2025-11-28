@@ -1,9 +1,9 @@
 #ifndef DB_H
 #define DB_H
 
+#include "historymanager.h"
 #include "issuemanager.h"
 #include "relationmanager.h"
-#include "historymanager.h"
 
 namespace DB {
 
@@ -12,6 +12,5 @@ const RelationManager& relations();
 const HistoryManager& history();
 
 } // namespace Database
-
 
 #endif // DB_H

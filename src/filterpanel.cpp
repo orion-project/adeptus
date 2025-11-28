@@ -1,5 +1,8 @@
 #include "filterpanel.h"
+
 #include "bugmanager.h"
+#include "db/Dicts.h"
+
 #include "widgets/OriFlowLayout.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -45,7 +48,7 @@ FilterView::FilterView(const QString& name, int dictId) : QWidget(), _name(name)
 
 void FilterView::updateModel()
 {
-    valueCombo->setModel(BugManager::dictionary(_dictId));
+    valueCombo->setModel(Db::Dicts::table(_dictId));
     valueCombo->setModelColumn(DICT_COL_TITLE);
 }
 

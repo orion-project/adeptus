@@ -6,6 +6,7 @@
 #include "operations.h"
 #include "markdown.h"
 #include "db/db.h"
+#include "db/Dicts.h"
 
 #include "helpers/OriLayouts.h"
 
@@ -171,7 +172,7 @@ QString BugHistory::formatRelations()
 
     QString content = QString("<table border=1 width=100% cellspacing=0 cellpadding=5>");
     int countOpened = 0;
-    for (int relatedId : _relatedIds)
+    for (int relatedId : std::as_const(_relatedIds))
     {
         QString moment, command;
         QString row_class("opened_ref");
@@ -283,25 +284,18 @@ QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param
     QString paramName = DB::history().issuePropName(param.paramId);
     QVariant oldValue = param.oldValue;
     QVariant newValue = param.newValue;
-    if (param.paramId == COL_SUMMARY || param.paramId == COL_EXTRA)
+    int dictId = param.paramId;
+    if (dictId == COL_SUMMARY || dictId == COL_EXTRA)
     {
         _changedTexts[++_changedTextIndex] = QPair<QString, QString>(
                     oldValue.toString(), newValue.toString());
         return QString("%1: %2").arg(tr("Changed")).arg(
             BrowserCommands::showText().format(_changedTextIndex, paramName));
     }
-    QMap<int, QString> *dict = BugManager::dictionaryCash(param.paramId);
-    if (dict)
-    {
-        if (dict->contains(oldValue.toInt()))
-            oldValue = dict->value(oldValue.toInt());
-        if (dict->contains(newValue.toInt()))
-            newValue = dict->value(newValue.toInt());
-    }
     return QString("%1: <b>%2 -> %3</b>")
             .arg(sanitizeHtml(paramName))
-            .arg(sanitizeHtml(oldValue.toString()))
-            .arg(sanitizeHtml(newValue.toString()));
+            .arg(sanitizeHtml(Db::Dicts::value(dictId, oldValue)))
+            .arg(sanitizeHtml(Db::Dicts::value(dictId, newValue)));
 }
 
 void BugHistory::processCommand(const QString& cmd, const QUrl& url)

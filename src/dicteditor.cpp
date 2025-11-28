@@ -1,3 +1,11 @@
+#include "dicteditor.h"
+
+#include "bugmanager.h"
+#include "db/sqlhelpers.h"
+#include "db/Dicts.h"
+#include "helpers/OriDialogs.h"
+#include "helpers/OriWidgets.h"
+
 #include <QtSql>
 #include <QAction>
 #include <QBoxLayout>
@@ -13,12 +21,6 @@
 #include <QTableView>
 #include <limits.h>
 
-#include "dicteditor.h"
-#include "bugmanager.h"
-#include "db/sqlhelpers.h"
-#include "helpers/OriDialogs.h"
-#include "helpers/OriWidgets.h"
-
 bool DictEditor::show(QWidget *parent, const QString &title, int dictId)
 {
     if (!QSqlDatabase::contains()) return false;
@@ -33,7 +35,7 @@ DictEditor::DictEditor(QWidget *parent, int dictId) : QDialog(parent), modified(
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
-    tableModel = BugManager::dictionary(dictId);
+    tableModel = Db::Dicts::table(dictId);
     tableModel->setHeaderData(DICT_COL_ID, Qt::Horizontal, qApp->translate("Dict editor column", "ID"));
     tableModel->setHeaderData(DICT_COL_TITLE, Qt::Horizontal, qApp->translate("Dict editor column", "Value"));
 

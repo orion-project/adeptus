@@ -12,6 +12,7 @@
 #include "Preferences.h"
 #include "bugitemdelegate.h"
 #include "operations.h"
+#include "db/Dicts.h"
 #include "db/sqlhelpers.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -44,7 +45,7 @@ BugSolver* BugSolver::initWindow(QWidget *parent, int id, const QString& title)
     wnd->connect(Operations::instance(), &Operations::issueDeleted, wnd, &BugSolver::issueDeleted);
     wnd->setWindowTitle(tr("%1 #%2").arg(title).arg(id));
     wnd->show();
-    qApp->setActiveWindow(wnd);
+    wnd->activateWindow();
     return wnd;
 }
 
@@ -134,10 +135,10 @@ BugSolver::BugSolver(QWidget *parent) : QWidget(parent)
 
     textComment = new MarkdownEditor(tr("Comment"));
 
-    comboStatus = WidgetHelper::createDictionaryCombo(COL_STATUS);
+    comboStatus = Db::Dicts::makeComboBox(COL_STATUS);
     comboStatus->setEnabled(false);
 
-    comboSolution = WidgetHelper::createDictionaryCombo(COL_SOLUTION);
+    comboSolution = Db::Dicts::makeComboBox(COL_SOLUTION);
 
     dateEvent = new QDateTimeEdit;
     if (!Preferences::instance().bugSolverEnableDates)
@@ -220,7 +221,7 @@ void BugSolver::save()
     QString res;
 
     QVariant eventNum = BugManager::generateEventId(currentId);
-    if (eventNum.type() == QVariant::String)
+    if (eventNum.typeId() == QMetaType::QString)
     {
         db.rollback();
         Ori::Dlg::error(tr("Unable to generate history item number.\n\n%1").arg(eventNum.toString()));
