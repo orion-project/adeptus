@@ -3,12 +3,10 @@
 
 #include "historymanager.h"
 #include "issuemanager.h"
-#include "relationmanager.h"
 
 namespace DB {
 
 const IssueManager& issues();
-const RelationManager& relations();
 const HistoryManager& history();
 
 } // namespace Database

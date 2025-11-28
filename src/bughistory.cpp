@@ -7,6 +7,7 @@
 #include "markdown.h"
 #include "db/db.h"
 #include "db/Dicts.h"
+#include "db/Relations.h"
 
 #include "helpers/OriLayouts.h"
 
@@ -164,7 +165,7 @@ QString BugHistory::formatRelations()
 {
     QString sectionTitle = formatSectionTitle(tr("Related Issues"));
 
-    IntListResult res = DB::relations().get(_id);
+    IntListResult res = Db::Relations::get(_id);
     if (!res.ok()) return finishWithError(sectionTitle, res.error());
 
     _relatedIds = res.result();

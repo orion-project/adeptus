@@ -1,5 +1,5 @@
-#ifndef DICT_MANAGER_H
-#define DICT_MANAGER_H
+#ifndef DICTS_H
+#define DICTS_H
 
 #include <QString>
 
@@ -24,4 +24,4 @@ void close();
 
 } // namespace Db::Dicts
 
-#endif // DICT_MANAGER_H
+#endif // DICTS_H

@@ -49,7 +49,7 @@ set(PROJECT_SOURCES
     src/db/Dicts.cpp
     src/db/historymanager.cpp
     src/db/issuemanager.cpp
-    src/db/relationmanager.cpp
+    src/db/Relations.cpp
     src/db/sqlhelpers.cpp
     src/dicteditor.cpp
     src/filterpanel.cpp
