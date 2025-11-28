@@ -25,16 +25,6 @@ QSqlTableModel* table(int dictId)
     return __dictTables.value(dictId);
 }
 
-QString status(int valId)
-{
-    return cache(COL_STATUS)->value(valId);
-}
-
-QString solution(int valId)
-{
-    return cache(COL_SOLUTION)->value(valId);
-}
-
 QString value(int dictId, const QVariant& valId)
 {
     auto cache = __dictCaches.value(dictId);
@@ -127,11 +117,12 @@ void close()
 
 QComboBox* makeComboBox(int dictId)
 {
-    auto combo = new QComboBox;
-    combo->setMaxVisibleItems(24);
-    combo->setModel(table(dictId));
-    combo->setModelColumn(DICT_COL_TITLE);
-    return combo;
+    auto cb = new QComboBox;
+    cb->setMaxVisibleItems(24);
+    cb->setModel(table(dictId));
+    cb->setModelColumn(DICT_COL_TITLE);
+    cb->setCurrentIndex(0);
+    return cb;
 }
 
 } // namespace Db::Dicts

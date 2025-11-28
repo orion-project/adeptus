@@ -90,9 +90,9 @@ void MainWindow::createMenus()
     // File
     QMenu* menuFile = menuBar()->addMenu(tr("&File"));
     menuFile->addAction(tr("New..."), this, SLOT(newFile()));
-    menuFile->addAction(tr("Open..."), this, SLOT(openFile()), QKeySequence::Open);
+    menuFile->addAction(tr("Open..."), QKeySequence::Open, this, SLOT(openFile()));
     menuFile->addSeparator();
-    auto actionExit = menuFile->addAction(tr("Exit"), this, SLOT(close()), QKeySequence::Quit);
+    auto actionExit = menuFile->addAction(tr("Exit"), QKeySequence::Quit, this, SLOT(close()));
     new Ori::Widgets::MruMenuPart(mruList, menuFile, actionExit, this);
 
     // View
@@ -104,13 +104,13 @@ void MainWindow::createMenus()
 
     // Bug
     menuBug = menuBar()->addMenu(tr("Issue"));
-    menuBug->addAction(QIcon(":/tools/append"), tr("New..."), this, SLOT(appendBug()), QKeySequence::New);
+    menuBug->addAction(QIcon(":/tools/append"), tr("New..."), QKeySequence::New, this, SLOT(appendBug()));
     menuBug->addSeparator();
-    actionProcessBug = menuBug->addAction(QString(), this, SLOT(processBug()), Qt::Key_F9);
-    QAction* actionComment = menuBug->addAction(tr("Comment..."), this, [this](){ Operations::commentIssue(this->currentId()); }, Qt::Key_F4);
-    QAction* actionHistory = menuBug->addAction(tr("History"), this, SLOT(showHistory()), Qt::Key_Return);
+    actionProcessBug = menuBug->addAction(QString(), Qt::Key_F9, this, SLOT(processBug()));
+    QAction* actionComment = menuBug->addAction(tr("Comment..."), Qt::Key_F4, this, [this](){ Operations::commentIssue(this->currentId()); });
+    QAction* actionHistory = menuBug->addAction(tr("History"), Qt::Key_Return, this, SLOT(showHistory()));
     menuBug->addSeparator();
-    menuBug->addAction(tr("Edit..."), this, SLOT(editBug()), Qt::Key_F2);
+    menuBug->addAction(tr("Edit..."), Qt::Key_F2, this, SLOT(editBug()));
     menuBug->addAction(tr("Delete"), this, [this](){ Operations::deleteIssue(this->currentId()); });
     menuBug->addSeparator();
     menuBug->addAction(tr("Make Relation..."), this, [this](){ Operations::makeRelation(this->currentId()); });
@@ -125,7 +125,7 @@ void MainWindow::createMenus()
 
     // Dicts
     menuDicts = menuBar()->addMenu(tr("Dictionaries"));
-    foreach (int dictId, BugManager::dictionaryIds())
+    foreach (int dictId, Db::Dicts::dictIds())
         menuDicts->addAction(BugManager::columnTitle(dictId), this, SLOT(editDictionary()))->setData(dictId);
 
     // Help

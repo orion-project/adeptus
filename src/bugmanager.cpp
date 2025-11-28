@@ -150,9 +150,9 @@ QString BugManager::newDatabase(const QString &fileName)
     INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_SUSPENDED, "Suspended");
     INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_ABANDONED, "Abandoned");
 
-    INSERT_DICT_VALUE(TABLE_REPEAT, REPEAT_ALWAYS, "Always");
-    INSERT_DICT_VALUE(TABLE_REPEAT, REPEAT_SOMETIMES, "Sometimes");
-    INSERT_DICT_VALUE(TABLE_REPEAT, REPEAT_UNKNOWN, "Unknown");
+    INSERT_DICT_VALUE(TABLE_REPEAT, 100, "Always");
+    INSERT_DICT_VALUE(TABLE_REPEAT, 200, "Sometimes");
+    INSERT_DICT_VALUE(TABLE_REPEAT, 300, "Unknown");
 
     __db.commit();
 
@@ -339,11 +339,6 @@ QString BugManager::operationTitle(int status)
     case STATUS_CLOSED: return qApp->tr("Reopen...");
     }
     return qApp->tr("Process..."); // stub name, no action
-}
-
-QList<int> BugManager::dictionaryIds()
-{
-    return { COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_STATUS, COL_SOLUTION, COL_REPEAT };
 }
 
 QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)

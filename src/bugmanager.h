@@ -52,10 +52,6 @@ QT_END_NAMESPACE
 #define SOLUTION_SUSPENDED  600
 #define SOLUTION_ABANDONED  700
 
-#define REPEAT_ALWAYS       100
-#define REPEAT_SOMETIMES    200
-#define REPEAT_UNKNOWN      300
-
 #define BUGS_FILES "Issue Databases (*.bugs);;All files (*.*)"
 
 class BugManager
@@ -83,7 +79,6 @@ public:
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
 
-    static QList<int> dictionaryIds();
     static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
     static bool isInvalid(int id) { return !isValid(id); }

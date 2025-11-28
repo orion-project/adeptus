@@ -165,12 +165,6 @@ void BugEditor::initAppend()
     QDateTime now = QDateTime::currentDateTime();
     dateCreated->setDateTime(now);
     dateUpdated->setDateTime(now);
-    WidgetHelper::selectId(comboCategory, CATEGORY_NONE);
-    WidgetHelper::selectId(comboSeverity, SEVERITY_ERROR);
-    WidgetHelper::selectId(comboPriority, PRIORITY_NORMAL);
-    WidgetHelper::selectId(comboRepeat, REPEAT_ALWAYS);
-    WidgetHelper::selectId(comboStatus, STATUS_OPENED);
-    WidgetHelper::selectId(comboSolution, SOLUTION_NONE);
 
     labelStatus->setVisible(false);
     comboStatus->setVisible(false);

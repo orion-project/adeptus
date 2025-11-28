@@ -8,10 +8,10 @@ class QSqlTableModel;
 
 namespace Db::Dicts {
 
-QString status(int valId);
-QString solution(int valId);
 QString value(int dictId, const QVariant& valId);
 QString value(int dictId, int valId);
+
+QList<int> dictIds();
 
 QSqlTableModel* table(int dictId);
 
