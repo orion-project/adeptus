@@ -9,6 +9,7 @@
 #include "issuetable.h"
 #include "aboutwindow.h"
 #include "operations.h"
+#include "db/Db.h"
 #include "db/Dicts.h"
 
 #include "helpers/OriDialogs.h"
@@ -185,7 +186,7 @@ void MainWindow::newFile()
 
     closeCurrentFile();
 
-    QString res = BugManager::newDatabase(fileName);
+    QString res = Db::create(fileName);
     if (res.isEmpty())
     {
         setCurrentFile(fileName);
@@ -212,7 +213,7 @@ void MainWindow::openFile(const QString &fileName)
 
     closeCurrentFile();
 
-    QString res = BugManager::openDatabase(fileName);
+    QString res = Db::open(fileName);
     if (res.isEmpty())
     {
         setCurrentFile(fileName);

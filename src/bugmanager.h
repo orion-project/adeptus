@@ -27,10 +27,6 @@ QT_END_NAMESPACE
 class BugManager
 {
 public:
-    static QString openDatabase(const QString &fileName);
-    static QString newDatabase(const QString &fileName);
-    static void closeDatabase();
-    static QString currentFile();
     static QVariant generateBugId();
     static QVariant generateEventId(int bugId);
     static QVariant generateEventPart(int bugId, int eventId);
@@ -49,13 +45,8 @@ public:
     static QString columnTitle(int colId);
     static QString operationTitle(int status);
 
-    static QFileInfo fileInDatabaseFiles(const QString& fileName);
     static bool isValid(int id) { return id > 0; }
     static bool isInvalid(int id) { return !isValid(id); }
-
-private:
-    static QString createTable(const QString &name, const QString &columns);
-    static QString insertDictValue(const QString &table, int id, const QString &value);
 };
 
 
@@ -84,6 +75,9 @@ struct IssueFilter
     QString getSql() const;
 };
 
+namespace Db {
+class Settings;
+}
 
 class IssueFilters
 {
@@ -95,8 +89,8 @@ public:
     QString load();
 protected:
     virtual QString storagePrefix() const { return "Filter"; }
-    virtual QString saveInternal(class DbSettings&);
-    virtual QString loadInternal(class DbSettings&);
+    virtual QString saveInternal(class Db::Settings&);
+    virtual QString loadInternal(class Db::Settings&);
 };
 
 
@@ -111,26 +105,26 @@ public:
     static QString deletePreset(int id);
 protected:
     QString storagePrefix() const override;
-    QString saveInternal(class DbSettings&) override;
+    QString saveInternal(class Db::Settings&) override;
 private:
     int _id = 0;
     QString _title;
 };
 
 
-class DbSettings
-{
-public:
-    DbSettings(bool transaction);
-    ~DbSettings();
-    QString saveSetting(const QString& name, const QVariant& value);
-    QString loadSetting(const QString& name, QVariant& value, const QVariant &def = QVariant());
-    QString lastError;
-private:
-    bool _transaction;
-    void rollback();
-    QString lastErrorStr();
-};
+// class DbSettings
+// {
+// public:
+//     DbSettings(bool transaction);
+//     ~DbSettings();
+//     QString saveSetting(const QString& name, const QVariant& value);
+//     QString loadSetting(const QString& name, QVariant& value, const QVariant &def = QVariant());
+//     QString lastError;
+// private:
+//     bool _transaction;
+//     void rollback();
+//     QString lastErrorStr();
+// };
 
 
 QVariant ptr2var(void *p);

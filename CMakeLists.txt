@@ -50,6 +50,7 @@ set(PROJECT_SOURCES
     src/db/historymanager.cpp
     src/db/issuemanager.cpp
     src/db/Relations.cpp
+    src/db/Settings.cpp
     src/db/SqlHelpers.cpp
     src/dicteditor.cpp
     src/filterpanel.cpp

@@ -1,6 +1,7 @@
 #include "bugmanager.h"
 
 #include "db/Dicts.h"
+#include "db/Settings.h"
 #include "db/SqlHelpers.h"
 
 #include <QApplication>
@@ -10,181 +11,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QMessageBox>
-
-#define CREATE_TABLE(table, columns) \
-    res = createTable(table, columns); \
-    if (!res.isEmpty()) { \
-        __db.rollback(); \
-        return res; }
-
-#define INSERT_DICT_VALUE(table, id, value) \
-    res = insertDictValue(table, id, value); \
-    if (!res.isEmpty()) { \
-        __db.rollback(); \
-        return res; }
-
-QSqlDatabase __db;
-
-void BugManager::closeDatabase()
-{
-    Db::Dicts::close();
-
-    QString connection = __db.connectionName();
-    __db.close();
-    __db = QSqlDatabase();
-    QSqlDatabase::removeDatabase(connection);
-}
-
-QString BugManager::openDatabase(const QString &fileName)
-{
-    closeDatabase();
-
-    __db = QSqlDatabase::addDatabase("QSQLITE");
-    __db.setDatabaseName(fileName);
-    if (!__db.open())
-        return qApp->tr("Unable to establish a database connection.\n\n%1")
-                .arg(SqlHelper::errorText(__db.lastError()));
-
-    QSqlQuery query;
-    if (!query.exec("PRAGMA foreign_keys = ON;"))
-        return qApp->tr("Failed to enable foreign keys.\n\n%1").arg(SqlHelper::errorText(query));
-
-    QString res;
-
-    if (!__db.transaction())
-        return qApp->tr("Unable to begin transaction to create database structure.\n\n%1")
-                .arg(SqlHelper::errorText(__db.lastError()));
-
-    CREATE_TABLE(TABLE_CATEGORY, "Id integer primary key, Title varchar");
-    CREATE_TABLE(TABLE_SEVERITY, "Id integer primary key, Title varchar");
-    CREATE_TABLE(TABLE_PRIORITY, "Id integer primary key, Title varchar");
-    CREATE_TABLE(TABLE_STATUS, "Id integer primary key, Title varchar");
-    CREATE_TABLE(TABLE_SOLUTION, "Id integer primary key, Title varchar");
-    CREATE_TABLE(TABLE_REPEAT, "Id integer primary key, Title varchar");
-
-    CREATE_TABLE(TABLE_BUGS, "Id integer primary key, "                               // 0
-                             "Summary varchar, "                                      // 1
-                             "Extra varchar, "                                        // 2
-                             "Category integer not null references Category(Id), "    // 3
-                             "Severity integer not null references Severity(Id), "    // 4
-                             "Priority integer not null references Priority(Id), "    // 5
-                             "Repeat integer not null references Repeatability(Id), " // 6
-                             "Status integer not null references Status(Id), "        // 7
-                             "Solution integer not null references Solution(Id), "    // 8
-                             "Created datetime not null, "                            // 9
-                             "Updated datetime not null");                            // 10
-
-    CREATE_TABLE(TABLE_HISTORY, "Issue integer not null references Issue(Id) on delete cascade, "
-                                "EventNum integer not null, "
-                                "EventPart integer not null, "
-                                "ChangedParam integer not null default -1, "
-                                "OldValue, "
-                                "NewValue, "
-                                "Comment varchar, "
-                                "Moment datetime not null, "
-                                "primary key (Issue, EventNum, EventPart)");
-
-
-    CREATE_TABLE(TABLE_RELATIONS, "Id1 integer not null references Issue(Id) on delete cascade, "
-                                  "Id2 integer not null references Issue(Id) on delete cascade, "
-                                  "Created datetime not null, "
-                                  "primary key (Id1, Id2)");
-
-    CREATE_TABLE(TABLE_SETTINGS, "Name, Value");
-
-    __db.commit();
-
-    Db::Dicts::open();
-
-    return res;
-}
-
-QString BugManager::newDatabase(const QString &fileName)
-{
-    if (QFileInfo(fileName) == QFileInfo(currentFile()))
-        closeDatabase();
-
-    if (QFile::exists(fileName))
-        if (!QFile::remove(fileName))
-            return qApp->tr("Unable to overwrite existing file. Probably file is locked.");
-
-    QString res = openDatabase(fileName);
-    if (!res.isEmpty())
-        return res;
-
-    if (!__db.transaction())
-        return qApp->tr("Unable to begin transaction to insert default dictionary values.\n\n%1")
-                .arg(SqlHelper::errorText(__db.lastError()));
-
-    INSERT_DICT_VALUE(TABLE_CATEGORY, 0, "<none>");
-    INSERT_DICT_VALUE(TABLE_CATEGORY, 100, "GUI");
-    INSERT_DICT_VALUE(TABLE_CATEGORY, 200, "Input");
-    INSERT_DICT_VALUE(TABLE_CATEGORY, 300, "Output");
-    INSERT_DICT_VALUE(TABLE_CATEGORY, 400, "Processing");
-
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_TODO,    "Todo");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_ENHANCE, "Enhancement");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_TEXT,    "Text");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_TRIVIAL, "Trivial");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_ERROR,   "Error");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_BLUNDER, "Blunder");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_CRUSH,   "Crush");
-    INSERT_DICT_VALUE(TABLE_SEVERITY, SEVERITY_BLOCKER, "Blocker");
-
-    INSERT_DICT_VALUE(TABLE_PRIORITY, PRIORITY_MIN,     "Minimal");
-    INSERT_DICT_VALUE(TABLE_PRIORITY, PRIORITY_LOW,     "Low");
-    INSERT_DICT_VALUE(TABLE_PRIORITY, PRIORITY_NORMAL,  "Normal");
-    INSERT_DICT_VALUE(TABLE_PRIORITY, PRIORITY_HIGH,    "High");
-    INSERT_DICT_VALUE(TABLE_PRIORITY, PRIORITY_URGENT,  "Urgent");
-
-    INSERT_DICT_VALUE(TABLE_STATUS, STATUS_OPENED, "Opened");
-    INSERT_DICT_VALUE(TABLE_STATUS, STATUS_SOLVED, "Solved");
-    INSERT_DICT_VALUE(TABLE_STATUS, STATUS_CLOSED, "Closed");
-
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_NONE, "None");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_FIXED, "Fixed");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_UNREPEAT, "Unrepeatable");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_IRRECOVER, "Irrecoverable");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_DUPLICATE, "Duplicate");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_REJECTED, "Rejected");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_SUSPENDED, "Suspended");
-    INSERT_DICT_VALUE(TABLE_SOLUTION, SOLUTION_ABANDONED, "Abandoned");
-
-    INSERT_DICT_VALUE(TABLE_REPEAT, 100, "Always");
-    INSERT_DICT_VALUE(TABLE_REPEAT, 200, "Sometimes");
-    INSERT_DICT_VALUE(TABLE_REPEAT, 300, "Unknown");
-
-    __db.commit();
-
-    Db::Dicts::open();
-
-    return res;
-}
-
-QString BugManager::currentFile()
-{
-    return __db.databaseName();
-}
-
-QString BugManager::createTable(const QString &name, const QString &columns)
-{
-    QSqlQuery query;
-    if (!query.exec(QString("create table if not exists %1 (%2)").arg(name).arg(columns)))
-        return qApp->tr("Unable to create table %1.\n\n%2").arg(name.toUpper()).arg(SqlHelper::errorText(query));
-    return "";
-}
-
-QString BugManager::insertDictValue(const QString &table, int id, const QString &value)
-{
-    QSqlQuery query;
-    if (!query.exec(QString("insert into %1 values (%2, '%3')").arg(table).arg(id).arg(value)))
-        return qApp->tr("Unable to insert value %3 (%4) into dictionary %1.\n\n%2")
-                .arg(QString(table).toUpper())
-                .arg(SqlHelper::errorText(query))
-                .arg(id)
-                .arg(value);
-    return "";
-}
 
 QVariant BugManager::generateBugId()
 {
@@ -341,14 +167,6 @@ QString BugManager::operationTitle(int status)
     return qApp->tr("Process..."); // stub name, no action
 }
 
-QFileInfo BugManager::fileInDatabaseFiles(const QString& fileName)
-{
-    QFileInfo file(currentFile());
-    file.setFile(file.absoluteDir().path() + '/' + file.completeBaseName() +
-                 QStringLiteral(".files/") + fileName);
-    return file;
-}
-
 //-----------------------------------------------------------------------------------------------
 
 QString BugComparer::writeHistory(const BugInfo& oldValue, const BugInfo& newValue)
@@ -451,7 +269,7 @@ QString IssueFilters::getSql() const
 
 QString IssueFilters::save()
 {
-    DbSettings dbs(true);
+    Db::Settings dbs(true);
     if (!dbs.lastError.isEmpty())
         return qApp->tr("Unable to begin transaction for filters saving.\n\n%1").arg(dbs.lastError);
 
@@ -460,12 +278,12 @@ QString IssueFilters::save()
 
 QString IssueFilters::load()
 {
-    DbSettings dbs(false);
+    Db::Settings dbs(false);
 
     return loadInternal(dbs);
 }
 
-QString IssueFilters::saveInternal(DbSettings& dbs)
+QString IssueFilters::saveInternal(Db::Settings& dbs)
 {
     QString res, key, names;
     QString prefix = storagePrefix();
@@ -475,25 +293,25 @@ QString IssueFilters::saveInternal(DbSettings& dbs)
         const IssueFilter& filter = filters.at(i);
         key = QString("%1\\%2\\").arg(prefix, filter.name);
 
-        res = dbs.saveSetting(key + "Check", filter.check);
+        res = dbs.set(key + "Check", filter.check);
         if (!res.isEmpty()) return res;
 
-        res = dbs.saveSetting(key + "Condition", filter.condition);
+        res = dbs.set(key + "Condition", filter.condition);
         if (!res.isEmpty()) return res;
 
-        res = dbs.saveSetting(key + "Value", filter.value);
+        res = dbs.set(key + "Value", filter.value);
         if (!res.isEmpty()) return res;
 
         names += filter.name + ";";
     }
-    return dbs.saveSetting(QString("%1\\Names").arg(prefix), names);
+    return dbs.set(QString("%1\\Names").arg(prefix), names);
 }
 
-QString IssueFilters::loadInternal(DbSettings& dbs)
+QString IssueFilters::loadInternal(Db::Settings& dbs)
 {
     QVariant value;
     QString prefix = storagePrefix();
-    QString key, res = dbs.loadSetting(QString("%1\\Names").arg(prefix), value, "");
+    QString key, res = dbs.get(QString("%1\\Names").arg(prefix), value, "");
     if (!res.isEmpty() || value.toString().isEmpty()) return res;
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
     auto skipEmptyParts = Qt::SkipEmptyParts;
@@ -507,15 +325,15 @@ QString IssueFilters::loadInternal(DbSettings& dbs)
         filter.name = name;
         key = QString("%1\\%2\\").arg(prefix, filter.name);
 
-        res = dbs.loadSetting(key + "Check", value, false);
+        res = dbs.get(key + "Check", value, false);
         if (!res.isEmpty()) return res;
         filter.check = value.toBool();
 
-        res = dbs.loadSetting(key + "Condition", value, "=");
+        res = dbs.get(key + "Condition", value, "=");
         if (!res.isEmpty()) return res;
         filter.condition = value.toString();
 
-        res = dbs.loadSetting(key + "Value", value, 100);
+        res = dbs.get(key + "Value", value, 100);
         if (!res.isEmpty()) return res;
         filter.value = value.toInt();
 
@@ -528,12 +346,12 @@ QString IssueFilters::loadInternal(DbSettings& dbs)
 
 IntResult IssueFiltersPreset::generatePresetId()
 {
-    DbSettings dbs(false);
+    Db::Settings dbs(false);
     QVariant value;
-    QString res = dbs.loadSetting("FilterPresetMaxId", value, 0);
+    QString res = dbs.get("FilterPresetMaxId", value, 0);
     if (!res.isEmpty()) return IntResult::fail(res);
     int id = value.toInt() + 1;
-    res = dbs.saveSetting("FilterPresetMaxId", id);
+    res = dbs.set("FilterPresetMaxId", id);
     if (!res.isEmpty()) return IntResult::fail(res);
     return IntResult::ok(id);
 }
@@ -573,91 +391,13 @@ QString IssueFiltersPreset::storagePrefix() const
     return QString::fromLatin1("FilterPreset\\%1").arg(_id);
 }
 
-QString IssueFiltersPreset::saveInternal(DbSettings& dbs)
+QString IssueFiltersPreset::saveInternal(Db::Settings& dbs)
 {
     QString prefix = storagePrefix();
-    QString res = dbs.saveSetting(QString("%1\\Title").arg(prefix), _title);
+    QString res = dbs.set(QString("%1\\Title").arg(prefix), _title);
     if (!res.isEmpty()) return res;
 
     return IssueFilters::saveInternal(dbs);
-}
-
-//-----------------------------------------------------------------------------------------------
-
-DbSettings::DbSettings(bool transaction): _transaction(transaction)
-{
-    if (transaction)
-        if (!__db.transaction())
-            lastError = SqlHelper::errorText(__db.lastError());
-}
-
-DbSettings::~DbSettings()
-{
-    if (_transaction)
-        __db.commit();
-}
-
-void DbSettings::rollback()
-{
-    if (_transaction)
-    {
-        lastError.clear();
-        _transaction = false;
-        if (!__db.rollback())
-            lastError = SqlHelper::errorText(__db.lastError());
-    }
-}
-
-QString DbSettings::lastErrorStr()
-{
-    return lastError.isEmpty()? QString(): "\n\n" + lastError;
-}
-
-QString DbSettings::saveSetting(const QString& name, const QVariant& value)
-{
-    QSqlQuery query;
-    if (!query.exec(QString("select count(Name) from %1 where Name = '%2'").arg(TABLE_SETTINGS, name)))
-    {
-        rollback();
-        return qApp->tr("Unable to save setting '%1': %2%3")
-                .arg(name, SqlHelper::errorText(query), lastErrorStr());
-    }
-    QString sql;
-    if (query.isSelect() && query.first() && query.record().value(0).toInt() == 0)
-    {
-        sql = QString("insert into %1 (Name, Value) values ('%2', '%3')")
-                .arg(TABLE_SETTINGS, name, value.toString());
-    }
-    else
-    {
-        sql = QString("update %1 set Value = '%3' where Name = '%2'")
-                .arg(TABLE_SETTINGS, name, value.toString());
-    }
-    if (!query.exec(sql))
-    {
-        rollback();
-        return qApp->tr("Unable to save setting '%1': %2%3")
-                .arg(name, SqlHelper::errorText(query), lastErrorStr());
-    }
-    return QString();
-}
-
-QString DbSettings::loadSetting(const QString& name, QVariant& value, const QVariant& def)
-{
-    QSqlQuery query;
-    if (!query.exec(QString("select Value from %1 where Name = '%2'").arg(TABLE_SETTINGS, name)))
-        return qApp->tr("Unable to load setting '%1': %2").arg(name, SqlHelper::errorText(query));
-    if (query.isSelect() && query.first())
-    {
-        value = query.record().value(0);
-        if (value.typeId() != QMetaType::QString)
-            return qApp->tr("Setting '%1' has no proper type").arg(name);
-        if (def.isValid() && def.typeId() != QMetaType::QString)
-            if (!value.convert(def.metaType()))
-                return qApp->tr("Setting '%1' has no proper type").arg(name);
-    }
-    else value = def;
-    return QString();
 }
 
 //-----------------------------------------------------------------------------------------------

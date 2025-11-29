@@ -2,6 +2,7 @@
 
 #include "browsercommands.h"
 #include "bugmanager.h"
+#include "db/Db.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -44,7 +45,7 @@ static QString makeFileName(const QString& ext)
 
 void IssueTextEdit::pasteImage(const QImage& img)
 {
-    auto fi = BugManager::fileInDatabaseFiles(makeFileName("png"));
+    auto fi = Db::attachedFile(makeFileName("png"));
     if (fi.exists())
     {
         Ori::Dlg::error(tr("File already exists: %1. Please try to add one more time, "
@@ -108,7 +109,7 @@ void IssueTextEdit::pasteFile(const QMimeData* source)
         return;
     }
 
-    auto dst = BugManager::fileInDatabaseFiles(makeFileName(src.suffix()));
+    auto dst = Db::attachedFile(makeFileName(src.suffix()));
     if (dst.exists())
     {
         Ori::Dlg::error(tr("File already exists: %1. Please try to add one more time, "
@@ -185,7 +186,7 @@ QString IssueTextEdit::cleanFiles()
 
 bool IssueTextEdit::ensureFilesDir()
 {
-    auto fi = BugManager::fileInDatabaseFiles("");
+    auto fi = Db::attachedFile("");
     if (fi.isDir() && fi.exists())
         return true;
     if (!QDir().mkdir(fi.absoluteFilePath()))

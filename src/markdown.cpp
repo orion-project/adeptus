@@ -1,5 +1,7 @@
 #include "markdown.h"
+
 #include "bugmanager.h"
+#include "db/Db.h"
 
 #include <QTextDocument>
 #include <QImage>
@@ -81,7 +83,7 @@ QString Markdown::processIssueNum(const QString& s, int& offset, bool& ok)
 
 static QString makeImgLinkTag(const QString& link)
 {
-    QFileInfo fi = BugManager::fileInDatabaseFiles(link);
+    QFileInfo fi = Db::attachedFile(link);
     QString fn = fi.absoluteFilePath();
     QImage img(fn);
     const int minSz = 250;

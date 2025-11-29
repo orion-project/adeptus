@@ -1,14 +1,17 @@
+#include "browsercommands.h"
+
+#include "bugmanager.h"
+#include "operations.h"
+#include "ImageViewWindow.h"
+#include "db/Db.h"
+
+#include "helpers/OriDialogs.h"
+#include "helpers/OriTools.h"
+
 #include <QApplication>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QDir>
-
-#include "browsercommands.h"
-#include "bugmanager.h"
-#include "operations.h"
-#include "ImageViewWindow.h"
-#include "helpers/OriDialogs.h"
-#include "helpers/OriTools.h"
 
 namespace BrowserCommands {
 
@@ -90,7 +93,7 @@ bool isSupportedImg(const QString& path)
 void CommandShowImage::exec(const QUrl& url) const
 {
     auto fileName = arg1Str(url);
-    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
+    QFileInfo file = Db::attachedFile(fileName);
     if (!file.exists())
     {
         bool fileNotFound = true;
@@ -127,7 +130,7 @@ public:
 void CommandGetFile::exec(const QUrl& url) const
 {
     auto fileName = arg1Str(url);
-    QFileInfo file = BugManager::fileInDatabaseFiles(fileName);
+    QFileInfo file = Db::attachedFile(fileName);
     if (!file.exists())
         return Ori::Dlg::warning(qApp->tr("File not found:\n%1").arg(QDir::toNativeSeparators(file.filePath())));
 
