@@ -1,7 +1,7 @@
 #ifndef HISTORY_MANAGER_H
 #define HISTORY_MANAGER_H
 
-#include "sqlhelpers.h"
+#include "SqlHelpers.h"
 #include "../bugtypes.h"
 
 using namespace Ori::Sql;

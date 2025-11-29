@@ -5,7 +5,7 @@
 #include "Preferences.h"
 #include "bugitemdelegate.h"
 #include "operations.h"
-#include "db/db.h"
+#include "db/Db.h"
 #include "db/Dicts.h"
 
 #include "helpers/OriDialogs.h"

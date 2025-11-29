@@ -5,7 +5,7 @@
 #include "issuetextview.h"
 #include "operations.h"
 #include "markdown.h"
-#include "db/db.h"
+#include "db/Db.h"
 #include "db/Dicts.h"
 #include "db/Relations.h"
 

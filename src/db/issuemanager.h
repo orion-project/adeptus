@@ -1,7 +1,7 @@
 #ifndef ISSUE_MANAGER_H
 #define ISSUE_MANAGER_H
 
-#include "sqlhelpers.h"
+#include "SqlHelpers.h"
 #include "../bugtypes.h"
 #include "../bugmanager.h" // TODO eliminate
 

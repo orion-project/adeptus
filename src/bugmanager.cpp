@@ -1,7 +1,7 @@
 #include "bugmanager.h"
 
-#include "db/sqlhelpers.h"
 #include "db/Dicts.h"
+#include "db/SqlHelpers.h"
 
 #include <QApplication>
 #include <QBoxLayout>

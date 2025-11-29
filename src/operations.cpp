@@ -1,7 +1,7 @@
 #include "operations.h"
 
 #include "bugsolver.h"
-#include "db/db.h"
+#include "db/Db.h"
 #include "db/Relations.h"
 
 #include "helpers/OriDialogs.h"

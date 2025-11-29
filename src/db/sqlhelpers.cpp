@@ -1,4 +1,4 @@
-#include "sqlhelpers.h"
+#include "SqlHelpers.h"
 
 namespace SqlHelper {
 

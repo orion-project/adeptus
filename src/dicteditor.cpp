@@ -1,8 +1,9 @@
 #include "dicteditor.h"
 
 #include "bugmanager.h"
-#include "db/sqlhelpers.h"
+#include "db/SqlHelpers.h"
 #include "db/Dicts.h"
+
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 

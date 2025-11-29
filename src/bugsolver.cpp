@@ -1,3 +1,17 @@
+#include "bugsolver.h"
+
+#include "bugmanager.h"
+#include "markdowneditor.h"
+#include "Preferences.h"
+#include "bugitemdelegate.h"
+#include "operations.h"
+#include "db/Dicts.h"
+#include "db/SqlHelpers.h"
+
+#include "helpers/OriDialogs.h"
+#include "helpers/OriWidgets.h"
+#include "helpers/OriWindows.h"
+
 #include <QtSql>
 #include <QApplication>
 #include <QBoxLayout>
@@ -5,18 +19,6 @@
 #include <QDialogButtonBox>
 #include <QDateTimeEdit>
 #include <QLabel>
-
-#include "bugsolver.h"
-#include "bugmanager.h"
-#include "markdowneditor.h"
-#include "Preferences.h"
-#include "bugitemdelegate.h"
-#include "operations.h"
-#include "db/Dicts.h"
-#include "db/sqlhelpers.h"
-#include "helpers/OriDialogs.h"
-#include "helpers/OriWidgets.h"
-#include "helpers/OriWindows.h"
 
 QMap<int, BugSolver*> __BugSolver_openedWindows;
 QByteArray __BugSolver_storedGeometry;

@@ -45,12 +45,12 @@ set(PROJECT_SOURCES
     src/bugmanager.cpp
     src/bugsolver.cpp
     src/bugtypes.cpp
-    src/db/db.cpp
+    src/db/Db.cpp
     src/db/Dicts.cpp
     src/db/historymanager.cpp
     src/db/issuemanager.cpp
     src/db/Relations.cpp
-    src/db/sqlhelpers.cpp
+    src/db/SqlHelpers.cpp
     src/dicteditor.cpp
     src/filterpanel.cpp
     src/ImageViewWindow.cpp
