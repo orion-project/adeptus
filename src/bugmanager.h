@@ -22,8 +22,6 @@ class QVariant;
 class QWidget;
 QT_END_NAMESPACE
 
-#define BUGS_FILES "Issue Databases (*.bugs);;All files (*.*)"
-
 class BugManager
 {
 public:

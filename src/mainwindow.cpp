@@ -18,7 +18,6 @@
 #include "helpers/OriLayouts.h"
 #include "tools/OriSettings.h"
 #include "tools/OriMruList.h"
-#include "tools/OriWaitCursor.h"
 #include "widgets/OriStylesMenu.h"
 #include "widgets/OriMruMenu.h"
 #include "widgets/OriBackWidget.h"
@@ -82,6 +81,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     closeCurrentFile();
     writeSettings();
     event->accept();
+    Db::close();
 }
 
 void MainWindow::createMenus()
@@ -178,11 +178,9 @@ void MainWindow::closeCurrentFile()
 void MainWindow::newFile()
 {
     QString fileName = QFileDialog::getSaveFileName(
-                this, tr("Create Database"), QString(), tr(BUGS_FILES));
+                this, tr("Create Database"), QString(), Db::fileFilter());
     if (fileName.isEmpty())
         return;
-
-    Ori::WaitCursor c;
 
     closeCurrentFile();
 
@@ -202,15 +200,13 @@ void MainWindow::newFile()
 void MainWindow::openFile()
 {
     QString fileName = QFileDialog::getOpenFileName(
-                this, tr("Open Database"), QString(), tr(BUGS_FILES));
+                this, tr("Open Database"), QString(), Db::fileFilter());
     if (!fileName.isEmpty())
         openFile(fileName);
 }
 
 void MainWindow::openFile(const QString &fileName)
 {
-    Ori::WaitCursor c;
-
     closeCurrentFile();
 
     QString res = Db::open(fileName);

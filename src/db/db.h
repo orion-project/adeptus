@@ -15,8 +15,11 @@ namespace Db {
 
 QSqlDatabase* db();
 
+QString fileFilter();
+
 QString open(const QString &fileName);
 QString create(const QString &fileName);
+void close();
 
 QFileInfo attachedFile(const QString& fileName);
 
