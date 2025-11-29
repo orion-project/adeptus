@@ -1,3 +1,11 @@
+#include "issuetable.h"
+
+#include "bugmanager.h"
+#include "filterpanel.h"
+#include "db/Dicts.h"
+
+#include "helpers/OriWidgets.h"
+
 #include <QApplication>
 #include <QBoxLayout>
 #include <QHeaderView>
@@ -9,14 +17,6 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 #include <QToolBar>
-
-#include "appearance.h"
-#include "bugmanager.h"
-#include "filterpanel.h"
-#include "issuetable.h"
-#include "db/Dicts.h"
-
-#include "helpers/OriWidgets.h"
 
 //-----------------------------------------------------------------------------------------------
 
@@ -33,42 +33,41 @@ public:
 
         int row = index.row();
         int col = index.column();
-        switch (index.sibling(row, COL_STATUS).data().toInt())
+        
+        QColor backColor, textColor;
+        bool fontB = false;
+        bool fontI = false;
+        bool fontU = false;
+        bool fontS = false;
+        for (int dictId : Db::Dicts::dictIdsForStyling())
         {
-        case STATUS_SOLVED:
-            option->backgroundBrush = ColorProvider::solvedColorTransparent();
-            break;
-
-        case STATUS_CLOSED:
-            option->backgroundBrush = ColorProvider::closedColorTransparent();
-            break;
-
-        case STATUS_OPENED:
+            int valId = index.sibling(row, dictId).data().toInt();
+            auto style = Db::Dicts::style(dictId, valId);
+            if (!style)
+                continue;
+            if (style->rowBackColor) backColor = *style->rowBackColor;
+            if (style->rowTextColor) textColor = *style->rowTextColor;
+            if (style->rowFontB) fontB = *style->rowFontB;
+            if (style->rowFontI) fontI = *style->rowFontI;
+            if (style->rowFontU) fontI = *style->rowFontU;
+            if (style->rowFontS) fontI = *style->rowFontS;
+            if (dictId == col)
             {
-                int severity = index.sibling(row, COL_SEVERITY).data().toInt();
-                switch (severity)
-                {
-                case SEVERITY_BLUNDER:
-                    option->backgroundBrush = QColor(255, 0, 0, 35);
-                    break;
-                case SEVERITY_CRUSH:
-                    option->backgroundBrush = QColor(255, 0, 0, 50);
-                    break;
-                case SEVERITY_BLOCKER:
-                    option->backgroundBrush = QColor(255, 0, 0, 75);
-                    break;
-                }
-                if (severity <= SEVERITY_ENHANCE && col == COL_SEVERITY)
-                        option->font.setItalic(true);
-                else if (severity >= SEVERITY_CRUSH && col == COL_SEVERITY)
-                        option->font.setBold(true);
-
-                int priority = index.sibling(row, COL_PRIORITY).data().toInt();
-                if (priority >= PRIORITY_HIGH && col == COL_PRIORITY)
-                    option->font.setBold(true);
+                if (style->cellBackColor) backColor = *style->cellBackColor;
+                if (style->cellTextColor) textColor = *style->cellTextColor;
+                if (style->cellFontB) fontB = *style->cellFontB;
+                if (style->cellFontI) fontI = *style->cellFontI;
+                if (style->cellFontU) fontI = *style->cellFontU;
+                if (style->cellFontS) fontI = *style->cellFontS;
             }
-            break;
         }
+        
+        if (backColor.isValid()) option->backgroundBrush = backColor;
+        if (textColor.isValid()) option->palette.setBrush(QPalette::Text, textColor);
+        if (fontB) option->font.setBold(true);
+        if (fontI) option->font.setItalic(true);
+        if (fontU) option->font.setUnderline(true);
+        if (fontS) option->font.setStrikeOut(true);
 
         switch (index.column())
         {
@@ -173,7 +172,7 @@ void IssueTableWidget::createTableView()
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     tableView->verticalHeader()->hide();
-    tableView->setAlternatingRowColors(true);
+    //tableView->setAlternatingRowColors(true);
     tableView->setModel(tableModel);
     tableView->setColumnHidden(COL_EXTRA, true);
     tableView->setColumnHidden(COL_CREATED, true);

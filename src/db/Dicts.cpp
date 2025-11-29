@@ -11,23 +11,25 @@
 namespace Db::Dicts {
 
 typedef QMap<int, QString> DictCache;
+typedef QHash<int, Style> DictStyle;
 
-QMap<int, QSqlTableModel*> __dictTables;
-QMap<int, DictCache*> __dictCaches;
+QMap<int, QSqlTableModel*> __tables;
+QMap<int, DictCache*> __caches;
+QHash<int, DictStyle*> __styles;
 
-static DictCache* cache(int dictId)
+DictCache* cache(int dictId)
 {
-    return __dictCaches.value(dictId);
+    return __caches.value(dictId);
 }
 
 QSqlTableModel* table(int dictId)
 {
-    return __dictTables.value(dictId);
+    return __tables.value(dictId);
 }
 
 QString value(int dictId, const QVariant& valId)
 {
-    auto cache = __dictCaches.value(dictId);
+    auto cache = __caches.value(dictId);
     if (!cache)
         return valId.toString();
 
@@ -37,16 +39,35 @@ QString value(int dictId, const QVariant& valId)
 
 QString value(int dictId, int valId)
 {
-    auto cache = __dictCaches.value(dictId);
+    auto cache = __caches.value(dictId);
     if (!cache)
         return QString::number(valId);
 
     return cache->contains(valId) ? (*cache)[valId] : QString::number(valId);
 }
 
-QList<int> dictIds()
+const Style* style(int dictId, int valId)
 {
-    return { COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_STATUS, COL_REPEAT, COL_SOLUTION };
+    auto styles = __styles.value(dictId);
+    if (!styles)
+        return nullptr;
+        
+    if (!styles->contains(valId))
+        return nullptr;
+
+    return &(*styles)[valId];
+}
+
+const QList<int>& dictIds()
+{
+    static QList<int> ids = { COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_STATUS, COL_REPEAT, COL_SOLUTION };
+    return ids;
+}
+
+const QList<int>& dictIdsForStyling()
+{
+    static QList<int> ids = { COL_REPEAT, COL_CATEGORY, COL_SEVERITY, COL_PRIORITY, COL_SOLUTION, COL_STATUS };
+    return ids;
 }
 
 QString tableName(int id)
@@ -69,21 +90,21 @@ void openTable(int dictId)
     if (table.isEmpty()) return;
 
     auto tableModel = new QSqlTableModel;
-    __dictTables.insert(dictId, tableModel);
+    __tables.insert(dictId, tableModel);
     tableModel->setTable(table);
     tableModel->select();
 }
 
 void updateCache(int dictId)
 {
-    auto table = __dictTables.value(dictId);
+    auto table = __tables.value(dictId);
     if (!table) return;
 
-    auto cache = __dictCaches.value(dictId);
+    auto cache = __caches.value(dictId);
     if (!cache)
     {
         cache = new DictCache;
-        __dictCaches.insert(dictId, cache);
+        __caches.insert(dictId, cache);
     }
 
     cache->clear();
@@ -92,6 +113,33 @@ void updateCache(int dictId)
         auto record = table->record(row);
         cache->insert(record.field(DICT_COL_ID).value().toInt(),
                       record.field(DICT_COL_TITLE).value().toString());
+    }
+    
+    if (dictId == COL_SEVERITY)
+    {
+        __styles.insert(dictId, new DictStyle {
+            { SEVERITY_TODO, { .cellFontI = true } },
+            { SEVERITY_ENHANCE, { .cellFontI = true } },
+            { SEVERITY_BLUNDER, { .rowBackColor = QColor(255, 0, 0, 35), .cellFontB = true } },
+            { SEVERITY_CRUSH, { .rowBackColor = QColor(255, 0, 0, 50), .cellFontB = true } },
+            { SEVERITY_BLOCKER, { .rowBackColor = QColor(255, 0, 0, 75), .cellFontB = true } },
+        });
+    }
+    else if (dictId == COL_PRIORITY)
+    {
+        __styles.insert(dictId, new DictStyle {
+            { PRIORITY_MIN, { .rowTextColor = Qt::gray } },
+            { PRIORITY_LOW, { .rowTextColor = Qt::gray } },
+            { PRIORITY_HIGH, { .cellFontB = true } },
+            { PRIORITY_URGENT, { .cellFontB = true } },
+        });
+    }
+    else if (dictId == COL_STATUS)
+    {
+        __styles.insert(dictId, new DictStyle {
+            { STATUS_SOLVED, { .rowBackColor = QColor(0, 255, 0, 50), .rowTextColor = QColor() } },
+            { STATUS_CLOSED, { .rowBackColor = QColor(0, 0, 0, 50), .rowTextColor = QColor() } },
+        });
     }
 }
 
@@ -104,15 +152,16 @@ void open()
         openTable(dictId);
         updateCache(dictId);
     }
-
 }
 
 void close()
 {
-    qDeleteAll(__dictTables);
-    qDeleteAll(__dictCaches);
-    __dictTables.clear();
-    __dictCaches.clear();
+    qDeleteAll(__tables);
+    qDeleteAll(__caches);
+    qDeleteAll(__styles);
+    __tables.clear();
+    __caches.clear();
+    __styles.clear();
 }
 
 QComboBox* makeComboBox(int dictId)
