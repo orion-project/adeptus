@@ -1,13 +1,13 @@
-#include "bughistory.h"
+#include "HistoryPage.h"
 
-#include "appearance.h"
-#include "browsercommands.h"
-#include "issuetextview.h"
-#include "operations.h"
-#include "markdown.h"
-#include "db/Db.h"
-#include "db/Dicts.h"
-#include "db/Relations.h"
+#include "../appearance.h"
+#include "../browsercommands.h"
+#include "../issuetextview.h"
+#include "../operations.h"
+#include "../markdown.h"
+#include "../db/Db.h"
+#include "../db/Dicts.h"
+#include "../db/Relations.h"
 
 #include "helpers/OriLayouts.h"
 
@@ -21,7 +21,7 @@
 
 //-------------------------------------------------------------------------------------------------------
 
-BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent), 
+HistoryPage::HistoryPage(int id, QWidget *parent) : QWidget(parent), 
     _id(id), _status(-1), _changedTextIndex(0)
 {
     contentView = new IssueTextView;
@@ -44,17 +44,17 @@ BugHistory::BugHistory(int id, QWidget *parent) : QWidget(parent),
             .arg(ColorProvider::closedColor().name())
     );
 
-    connect(contentView, &IssueTextView::processCommand, this, &BugHistory::processCommand);
+    connect(contentView, &IssueTextView::processCommand, this, &HistoryPage::processCommand);
 
     Ori::Layouts::LayoutV({contentView})
             .setMargin(0)
             .setSpacing(0)
             .useFor(this);
 
-    connect(Operations::instance(), &Operations::commentAdded, this, &BugHistory::commentAdded);
+    connect(Operations::instance(), &Operations::commentAdded, this, &HistoryPage::commentAdded);
 }
 
-void BugHistory::populate()
+void HistoryPage::populate()
 {
     QString content;
     IssueResult result = DB::issues().get(_id);
@@ -107,7 +107,7 @@ QString formatProp(const QString& title, const QString& value)
     return QString();
 }
 
-QString BugHistory::formatSummary(const BugInfo& bug)
+QString HistoryPage::formatSummary(const BugInfo& bug)
 {
     QStringList content;
 
@@ -144,24 +144,24 @@ QString BugHistory::formatSummary(const BugInfo& bug)
     return content.join('\n');
 }
 
-QString BugHistory::headerClass() const
+QString HistoryPage::headerClass() const
 {
     if (IssueManager::isClosed(_status)) return QStringLiteral("header_closed");
     if (IssueManager::isSolved(_status)) return QStringLiteral("header_solved");
     return QStringLiteral("header");
 }
 
-QString BugHistory::formatSectionTitle(const QString& title)
+QString HistoryPage::formatSectionTitle(const QString& title)
 {
     return "<p><b>" % title % "</b>";
 }
 
-QString BugHistory::finishWithError(const QString& content, const QString& error)
+QString HistoryPage::finishWithError(const QString& content, const QString& error)
 {
     return content % "<p>" % formatError(error);
 }
 
-QString BugHistory::formatRelations()
+QString HistoryPage::formatRelations()
 {
     QString sectionTitle = formatSectionTitle(tr("Related Issues"));
 
@@ -223,7 +223,7 @@ QString BugHistory::formatRelations()
     return title + content;
 }
 
-QString BugHistory::formatRelationsCount(int countOpened)
+QString HistoryPage::formatRelationsCount(int countOpened)
 {
     auto countAll = QString::number(_relatedIds.size());
     auto countOpen = QString::number(countOpened);
@@ -234,7 +234,7 @@ QString BugHistory::formatRelationsCount(int countOpened)
         .arg(_showOnlyOpenedRelations? ("<b>"% countOpen % "</b>"): countOpen);
 }
 
-QString BugHistory::formatHistory()
+QString HistoryPage::formatHistory()
 {
     QString content = "<p><b>" % tr("Issue History:") % "</b>";
 
@@ -272,7 +272,7 @@ QString BugHistory::formatHistory()
     return content;
 }
 
-QString BugHistory::formatChangedParams(const QList<BugHistoryItem::ChangedParam>& params)
+QString HistoryPage::formatChangedParams(const QList<BugHistoryItem::ChangedParam>& params)
 {
     QStringList strs;
     for (const BugHistoryItem::ChangedParam& p : params)
@@ -280,7 +280,7 @@ QString BugHistory::formatChangedParams(const QList<BugHistoryItem::ChangedParam
     return strs.join(". ");
 }
 
-QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param)
+QString HistoryPage::formatChangedParam(const BugHistoryItem::ChangedParam& param)
 {
     QString paramName = DB::history().issuePropName(param.paramId);
     QVariant oldValue = param.oldValue;
@@ -299,7 +299,7 @@ QString BugHistory::formatChangedParam(const BugHistoryItem::ChangedParam& param
             .arg(sanitizeHtml(Db::Dicts::value(dictId, newValue)));
 }
 
-void BugHistory::processCommand(const QString& cmd, const QUrl& url)
+void HistoryPage::processCommand(const QString& cmd, const QUrl& url)
 {
     if (BrowserCommands::copySummary() == cmd)
         QApplication::clipboard()->setText(QString("#%1: %2").arg(_id).arg(_summary));
@@ -323,7 +323,7 @@ void BugHistory::processCommand(const QString& cmd, const QUrl& url)
         setShowOnlyOpenedRelations(true);
 }
 
-void BugHistory::showChangedText(int id)
+void HistoryPage::showChangedText(int id)
 {
     if (!_changedTexts.contains(id)) return;
 
@@ -352,24 +352,24 @@ void BugHistory::showChangedText(int id)
     dlg.exec();
 }
 
-void BugHistory::setFocus()
+void HistoryPage::setFocus()
 {
     contentView->setFocus();
 }
 
-void BugHistory::scrollToEnd()
+void HistoryPage::scrollToEnd()
 {
     QTextCursor c = contentView->textCursor();
     c.movePosition(QTextCursor::End);
     contentView->setTextCursor(c);
 }
 
-void BugHistory::commentAdded(int bugId)
+void HistoryPage::commentAdded(int bugId)
 {
     if (bugId == _id) scrollToEnd();
 }
 
-void BugHistory::setShowOnlyOpenedRelations(bool on)
+void HistoryPage::setShowOnlyOpenedRelations(bool on)
 {
     if (_showOnlyOpenedRelations == on) return;
     _showOnlyOpenedRelations = on;

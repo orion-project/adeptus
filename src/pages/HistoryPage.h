@@ -1,10 +1,10 @@
-#ifndef BUGHISTORY_H
-#define BUGHISTORY_H
+#ifndef HISTORY_PAGE_H
+#define HISTORY_PAGE_H
 
 #include <QWidget>
 #include <QMap>
 
-#include "bugtypes.h"
+#include "../bugtypes.h"
 
 QT_BEGIN_NAMESPACE
 class QTextBrowser;
@@ -13,12 +13,12 @@ QT_END_NAMESPACE
 
 class IssueTextView;
 
-class BugHistory : public QWidget
+class HistoryPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit BugHistory(int id, QWidget *parent = 0);
+    explicit HistoryPage(int id, QWidget *parent = 0);
 
     void populate();
     int id() const { return _id; }
@@ -56,4 +56,4 @@ private slots:
     void commentAdded(int bugId);
 };
 
-#endif // BUGHISTORY_H
+#endif // HISTORY_PAGE_H

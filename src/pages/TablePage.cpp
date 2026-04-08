@@ -1,8 +1,8 @@
-#include "issuetable.h"
+#include "TablePage.h"
 
-#include "bugmanager.h"
-#include "filterpanel.h"
-#include "db/Dicts.h"
+#include "../bugmanager.h"
+#include "../filterpanel.h"
+#include "../db/Dicts.h"
 
 #include "helpers/OriWidgets.h"
 
@@ -95,7 +95,7 @@ public:
 
 //-----------------------------------------------------------------------------------------------
 
-IssueTableWidget::IssueTableWidget(QWidget *parent) : QWidget(parent)
+TablePage::TablePage(QWidget *parent) : QWidget(parent)
 {
     filterPanel = new FilterPanel;
     connect(filterPanel, SIGNAL(filterChanged()), this, SLOT(applyFilter()));
@@ -116,19 +116,19 @@ IssueTableWidget::IssueTableWidget(QWidget *parent) : QWidget(parent)
     mainLayout->addLayout(toolbarLayout);
 }
 
-IssueTableWidget::~IssueTableWidget()
+TablePage::~TablePage()
 {
     if (tableModel)
         delete tableModel;
 }
 
-QSqlTableModel* IssueTableWidget::update()
+QSqlTableModel* TablePage::update()
 {
     createTableView();
     return tableModel;
 }
 
-void IssueTableWidget::close()
+void TablePage::close()
 {
     if (tableView)
     {
@@ -143,7 +143,7 @@ void IssueTableWidget::close()
     }
 }
 
-void IssueTableWidget::createTableView()
+void TablePage::createTableView()
 {
     close();
 
@@ -190,7 +190,7 @@ void IssueTableWidget::createTableView()
     tableView->setFocus();
 }
 
-void IssueTableWidget::adjustHeader()
+void TablePage::adjustHeader()
 {
     tableView->resizeColumnToContents(COL_ID);
     tableView->resizeColumnToContents(COL_CATEGORY);
@@ -206,7 +206,7 @@ void IssueTableWidget::adjustHeader()
 #endif
 }
 
-void IssueTableWidget::applyFilter()
+void TablePage::applyFilter()
 {
     if (!tableModel) return;
     filterChanged = true;
@@ -215,7 +215,7 @@ void IssueTableWidget::applyFilter()
     applyFilters(&filters);
 }
 
-void IssueTableWidget::applyFilters(IssueFilters *filters)
+void TablePage::applyFilters(IssueFilters *filters)
 {
     tableModel->setFilter(filters->getSql());
     if (!_selected)
@@ -227,7 +227,7 @@ void IssueTableWidget::applyFilters(IssueFilters *filters)
     emit onFilter();
 }
 
-void IssueTableWidget::saveFilters()
+void TablePage::saveFilters()
 {
     IssueFilters filters;
     filterPanel->collectFilters(&filters);
@@ -238,12 +238,12 @@ void IssueTableWidget::saveFilters()
             tr("Unable to save filters.\n\n%1").arg(res));
 }
 
-void IssueTableWidget::loadFilters()
+void TablePage::loadFilters()
 {
     filterPanel->load();
 }
 
-void IssueTableWidget::setSelectedRow(int row)
+void TablePage::setSelectedRow(int row)
 {
     if (!tableView) return;
     tableView->selectRow(row);
@@ -251,7 +251,7 @@ void IssueTableWidget::setSelectedRow(int row)
     adjustHeader();
 }
 
-void IssueTableWidget::setSelectedId(int id)
+void TablePage::setSelectedId(int id)
 {
     if (!tableModel or !tableView) return;
     QModelIndexList indexes = tableModel->match(
@@ -264,7 +264,7 @@ void IssueTableWidget::setSelectedId(int id)
     }
 }
 
-int IssueTableWidget::selectedId()
+int TablePage::selectedId()
 {
     int row = selectedRow();
     if (row > -1)
@@ -274,7 +274,7 @@ int IssueTableWidget::selectedId()
     return -1;
 }
 
-int IssueTableWidget::selectedRow()
+int TablePage::selectedRow()
 {
     if (tableModel)
     {
@@ -285,22 +285,22 @@ int IssueTableWidget::selectedRow()
     return -1;
 }
 
-void IssueTableWidget::tableViewDoubleClicked(const QModelIndex&)
+void TablePage::tableViewDoubleClicked(const QModelIndex&)
 {
     emit onDoubleClick();
 }
 
-void IssueTableWidget::tableViewContextMenuRequested(const QPoint& pos)
+void TablePage::tableViewContextMenuRequested(const QPoint& pos)
 {
     if (contextMenu) contextMenu->exec(tableView->mapToGlobal(pos));
 }
 
-void IssueTableWidget::setFocus()
+void TablePage::setFocus()
 {
     if (tableView) tableView->setFocus();
 }
 
-void IssueTableWidget::appendBug()
+void TablePage::appendBug()
 {
     emit onAppendBug();
 }

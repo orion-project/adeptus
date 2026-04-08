@@ -3,14 +3,14 @@
 #include "bugmanager.h"
 #include "bugeditor.h"
 #include "bugsolver.h"
-#include "bughistory.h"
 #include "dicteditor.h"
 #include "Preferences.h"
-#include "issuetable.h"
 #include "aboutwindow.h"
 #include "operations.h"
 #include "db/Db.h"
 #include "db/Dicts.h"
+#include "pages/HistoryPage.h"
+#include "pages/TablePage.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -40,11 +40,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mruList = new Ori::MruFileList(this);
     connect(mruList, SIGNAL(clicked(QString)), this, SLOT(openFile(QString)));
 
-    issueTable = new IssueTableWidget(this);
-    issueTable->setVisible(false);
-    connect(issueTable, SIGNAL(onFilter()), this, SLOT(updateCounter()));
-    connect(issueTable, SIGNAL(onDoubleClick()), this, SLOT(showHistory()));
-    connect(issueTable, SIGNAL(onAppendBug()), this, SLOT(appendBug()));
+    tablePage = new TablePage(this);
+    tablePage->setVisible(false);
+    connect(tablePage, SIGNAL(onFilter()), this, SLOT(updateCounter()));
+    connect(tablePage, SIGNAL(onDoubleClick()), this, SLOT(showHistory()));
+    connect(tablePage, SIGNAL(onAppendBug()), this, SLOT(appendBug()));
 
     issueTabs = new QTabWidget;
     issueTabs->setTabsClosable(true);
@@ -171,8 +171,8 @@ void MainWindow::readSettings()
 
 void MainWindow::closeCurrentFile()
 {
-    if (issueTable->isFilterChanged()) issueTable->saveFilters();
-    issueTable->close();
+    if (tablePage->isFilterChanged()) tablePage->saveFilters();
+    tablePage->close();
 }
 
 void MainWindow::newFile()
@@ -231,16 +231,16 @@ void MainWindow::setCurrentFile(const QString &fileName)
         closeTabs();
         mruList->append(fileName);
         statusFileName->setText(QDir::toNativeSeparators(currentFile));
-        tableModel = issueTable->update();
-        issueTable->setVisible(true);
-        issueTable->loadFilters();
-        issueTable->contextMenu = contextMenu;
-        issueTabs->addTab(issueTable, tr("Issues"));
+        tableModel = tablePage->update();
+        tablePage->setVisible(true);
+        tablePage->loadFilters();
+        tablePage->contextMenu = contextMenu;
+        issueTabs->addTab(tablePage, tr("Issues"));
         updateCounter();
     }
     else
     {
-        issueTable->setVisible(false);
+        tablePage->setVisible(false);
         setWindowTitle(qApp->applicationName());
     }
 
@@ -256,7 +256,7 @@ void MainWindow::editDictionary()
     if (DictEditor::show(this, action->text(), dictId))
     {
         Db::Dicts::updateCache(dictId);
-        issueTable->adjustHeader();
+        tablePage->adjustHeader();
         updatePageById(-1);
     }
 }
@@ -284,8 +284,8 @@ void MainWindow::issueAdded(int id)
         tableModel->fetchMore();
 
     updateCounter();
-    issueTable->adjustHeader();
-    issueTable->setSelectedId(id);
+    tablePage->adjustHeader();
+    tablePage->setSelectedId(id);
 
     if (Preferences::instance().openNewBugOnPage)
         openHistoryPage(id);
@@ -296,7 +296,7 @@ void MainWindow::issueAdded(int id)
 void MainWindow::issueDeleted(int id)
 {
     tableModel->select();
-    issueTable->adjustHeader();
+    tablePage->adjustHeader();
     updateCounter();
     updatePagesByRelatedId(id);
     closeTab(indexOfId(id));
@@ -316,16 +316,16 @@ void MainWindow::showHistory()
 {
     if (!tableModel || page()) return;
 
-    openHistoryPage(issueTable->selectedId());
+    openHistoryPage(tablePage->selectedId());
 }
 
 void MainWindow::openHistoryPage(int id)
 {
     if (id < 0) return;
-    BugHistory* history = pageById(id);
+    HistoryPage* history = pageById(id);
     if (!history)
     {
-        history = new BugHistory(id);
+        history = new HistoryPage(id);
         issueTabs->addTab(history, "");
         updatePageById(id);
     }
@@ -366,7 +366,7 @@ void MainWindow::tabCloseRequested(int index)
 
     auto hist = page();
     if (hist) hist->setFocus();
-    else issueTable->setFocus();
+    else tablePage->setFocus();
 }
 
 void MainWindow::closeTabs()
@@ -381,7 +381,7 @@ void MainWindow::closeTab(int index)
     {
         QWidget *page = issueTabs->widget(index);
         issueTabs->removeTab(index);
-        if (page != issueTable) delete page;
+        if (page != tablePage) delete page;
     }
 }
 
@@ -390,16 +390,16 @@ void MainWindow::about()
     (new AboutWindow(this))->show();
 }
 
-BugHistory* MainWindow::page(int index)
+HistoryPage* MainWindow::page(int index)
 {
-    return dynamic_cast<BugHistory*>(index < 0? issueTabs->currentWidget(): issueTabs->widget(index));
+    return dynamic_cast<HistoryPage*>(index < 0? issueTabs->currentWidget(): issueTabs->widget(index));
 }
 
-BugHistory* MainWindow::pageById(int id)
+HistoryPage* MainWindow::pageById(int id)
 {
     for (int i = 1; i < issueTabs->count(); i++)
     {
-        BugHistory *h = page(i);
+        HistoryPage *h = page(i);
         if (h && h->id() == id) return h;
     }
     return nullptr;
@@ -416,7 +416,7 @@ void MainWindow::updatePageById(int id)
 {
     for (int i = 1; i < issueTabs->count(); i++)
     {
-        BugHistory *h = page(i);
+        HistoryPage *h = page(i);
         if (id < 0 || h->id() == id)
         {
             h->populate();
@@ -431,7 +431,7 @@ void MainWindow::updatePagesByRelatedId(int id)
 {
     for (int i = 1; i < issueTabs->count(); i++)
     {
-        BugHistory *h = page(i);
+        HistoryPage *h = page(i);
         if (h->relatedIds().contains(id))
             h->populate();
     }
@@ -440,16 +440,16 @@ void MainWindow::updatePagesByRelatedId(int id)
 int MainWindow::currentId()
 {
     if (!tableModel) return -1;
-    BugHistory *h = page();
-    return h? h->id(): issueTable->selectedId();
+    HistoryPage *h = page();
+    return h? h->id(): tablePage->selectedId();
 }
 
 int MainWindow::currentStatus()
 {
     if (!tableModel) return -1;
-    BugHistory *h = page();
+    HistoryPage *h = page();
     if (h) return h->status();
-    int row = issueTable->selectedRow();
+    int row = tablePage->selectedRow();
     if (row < 0) return -1;
     return tableModel->record(row).field(COL_STATUS).value().toInt();
 }
@@ -457,7 +457,7 @@ int MainWindow::currentStatus()
 void MainWindow::updateView(int id)
 {
     tableModel->select();
-    issueTable->setSelectedId(id);
+    tablePage->setSelectedId(id);
     updatePageById(id);
     updatePagesByRelatedId(id);
     updateCounter();

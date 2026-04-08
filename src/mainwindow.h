@@ -13,8 +13,8 @@ class QTabWidget;
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-class IssueTableWidget;
-class BugHistory;
+class TablePage;
+class HistoryPage;
 namespace Ori {
 class MruFileList;
 }
@@ -53,7 +53,7 @@ private:
     QString currentFile;
     QTabWidget *issueTabs;
     QSqlTableModel *tableModel = nullptr;
-    IssueTableWidget *issueTable;
+    TablePage *tablePage;
     Ori::MruFileList *mruList;
 
     void createMenus();
@@ -70,8 +70,8 @@ private:
     int currentId();
     int currentStatus();
     void openHistoryPage(int id);
-    BugHistory* page(int index = -1);
-    BugHistory* pageById(int id);
+    HistoryPage* page(int index = -1);
+    HistoryPage* pageById(int id);
     int indexOfId(int id);
     void issueAdded(int id);
     void issueDeleted(int id);

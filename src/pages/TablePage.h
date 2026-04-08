@@ -1,5 +1,5 @@
-#ifndef ISSUETABLEWIDGET_H
-#define ISSUETABLEWIDGET_H
+#ifndef TABLE_PAGE_H
+#define TABLE_PAGE_H
 
 #include <QWidget>
 #include <QModelIndex>
@@ -18,13 +18,13 @@ class FilterPanel;
 
 //-----------------------------------------------------------------------------------------------
 
-class IssueTableWidget : public QWidget
+class TablePage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit IssueTableWidget(QWidget *parent = 0);
-    ~IssueTableWidget();
+    explicit TablePage(QWidget *parent = 0);
+    ~TablePage();
 
     QMenu* contextMenu = nullptr;
 
@@ -65,4 +65,4 @@ private slots:
     void tableViewContextMenuRequested(const QPoint&);
 };
 
-#endif // ISSUETABLEWIDGET_H
+#endif // TABLE_PAGE_H

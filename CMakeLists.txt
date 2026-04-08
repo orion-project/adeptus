@@ -40,7 +40,6 @@ set(PROJECT_SOURCES
     src/appearance.cpp
     src/browsercommands.cpp
     src/bugeditor.cpp
-    src/bughistory.cpp
     src/bugitemdelegate.cpp
     src/bugmanager.cpp
     src/bugsolver.cpp
@@ -52,10 +51,11 @@ set(PROJECT_SOURCES
     src/db/Relations.cpp
     src/db/Settings.cpp
     src/db/SqlHelpers.cpp
+    src/pages/HistoryPage.cpp
+    src/pages/TablePage.cpp
     src/dicteditor.cpp
     src/filterpanel.cpp
     src/ImageViewWindow.cpp
-    src/issuetable.cpp
     src/issuetextedit.cpp
     src/issuetextview.cpp
     src/main.cpp
