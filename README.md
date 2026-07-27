@@ -24,6 +24,8 @@ A dictionary editor for the “Severity” property and how you can add a new va
 
 ## Build
 
+Prerequisites: [Visual Studio Community](https://visualstudio.microsoft.com/en/vs/community/), [CMake](https://cmake.org/), [vcpkg](https://vcpkg.io/), optionally [Qt Creator](https://github.com/qt-creator/qt-creator).
+
 Clone the repository
 
 ```bash
@@ -39,3 +41,29 @@ git submodule update
 ```
 
 Note, that submodules are in 'detached head' state by default.
+
+Build:
+
+```bash
+# Shared libs build
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DUSE_VCPKG_QT=ON
+
+# Static libs build
+mkdir build_static
+cd build_static
+cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DUSE_VCPKG_QT=ON -DVCPKG_TARGET_TRIPLET=x64-windows-static
+
+# Regenerate adeptus.vcxproj
+# Normally should be done automatically, but can be usefull to run manually 
+# in case of build issues because of configuration mismatch,
+# e.g. when switching between shared and static builds
+cmake -S .. -B .
+
+# Build in debug mode, results will be in build*/Debug
+cmake --build .
+
+# Build in release mode, results will be in build*/Release
+cmake --build . --config Release
+```
